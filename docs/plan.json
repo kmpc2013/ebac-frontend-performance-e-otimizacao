@@ -1,0 +1,234 @@
+{
+  "titulo": "Plano de estudos — Performance e Otimização para a Web (EBAC)",
+  "objetivo": "Medir, diagnosticar e otimizar a performance de um projeto real, comprovando a melhoria com números e documentando tudo no README.",
+  "criterios_de_avaliacao": [
+    "Melhoria mensurável entre o relatório inicial e o final (o que mais pesa)",
+    "Aplicação efetiva das técnicas (imagens, lazy loading, minificação, código morto, libs enxutas)",
+    "Clareza do README ligando cada gargalo -> ação -> resultado",
+    "Organização do projeto e da estrutura de pastas"
+  ],
+  "legenda_status": ["pendente", "em_andamento", "concluido"],
+  "fases": [
+    {
+      "id": 1,
+      "nome": "Fundamentos — entender o que vamos medir",
+      "status": "em_andamento",
+      "aula": "docs/aulas/fase-01-fundamentos.html",
+      "objetivos": [
+        "Entender por que performance é requisito de negócio (conversão, SEO, retenção)",
+        "Conhecer as Core Web Vitals e métricas do Lighthouse"
+      ],
+      "conteudo": [
+        { "topico": "FCP — First Contentful Paint", "meta": "< 1,8 s", "status": "pendente" },
+        { "topico": "LCP — Largest Contentful Paint", "meta": "< 2,5 s", "status": "pendente" },
+        { "topico": "TBT — Total Blocking Time (proxy do INP em laboratório)", "meta": "< 200 ms", "status": "pendente" },
+        { "topico": "CLS — Cumulative Layout Shift", "meta": "< 0,1", "status": "pendente" },
+        { "topico": "Speed Index", "meta": "< 3,4 s", "status": "pendente" },
+        { "topico": "Diferença entre dados de laboratório (Lighthouse) e de campo (CrUX/PageSpeed)", "status": "pendente" }
+      ],
+      "exercicio": "Explicar com suas palavras o que cada métrica mede e qual técnica de otimização afeta cada uma.",
+      "referencias": ["https://web.dev/articles/vitals", "https://developer.chrome.com/docs/lighthouse/performance/performance-scoring"]
+    },
+    {
+      "id": 2,
+      "nome": "Escolha do projeto base",
+      "status": "em_andamento",
+      "objetivos": ["Escolher um projeto que tenha gargalos reais para otimizar"],
+      "aula": "docs/aulas/fase-02-projeto-base.html",
+      "projeto_escolhido": "Next.js 16 — Retro Tech Digest (este repositório)",
+      "observacao": "O projeto é enxuto: SSG, sem imagens, next/font, minificação automática no build. Provavelmente já pontua 95–100, então o ganho no score tende a ser pequeno. A melhoria será comprovada também por métricas finas: peso das fontes, bytes transferidos, nº de requisições e tempo de Paint/Composite na aba Performance. Passos que não se aplicarem devem ser justificados no README.",
+      "checklist": [
+        { "item": "Escolher o projeto base", "status": "concluido" },
+        { "item": "Confirmar que 'npm run build' compila e as rotas são estáticas", "status": "pendente" },
+        { "item": "Revisar .gitignore: a linha 'task.html' também ignora docs/task.html; decidir sobre docs/aulas/", "status": "pendente" },
+        { "item": "git init -b main + commit do estado ORIGINAL", "status": "pendente" },
+        { "item": "Tag anotada 'antes' (git tag -a antes)", "status": "pendente" },
+        { "item": "Criar repositório público no GitHub, push da main e das tags", "status": "pendente" }
+      ],
+      "alvos_de_otimizacao": [
+        { "item": "Reduzir famílias/pesos de fonte em app/layout.tsx (Audiowide, Space Grotesk, Share Tech Mono)", "status": "pendente" },
+        { "item": "Avaliar e reduzir o custo de paint do body::after (feTurbulence + mix-blend-mode) em app/globals.css", "status": "pendente" },
+        { "item": "Trocar transition-all por transições específicas (transform, border-color) em app/components/ListaArtigos.tsx", "status": "pendente" },
+        { "item": "Remover SVGs não usados em public/ (file, globe, next, vercel, window)", "status": "pendente" },
+        { "item": "Corrigir metadata padrão ('Create Next App') e lang='en' -> 'pt-BR' em app/layout.tsx", "status": "pendente" }
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "Medição inicial (baseline)",
+      "status": "pendente",
+      "objetivos": ["Gerar um relatório 'antes' confiável e reproduzível"],
+      "checklist": [
+        { "item": "Medir SEMPRE em build de produção: 'npm run build && npm start' (http://localhost:3000), nunca em 'npm run dev'", "status": "pendente" },
+        { "item": "Medir duas páginas: '/' (home) e '/artigos/[slug]' (um artigo)", "status": "pendente" },
+        { "item": "Usar janela anônima (sem extensões)", "status": "pendente" },
+        { "item": "Lighthouse: modo Navigation, dispositivo Mobile, categoria Performance", "status": "pendente" },
+        { "item": "Rodar 3 vezes e registrar a mediana", "status": "pendente" },
+        { "item": "Anotar na aba Network (Disable cache): peso total transferido e nº de requisições", "status": "pendente" },
+        { "item": "Salvar relatório (HTML/PDF) e prints em docs/relatorios/antes/", "status": "pendente" },
+        { "item": "Opcional: rodar PageSpeed Insights se o site estiver publicado", "status": "pendente" }
+      ],
+      "entregavel": "docs/relatorios/antes/ com relatório + prints + tabela de métricas"
+    },
+    {
+      "id": 4,
+      "nome": "Diagnóstico dos gargalos",
+      "status": "pendente",
+      "objetivos": ["Transformar o relatório em uma lista priorizada de problemas"],
+      "checklist": [
+        { "item": "Ler as seções Opportunities e Diagnostics do Lighthouse", "status": "pendente" },
+        { "item": "Usar a aba Coverage para medir CSS/JS não utilizado", "status": "pendente" },
+        { "item": "Usar a aba Performance para identificar long tasks e custo de paint/layout", "status": "pendente" },
+        { "item": "Para cada gargalo, registrar: recurso afetado, economia estimada, causa", "status": "pendente" },
+        { "item": "Priorizar pelo maior ganho estimado", "status": "pendente" }
+      ],
+      "gargalos_comuns": [
+        "Properly size images / Serve images in next-gen formats",
+        "Defer offscreen images",
+        "Eliminate render-blocking resources",
+        "Reduce unused JavaScript / CSS",
+        "Minify CSS / JavaScript"
+      ],
+      "alvos_neste_projeto": [
+        { "arquivo": "app/layout.tsx", "gargalo": "3 famílias do Google Fonts; Space Grotesk carrega todos os pesos", "como_medir": "Network > filtro Font: nº e peso dos .woff2" },
+        { "arquivo": "app/globals.css", "gargalo": "body::after fixo em tela cheia com feTurbulence + mix-blend-mode: overlay", "como_medir": "Performance: gravar scroll; Rendering > Paint flashing; aba Layers" },
+        { "arquivo": "app/components/ListaArtigos.tsx", "gargalo": "transition-all animando box-shadow no hover", "como_medir": "Performance: gravar hover nos cards e observar Paint" },
+        { "arquivo": "public/*.svg", "gargalo": "5 SVGs sobras do create-next-app, não referenciados", "como_medir": "Grep no código por 'file.svg', 'globe.svg' etc." },
+        { "arquivo": "app/layout.tsx (metadata)", "gargalo": "title 'Create Next App' e lang='en' com conteúdo em pt-BR", "como_medir": "Lighthouse categorias SEO/Acessibilidade" }
+      ],
+      "entregavel": "Rascunho da seção 'Gargalos identificados' do README"
+    },
+    {
+      "id": 5,
+      "nome": "Otimização de imagens",
+      "status": "pendente",
+      "objetivos": ["Reduzir o peso das imagens e melhorar LCP/CLS"],
+      "neste_projeto": {
+        "situacao": "O projeto não tem imagens de conteúdo.",
+        "opcao_didatica": "Adicionar capas aos artigos (campo novo em data/artigos.json + JPGs grandes em public/), medir esse estado como baseline e depois otimizar com next/image (AVIF/WebP, 'sizes', lazy automático). Documentar com transparência no README que as imagens foram introduzidas para o exercício.",
+        "atencao_next_16": "A prop 'priority' do next/image foi descontinuada no Next 16. Na imagem do LCP use loading='eager' ou fetchPriority='high' (ver node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md).",
+        "alternativa": "Se não for adicionar imagens, registrar no README 'não se aplica' com a justificativa."
+      },
+      "checklist": [
+        { "item": "Converter para WebP ou AVIF (Squoosh, sharp, cwebp)", "status": "pendente" },
+        { "item": "Redimensionar para o tamanho real de exibição (usar srcset/sizes se responsivo)", "status": "pendente" },
+        { "item": "Aplicar loading='lazy' apenas em imagens abaixo da dobra", "status": "pendente" },
+        { "item": "NÃO usar lazy na imagem do LCP; usar fetchpriority='high' nela", "status": "pendente" },
+        { "item": "Definir width/height ou aspect-ratio para evitar CLS", "status": "pendente" },
+        { "item": "Registrar tamanho antes/depois de cada imagem", "status": "pendente" }
+      ],
+      "metricas_afetadas": ["LCP", "Speed Index", "CLS", "peso total"]
+    },
+    {
+      "id": 6,
+      "nome": "Minificação de HTML, CSS e JS",
+      "status": "pendente",
+      "objetivos": ["Reduzir bytes trafegados de texto"],
+      "neste_projeto": "O 'next build' já minifica HTML, CSS e JS. A tarefa vira PROVAR isso: comparar o tamanho dos chunks JS/CSS em 'npm run dev' x 'npm start' (aba Network) e mostrar o header content-encoding.",
+      "checklist": [
+        { "item": "Verificar se o bundler já minifica (Vite/Next fazem no build)", "status": "pendente" },
+        { "item": "Se não houver bundler: terser (JS), cssnano ou lightningcss (CSS), html-minifier-terser (HTML)", "status": "pendente" },
+        { "item": "Comparar tamanho dos arquivos antes/depois", "status": "pendente" },
+        { "item": "Confirmar compressão gzip/brotli no servidor (header content-encoding)", "status": "pendente" }
+      ],
+      "metricas_afetadas": ["FCP", "peso total"]
+    },
+    {
+      "id": 7,
+      "nome": "Remoção de código morto",
+      "status": "pendente",
+      "objetivos": ["Eliminar imports, funções, estilos e arquivos não utilizados"],
+      "checklist": [
+        { "item": "Rodar ESLint para encontrar imports/variáveis sem uso", "status": "pendente" },
+        { "item": "Usar a aba Coverage para achar CSS/JS não executado", "status": "pendente" },
+        { "item": "Remover arquivos de assets não referenciados", "status": "pendente" },
+        { "item": "Testar o site depois de cada remoção", "status": "pendente" }
+      ],
+      "metricas_afetadas": ["TBT", "FCP", "peso total"]
+    },
+    {
+      "id": 8,
+      "nome": "Substituição de bibliotecas pesadas",
+      "status": "pendente",
+      "objetivos": ["Trocar dependências grandes por alternativas enxutas ou nativas"],
+      "neste_projeto": "As únicas dependências de runtime são next, react e react-dom. Registrar 'não se aplica' com a justificativa, ou tratar as fontes web como a 'dependência pesada' (trocar por fontes do sistema ou manter só 1 família).",
+      "exemplos": [
+        "jQuery -> JavaScript nativo (querySelector, fetch, classList)",
+        "Moment.js -> Intl.DateTimeFormat ou date-fns",
+        "Lodash completo -> import pontual ou código nativo",
+        "Bootstrap completo -> apenas módulos usados",
+        "Font Awesome completo -> SVGs dos ícones usados"
+      ],
+      "checklist": [
+        { "item": "Listar dependências e medir o peso em bundlephobia.com", "status": "pendente" },
+        { "item": "Substituir as que tiverem alternativa mais leve", "status": "pendente" },
+        { "item": "Se não houver lib pesada, justificar no README que este passo não se aplicou", "status": "pendente" }
+      ],
+      "metricas_afetadas": ["TBT", "FCP", "peso total"]
+    },
+    {
+      "id": 9,
+      "nome": "Otimizações bônus (opcional, mas valorizadas)",
+      "status": "pendente",
+      "checklist": [
+        { "item": "defer/async em scripts", "status": "pendente" },
+        { "item": "preconnect para domínios externos", "status": "pendente" },
+        { "item": "Fontes: font-display: swap e menos pesos/famílias", "status": "pendente" },
+        { "item": "Animar apenas transform/opacity (evitar transition-all e box-shadow animado)", "status": "pendente" }
+      ]
+    },
+    {
+      "id": 10,
+      "nome": "Medição final e comparação",
+      "status": "pendente",
+      "objetivos": ["Provar a melhoria com números nas mesmas condições do baseline"],
+      "checklist": [
+        { "item": "Repetir exatamente as condições da fase 3 (produção, anônimo, mobile, 3 execuções)", "status": "pendente" },
+        { "item": "Salvar relatório e prints em docs/relatorios/depois/", "status": "pendente" },
+        { "item": "Montar tabela antes x depois: Score, FCP, LCP, TBT, CLS, Speed Index, peso, requisições", "status": "pendente" },
+        { "item": "Identificar quais mudanças tiveram maior impacto (ideal: medir entre cada otimização)", "status": "pendente" }
+      ]
+    },
+    {
+      "id": 11,
+      "nome": "Documentação (README.md)",
+      "status": "pendente",
+      "estrutura_sugerida": [
+        "Descrição do projeto e stack",
+        "Metodologia de medição",
+        "Gargalos identificados (com evidências)",
+        "Melhorias aplicadas (o quê, por quê, onde)",
+        "Comparativo antes x depois (tabela + prints)",
+        "Conclusão: maiores impactos e próximos passos"
+      ],
+      "checklist": [
+        { "item": "Escrever cada seção", "status": "pendente" },
+        { "item": "Linkar os relatórios de docs/relatorios/", "status": "pendente" },
+        { "item": "Revisar clareza: alguém de fora entende o que foi feito e por quê?", "status": "pendente" }
+      ]
+    },
+    {
+      "id": 12,
+      "nome": "Entrega",
+      "status": "pendente",
+      "checklist": [
+        { "item": "Repositório público no GitHub com código otimizado", "status": "pendente" },
+        { "item": "Relatórios 'antes' e 'depois' (PDF ou imagens) no repositório", "status": "pendente" },
+        { "item": "README.md com comparativo documentado", "status": "pendente" },
+        { "item": "Enviar o link na plataforma EBAC", "status": "pendente" }
+      ]
+    }
+  ],
+  "estrutura_de_pastas_sugerida": {
+    "docs/relatorios/antes/": "relatório Lighthouse + prints do baseline",
+    "docs/relatorios/depois/": "relatório Lighthouse + prints finais",
+    "README.md": "documentação completa"
+  },
+  "armadilhas_comuns": [
+    "Medir em modo dev em vez de build de produção",
+    "Comparar medições feitas em condições diferentes",
+    "Usar loading='lazy' na imagem principal (piora o LCP)",
+    "Confiar em uma única execução do Lighthouse",
+    "Escolher um projeto já otimizado, sem margem de melhoria"
+  ]
+}

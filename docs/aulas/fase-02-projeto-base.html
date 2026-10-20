@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 2 — Projeto base</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.danger { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+
+  /* steps */
+  .steps { counter-reset: step; display: grid; gap: 4px; }
+  .step { position: relative; padding-left: 48px; }
+  .step::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 18px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 14px var(--mono); }
+  .step::after { content: ""; position: absolute; left: 15px; top: 54px; bottom: -14px; width: 2px; background: var(--border); }
+  .step:last-child::after { display: none; }
+
+  /* tree */
+  .tree { font: 14px/1.7 var(--mono); background: var(--surface-2); border-radius: 10px; padding: 14px 18px; overflow-x: auto; white-space: pre; }
+  .tree .new { color: var(--good); font-weight: 700; }
+  .tree .note { color: var(--muted); }
+  .tree .ign { color: var(--muted); text-decoration: line-through; }
+
+  /* gitignore diff */
+  .diff { font: 14px/1.7 var(--mono); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .diff div { padding: 0 14px; white-space: pre; }
+  .diff .ctx { color: var(--muted); }
+  .diff .del { background: color-mix(in srgb, var(--bad) 16%, transparent); }
+  .diff .add { background: color-mix(in srgb, var(--good) 16%, transparent); }
+
+  /* targets */
+  .targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .target { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+  .target h4 { margin: 0; font-size: 15px; }
+  .target .file { font: 12px var(--mono); color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 600 11px/1 var(--mono); padding: 4px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
+  .chip.m { background: var(--accent-soft); color: var(--accent); }
+
+  /* expectations meter */
+  .expect { display: grid; gap: 10px; }
+  .expect-row { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: center; font-size: 14px; }
+  .meter { height: 14px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+  .meter span { display: block; height: 100%; border-radius: 99px; }
+  @media (max-width: 560px) { .expect-row { grid-template-columns: 1fr; gap: 4px; } }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .scroll-x { overflow-x: auto; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 2 de 12 · Performance e Otimização para a Web</div>
+  <h1>Projeto base: preparar o terreno antes de medir</h1>
+  <p class="lead">Escolhemos o projeto. Agora vamos congelar o estado original no git para que o “antes” exista de verdade e possa ser medido de novo quando quisermos.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#onde">1. Onde estamos</a>
+    <a href="#porque">2. Por que versionar antes</a>
+    <a href="#gitignore">3. Revisar o .gitignore</a>
+    <a href="#passos">4. Passo a passo</a>
+    <a href="#pastas">5. Estrutura de pastas</a>
+    <a href="#commits">6. Estratégia de commits</a>
+    <a href="#alvos">7. Os alvos</a>
+    <a href="#exercicio">8. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="onde">
+  <h2>1. Onde estamos</h2>
+  <p>O projeto escolhido é este <strong>Next.js 16 (Retro Tech Digest)</strong>. Um profissional experiente define as expectativas <em>antes</em> de começar, para não se frustrar nem prometer o que não pode entregar. A escala abaixo é uma previsão do quanto cada tipo de evidência vai mudar entre o “antes” e o “depois”:</p>
+  <div class="card expect">
+    <div class="expect-row"><span>Score do Lighthouse</span><div class="meter"><span style="width:15%;background:var(--ok)"></span></div></div>
+    <div class="expect-row"><span>Bytes de fonte (KB)</span><div class="meter"><span style="width:70%;background:var(--good)"></span></div></div>
+    <div class="expect-row"><span>Nº de requisições</span><div class="meter"><span style="width:45%;background:var(--good)"></span></div></div>
+    <div class="expect-row"><span>Paint/Composite (aba Performance)</span><div class="meter"><span style="width:75%;background:var(--good)"></span></div></div>
+    <div class="expect-row"><span>SEO / Acessibilidade</span><div class="meter"><span style="width:40%;background:var(--good)"></span></div></div>
+    <div class="caption">Previsão didática, não medição. O projeto já é enxuto, então o score deve mudar pouco. A prova da melhoria vai estar nos números finos, e por isso eles precisam ser registrados desde o início.</div>
+  </div>
+  <div class="callout">Lembre do enunciado: <em>“Não é obrigatório atingir uma pontuação específica no Lighthouse — o que é avaliado é o progresso relevante e documentado.”</em> Nossa estratégia é exatamente essa.</div>
+</section>
+
+<!-- 2 -->
+<section id="porque">
+  <h2>2. Por que versionar <em>antes</em> de mexer</h2>
+  <p>A pasta do projeto <strong>ainda não é um repositório git</strong>. Se você começar a otimizar agora, o estado original some e o relatório “antes” passa a ser só um print, sem como reproduzir. Com uma <strong>tag</strong> no commit inicial, você pode voltar a ele a qualquer momento:</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  A["📁 Projeto atual"] --> B["git commit<br/>estado original"]
+  B --> T(["🏷️ tag antes"])
+  T --> C["Otimizações<br/>commit a commit"]
+  C --> D(["🏷️ tag depois"])
+  T -. "git switch --detach antes<br/>build + medir de novo" .-> M["📊 Comparação justa<br/>mesma máquina, mesmo dia"]
+  D -.-> M
+  style T fill:#e8a200,color:#000,stroke:#e8a200
+  style D fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+  <div class="callout warn"><strong>Dica de quem já errou muito:</strong> o Lighthouse muda com a máquina, o navegador, a bateria e até as abas abertas. Se você mediu o “antes” na segunda e o “depois” na sexta, a comparação já não é justa. Com a tag <code>antes</code>, na fase 10 dá para medir <strong>os dois estados na mesma sessão</strong>. Isso deixa o comparativo muito mais confiável.</div>
+</section>
+
+<!-- 3 -->
+<section id="gitignore">
+  <h2>3. Revisar o <code>.gitignore</code> antes do primeiro commit</h2>
+  <p>O primeiro commit é o que mais faz gente subir lixo para o GitHub. Conferi o <code>.gitignore</code> deste projeto:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Item</th><th>Situação</th><th>Por que importa</th></tr></thead>
+      <tbody>
+        <tr><td><code>/node_modules</code></td><td>✅ ignorado</td><td>Centenas de MB; é recriado com <code>npm install</code>.</td></tr>
+        <tr><td><code>/.next/</code></td><td>✅ ignorado</td><td>Saída do build; é recriada com <code>npm run build</code>.</td></tr>
+        <tr><td><code>.env*</code></td><td>✅ ignorado</td><td>Segredos nunca vão para um repositório público.</td></tr>
+        <tr><td><code>package-lock.json</code></td><td>✅ será versionado</td><td>Garante <strong>as mesmas versões</strong> das dependências no “antes” e no “depois”. Sem ele, a comparação perde valor.</td></tr>
+        <tr><td><code>task.html</code></td><td>⚠️ ignorado em qualquer pasta</td><td>Veja abaixo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A última linha do <code>.gitignore</code> é <code>task.html</code>. Uma regra <strong>sem barra no início</strong> vale para <strong>qualquer pasta</strong>, então ela também ignora <code>docs/task.html</code>. Você tem duas opções:</p>
+  <div class="diff" aria-label="Opções de ajuste na última linha do .gitignore">
+    <div class="ctx"># opção A: versionar o enunciado junto (recomendado, documenta o contexto)</div>
+    <div class="del">- task.html</div>
+    <div class="ctx">&nbsp;</div>
+    <div class="ctx"># opção B: ignorar só um task.html que esteja na raiz</div>
+    <div class="del">- task.html</div>
+    <div class="add">+ /task.html</div>
+  </div>
+  <p class="caption">Essa alteração é sua: o <code>.gitignore</code> fica fora de <code>docs/</code>.</p>
+  <p>Também decida se <strong><code>docs/aulas/</code></strong> vai para o repositório público. É material de estudo, e o avaliador não precisa dele. Se preferir deixar de fora, adicione <code>/docs/aulas/</code> ao <code>.gitignore</code>.</p>
+</section>
+
+<!-- 4 -->
+<section id="passos">
+  <h2>4. Passo a passo</h2>
+  <p>Rode os comandos na raiz do projeto. O <code>git</code> e o <code>gh</code> (GitHub CLI) já estão instalados na sua máquina.</p>
+
+  <div class="steps">
+    <div class="step card">
+      <h3 style="margin-top:0">Confirmar que o projeto compila</h3>
+      <p>Não faz sentido congelar um “antes” que não builda. A fase 3 vai medir exatamente este build.</p>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npm install
+<span class="p">$ </span>npm run build</pre></div>
+      <p class="caption">Ao final, o Next lista as rotas. Confira se <code>/</code>, <code>/artigos</code> e <code>/artigos/[slug]</code> aparecem como <strong>estáticas</strong> (○ ou ●). Anote essa saída, porque ela vai para o README.</p>
+    </div>
+
+    <div class="step card">
+      <h3 style="margin-top:0">Iniciar o repositório e revisar o que vai entrar</h3>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git init -b main
+<span class="p">$ </span>git status</pre></div>
+      <p class="caption">Leia o <code>git status</code> com calma. <code>node_modules</code> e <code>.next</code> <strong>não</strong> podem aparecer. Se aparecerem, pare e revise o <code>.gitignore</code>.</p>
+    </div>
+
+    <div class="step card">
+      <h3 style="margin-top:0">Commit do estado original + tag <code>antes</code></h3>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git add .
+<span class="p">$ </span>git commit -m "chore: estado original do projeto (baseline de performance)"
+<span class="p">$ </span>git tag -a antes -m "Estado original, antes das otimizações"</pre></div>
+      <p class="caption">A opção <code>-a</code> cria uma <strong>tag anotada</strong>, que guarda autor, data e mensagem. É a recomendada para marcos importantes.</p>
+    </div>
+
+    <div class="step card">
+      <h3 style="margin-top:0">Criar o repositório público no GitHub e enviar</h3>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="c"># confirme que está logado (se não estiver: gh auth login)</span>
+<span class="p">$ </span>gh auth status
+
+<span class="c"># cria o repo público, liga o remote "origin" e faz o push da main</span>
+<span class="p">$ </span>gh repo create ebac-frontend-performance --public --source=. --remote=origin --push
+
+<span class="c"># tags não sobem com o push normal, é preciso enviar explicitamente</span>
+<span class="p">$ </span>git push origin --tags</pre></div>
+      <p class="caption">Prefere o site? Crie o repositório vazio em github.com/new (sem README, sem .gitignore) e rode <code>git remote add origin &lt;url&gt;</code>, <code>git push -u origin main</code> e <code>git push origin --tags</code>.</p>
+    </div>
+
+    <div class="step card">
+      <h3 style="margin-top:0">Conferir</h3>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git log --oneline --decorate
+<span class="p">$ </span>git tag -n</pre></div>
+      <p class="caption">Saída esperada: um commit com <code>(HEAD -&gt; main, tag: antes, origin/main)</code>. No GitHub, a aba <em>Tags</em> deve mostrar <code>antes</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="pastas">
+  <h2>5. Estrutura de pastas da entrega</h2>
+  <p>A organização é um dos critérios de avaliação. Esta é a estrutura que vamos construir ao longo das fases (em <span style="color:var(--good);font-weight:700">verde</span> o que é novo):</p>
+  <div class="tree">ebac-frontend-performance/
+├── app/                      <span class="note"># código (você otimiza aqui)</span>
+├── data/
+├── lib/
+├── public/                   <span class="note"># SVGs mortos saem na fase 7</span>
+├── <span class="new">docs/</span>
+│   ├── task.html             <span class="note"># enunciado</span>
+│   ├── plan.json             <span class="note"># plano de estudos</span>
+│   ├── aulas/                <span class="note"># material de estudo (opcional no repo)</span>
+│   └── <span class="new">relatorios/</span>
+│       ├── <span class="new">antes/</span>            <span class="note"># fase 3: relatório + prints do baseline</span>
+│       └── <span class="new">depois/</span>           <span class="note"># fase 10: relatório + prints finais</span>
+├── <span class="ign">node_modules/</span>             <span class="note"># ignorado</span>
+├── <span class="ign">.next/</span>                    <span class="note"># ignorado</span>
+├── package.json
+├── package-lock.json
+└── README.md                 <span class="note"># reescrito na fase 11</span></div>
+  <div class="callout warn">O git <strong>não versiona pastas vazias</strong>. Se quiser subir <code>docs/relatorios/antes/</code> e <code>depois/</code> já agora, coloque um arquivo vazio <code>.gitkeep</code> em cada uma. Ou crie as pastas só quando houver relatórios para guardar, na fase 3.</div>
+</section>
+
+<!-- 6 -->
+<section id="commits">
+  <h2>6. Estratégia de commits: uma otimização por commit</h2>
+  <p>A fase 9 do enunciado pede para <em>“identificar quais mudanças trouxeram maior impacto”</em>. Se tudo entrar num commit só, você não consegue separar o efeito de cada mudança. Com <strong>um commit por otimização</strong>, cada ponto do histórico pode ser medido:</p>
+  <div class="card">
+    <pre class="mermaid">
+gitGraph
+  commit id: "estado original" tag: "antes"
+  commit id: "perf fontes"
+  commit id: "perf body after"
+  commit id: "perf transicoes"
+  commit id: "chore remove SVGs"
+  commit id: "fix metadata e lang"
+  commit id: "docs README" tag: "depois"
+    </pre>
+    <div class="caption">Histórico ideal. Depois de cada commit <code>perf</code>, uma medição rápida mostra quanto aquela mudança rendeu.</div>
+  </div>
+  <p>Use o padrão <strong>Conventional Commits</strong> nas mensagens. Recrutadores e avaliadores leem o histórico:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Prefixo</th><th>Quando usar</th><th>Exemplo</th></tr></thead>
+      <tbody>
+        <tr><td><code>perf:</code></td><td>Mudança cujo objetivo é performance</td><td><code>perf: limita pesos da Space Grotesk a 400 e 700</code></td></tr>
+        <tr><td><code>chore:</code></td><td>Manutenção sem efeito no comportamento</td><td><code>chore: remove SVGs não utilizados de public/</code></td></tr>
+        <tr><td><code>fix:</code></td><td>Correção de algo errado</td><td><code>fix: define lang pt-BR e metadata do site</code></td></tr>
+        <tr><td><code>docs:</code></td><td>Só documentação</td><td><code>docs: adiciona comparativo antes/depois ao README</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="alvos">
+  <h2>7. Os alvos que já conhecemos</h2>
+  <p>Ainda não vamos mexer neles; isso é das fases 4 em diante. Mas é bom saber desde já <em>o que</em> vamos procurar no relatório da fase 3:</p>
+  <div class="targets">
+    <div class="target">
+      <span class="file">app/layout.tsx</span>
+      <h4>3 famílias do Google Fonts</h4>
+      <p class="caption" style="margin:0">Audiowide, Space Grotesk (todos os pesos) e Share Tech Mono.</p>
+      <div class="chips"><span class="chip m">LCP</span><span class="chip m">FCP</span><span class="chip m">CLS</span><span class="chip">KB</span></div>
+    </div>
+    <div class="target">
+      <span class="file">app/globals.css</span>
+      <h4><code>body::after</code> com ruído SVG</h4>
+      <p class="caption" style="margin:0"><code>feTurbulence</code> + <code>mix-blend-mode</code> fixo em tela cheia.</p>
+      <div class="chips"><span class="chip">Paint</span><span class="chip">Composite</span><span class="chip">aba Performance</span></div>
+    </div>
+    <div class="target">
+      <span class="file">app/components/ListaArtigos.tsx</span>
+      <h4><code>transition-all</code> nos cards</h4>
+      <p class="caption" style="margin:0">Anima até o <code>box-shadow</code> no hover.</p>
+      <div class="chips"><span class="chip">Paint</span><span class="chip">aba Performance</span></div>
+    </div>
+    <div class="target">
+      <span class="file">public/*.svg</span>
+      <h4>5 SVGs não usados</h4>
+      <p class="caption" style="margin:0">Sobras do create-next-app; nada no código os referencia.</p>
+      <div class="chips"><span class="chip">código morto</span></div>
+    </div>
+    <div class="target">
+      <span class="file">app/layout.tsx (metadata)</span>
+      <h4>“Create Next App” e <code>lang="en"</code></h4>
+      <p class="caption" style="margin:0">O conteúdo está em pt-BR.</p>
+      <div class="chips"><span class="chip">SEO</span><span class="chip">Acessibilidade</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="exercicio">
+  <h2>8. ✍️ Tarefa da fase 2</h2>
+  <p>Esta fase é prática. Marque os itens conforme avança (as marcações ficam salvas só neste navegador):</p>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="build"><span><code>npm run build</code> rodou sem erros e as rotas aparecem como estáticas</span></label></li>
+      <li><label><input type="checkbox" data-k="gitignore"><span>Decidi o que fazer com a linha <code>task.html</code> do <code>.gitignore</code> (e com <code>docs/aulas/</code>)</span></label></li>
+      <li><label><input type="checkbox" data-k="init"><span><code>git init -b main</code> + <code>git status</code> sem <code>node_modules</code>/<code>.next</code></span></label></li>
+      <li><label><input type="checkbox" data-k="commit"><span>Commit do estado original</span></label></li>
+      <li><label><input type="checkbox" data-k="tag"><span>Tag anotada <code>antes</code></span></label></li>
+      <li><label><input type="checkbox" data-k="repo"><span>Repositório público criado e <code>main</code> enviada</span></label></li>
+      <li><label><input type="checkbox" data-k="tags"><span><code>git push origin --tags</code> e a tag aparece no GitHub</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A saída de <code>git log --oneline --decorate</code> e de <code>git tag -n</code>.</li>
+    <li>O link do repositório.</li>
+    <li>O que você decidiu sobre o <code>.gitignore</code>, e por quê.</li>
+    <li><strong>Pergunta conceitual:</strong> por que medir o “antes” e o “depois” na mesma sessão deixa a comparação mais confiável do que usar o print do primeiro dia?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://git-scm.com/book/pt-br/v2/Fundamentos-de-Git-Criando-Tags">Pro Git — Criando tags</a> ·
+  <a href="https://www.conventionalcommits.org/pt-br/v1.0.0/">Conventional Commits</a> ·
+  <a href="https://cli.github.com/manual/gh_repo_create">gh repo create</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  // Botão "copiar" dos terminais: copia só os comandos, sem prompt nem comentários
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var lines = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); });
+      var text = lines.join('\n');
+      var done = function () { btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
+
+  // Checklist com memória local (só conveniência; funciona sem ela)
+  (function () {
+    var KEY = 'ebac-perf-fase2';
+    var state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    });
+  })();
+</script>
+</body>
+</html>

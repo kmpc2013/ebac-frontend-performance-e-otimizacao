@@ -1,0 +1,64 @@
+{
+  "artigos": [
+    {
+      "titulo": "Como a IA está transformando a infraestrutura de TI",
+      "autor": "Mariana Costa",
+      "data_publicacao": "2026-01-15",
+      "conteudo": "Empresas de tecnologia têm adotado inteligência artificial para automatizar tarefas de monitoramento, previsão de falhas e otimização de recursos em data centers. Ferramentas de observabilidade agora conseguem correlacionar métricas, logs e traces automaticamente, reduzindo o tempo de resposta a incidentes."
+    },
+    {
+      "titulo": "Kubernetes: por que tantas empresas estão migrando",
+      "autor": "Rafael Souza",
+      "data_publicacao": "2026-02-03",
+      "conteudo": "A orquestração de containers se tornou padrão de mercado para aplicações distribuídas. O artigo explora os principais motivos da adoção: escalabilidade automática, resiliência a falhas e portabilidade entre provedores de nuvem."
+    },
+    {
+      "titulo": "O papel do Grafana Loki na centralização de logs",
+      "autor": "Beatriz Lima",
+      "data_publicacao": "2026-02-20",
+      "conteudo": "Diferente de soluções tradicionais que indexam todo o conteúdo do log, o Loki indexa apenas metadados, reduzindo drasticamente o custo de armazenamento. O texto detalha casos de uso em ambientes híbridos com Docker e Kubernetes."
+    },
+    {
+      "titulo": "Segurança em redes definidas por software (SDN)",
+      "autor": "Carlos Eduardo Pinto",
+      "data_publicacao": "2026-03-11",
+      "conteudo": "Com o crescimento de ambientes virtualizados, soluções como NSX ganham espaço ao permitir microsegmentação e políticas de firewall aplicadas diretamente na camada de rede virtual, independente da topologia física."
+    },
+    {
+      "titulo": "Next.js 15: o que mudou na renderização híbrida",
+      "autor": "Juliana Ferreira",
+      "data_publicacao": "2026-03-28",
+      "conteudo": "A nova versão do framework aprimora o modelo de Server Components, reduzindo o tempo de carregamento inicial em aplicações complexas. O artigo compara benchmarks antes e depois da atualização."
+    },
+    {
+      "titulo": "VMware Cloud Director: gestão multi-tenant na prática",
+      "autor": "Eduardo Martins",
+      "data_publicacao": "2026-04-09",
+      "conteudo": "Provedores de serviço que atendem múltiplos clientes enfrentam desafios de isolamento e governança de recursos. O texto apresenta boas práticas de organização de VDCs e políticas de alocação de recursos computacionais."
+    },
+    {
+      "titulo": "Automação de infraestrutura com Terraform",
+      "autor": "Patrícia Alves",
+      "data_publicacao": "2026-04-22",
+      "conteudo": "Infraestrutura como código tornou-se essencial para times de operações que precisam versionar e reproduzir ambientes. O artigo aborda módulos reutilizáveis e integração com pipelines de CI/CD."
+    },
+    {
+      "titulo": "Observabilidade: métricas, logs e traces em um só lugar",
+      "autor": "Fernando Ribeiro",
+      "data_publicacao": "2026-05-05",
+      "conteudo": "A convergência dos três pilares da observabilidade permite diagnósticos mais rápidos. O texto explica como ferramentas como Prometheus, Loki e Tempo se complementam dentro do ecossistema Grafana."
+    },
+    {
+      "titulo": "Angular vs React: decisão técnica ou cultural?",
+      "autor": "Camila Rodrigues",
+      "data_publicacao": "2026-05-19",
+      "conteudo": "Além das diferenças técnicas entre os frameworks, a escolha muitas vezes reflete a cultura da equipe de desenvolvimento — times que preferem convenção optam por Angular, enquanto times que valorizam flexibilidade tendem ao React."
+    },
+    {
+      "titulo": "ClearPass e o controle de acesso à rede corporativa",
+      "autor": "Lucas Andrade",
+      "data_publicacao": "2026-06-02",
+      "conteudo": "Soluções de NAC (Network Access Control) como o ClearPass permitem autenticação granular de dispositivos antes de liberar acesso à rede, reduzindo riscos associados a equipamentos não gerenciados ou comprometidos."
+    }
+  ]
+}

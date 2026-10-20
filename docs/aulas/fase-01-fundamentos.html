@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 1 — Fundamentos</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --block: repeating-linear-gradient(45deg, #d93025 0 6px, #ef6b62 6px 12px);
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312;
+      --surface: #1d1c1a;
+      --surface-2: #262522;
+      --text: #ece9e3;
+      --muted: #a39d92;
+      --border: #34322e;
+      --accent: #9d92ff;
+      --accent-soft: #2a2645;
+      --good: #34c47c;
+      --ok: #f2b93b;
+      --bad: #f2685f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+
+  /* metric cards */
+  .metric { display: grid; gap: 4px; }
+  .metric-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .metric-head h3 { margin: 0; }
+  .tag { font: 600 11px/1 var(--mono); padding: 4px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+  .question { font-style: italic; color: var(--muted); }
+
+  /* threshold bars */
+  .thresh { margin: 12px 0 4px; }
+  .thresh-bar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; }
+  .thresh-bar span:nth-child(1) { background: var(--good); }
+  .thresh-bar span:nth-child(2) { background: var(--ok); }
+  .thresh-bar span:nth-child(3) { background: var(--bad); }
+  .thresh-labels { display: flex; font: 12px/1.4 var(--mono); color: var(--muted); margin-top: 4px; }
+  .thresh-labels span { flex: 1; }
+  .thresh-labels span:nth-child(2) { text-align: center; }
+  .thresh-labels span:nth-child(3) { text-align: right; }
+
+  /* filmstrip */
+  .film { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .frame { display: grid; gap: 6px; text-align: center; font: 12px var(--mono); color: var(--muted); }
+  .phone { aspect-ratio: 9 / 16; border: 2px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 8%; display: flex; flex-direction: column; gap: 6%; position: relative; }
+  .phone.mark-fcp { border-color: var(--ok); }
+  .phone.mark-lcp { border-color: var(--good); }
+  .ph-line { height: 6%; border-radius: 3px; background: var(--muted); opacity: .55; }
+  .ph-line.short { width: 60%; }
+  .ph-hero { flex: 0 0 34%; border-radius: 4px; background: linear-gradient(135deg, var(--accent), var(--good)); }
+  .ph-hero.loading { background: var(--border); }
+  .ph-card { flex: 0 0 14%; border-radius: 4px; border: 1px solid var(--muted); opacity: .6; }
+  .frame b { color: var(--text); }
+  .flag { font: 700 11px var(--mono); }
+  .flag.fcp { color: var(--ok); }
+  .flag.lcp { color: var(--good); }
+  @media (max-width: 560px) {
+    .film { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* main thread */
+  .thread { display: flex; align-items: stretch; height: 54px; gap: 3px; background: var(--surface-2); border-radius: 8px; padding: 6px; overflow: hidden; }
+  .task { display: flex; border-radius: 4px; overflow: hidden; min-width: 0; }
+  .task .ok { background: var(--accent); opacity: .75; }
+  .task .blk { background: var(--block); }
+  .gap { flex-shrink: 0; }
+  .thread-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+  .tasks-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+  .tasks-table td, .tasks-table th { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+  .tasks-table td:not(:first-child), .tasks-table th:not(:first-child) { text-align: right; font-family: var(--mono); }
+  .tasks-table tfoot td { font-weight: 700; border-bottom: 0; }
+
+  /* CLS demo */
+  .cls-stage { border: 1px dashed var(--border); border-radius: 10px; padding: 16px; background: var(--surface-2); min-height: 230px; }
+  .cls-ad { background: linear-gradient(90deg, var(--ok), var(--bad)); color: #fff; font-weight: 700; border-radius: 6px; display: grid; place-items: center; height: 90px; margin-bottom: 12px; }
+  .cls-slot { height: 90px; margin-bottom: 12px; border: 2px dashed var(--muted); border-radius: 6px; display: grid; place-items: center; font-size: 13px; color: var(--muted); }
+  .cls-content p { margin: 0 0 10px; }
+  .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; font-size: 14px; }
+  .cls-result { font: 13px var(--mono); margin-top: 10px; min-height: 1.5em; }
+
+  /* weights */
+  .weights { display: flex; height: 48px; border-radius: 10px; overflow: hidden; }
+  .weights div { display: grid; place-items: center; color: #fff; font: 700 13px var(--mono); text-align: center; line-height: 1.2; padding: 0 4px; }
+  .w-tbt { flex: 30; background: #5b4bdb; }
+  .w-lcp { flex: 25; background: #0f9d58; }
+  .w-cls { flex: 25; background: #c2185b; }
+  .w-fcp { flex: 10; background: #8d8676; }
+  .w-si  { flex: 10; background: #a69f8f; }
+
+  /* score simulator */
+  .sim { display: grid; gap: 14px; }
+  .sim label { display: grid; grid-template-columns: 120px 1fr 64px; gap: 10px; align-items: center; font-size: 14px; }
+  .sim input[type=range] { width: 100%; accent-color: var(--accent); }
+  .sim output { font: 13px var(--mono); text-align: right; }
+  .score-out { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .gauge { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font: 700 26px var(--mono); }
+  @media (max-width: 560px) { .sim label { grid-template-columns: 90px 1fr 56px; } }
+
+  /* tables */
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.c { text-align: center; }
+  .yes { color: var(--good); font-weight: 700; }
+  .warn-mark { color: var(--ok); font-weight: 700; }
+  .scroll-x { overflow-x: auto; }
+
+  ol.ex li { margin: 10px 0; }
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 1 de 12 · Performance e Otimização para a Web</div>
+  <h1>Fundamentos: o que vamos medir</h1>
+  <p class="lead">Antes de otimizar qualquer coisa, entenda o que cada número do Lighthouse diz sobre a experiência do usuário.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#porque">1. Por que importa</a>
+    <a href="#linha">2. Linha do tempo</a>
+    <a href="#metricas">3. Métricas</a>
+    <a href="#score">4. O score</a>
+    <a href="#lab">5. Lab × campo</a>
+    <a href="#mapa">6. Técnica → métrica</a>
+    <a href="#projeto">7. Nosso projeto</a>
+    <a href="#exercicio">8. Exercício</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="porque">
+  <h2>1. Por que isso importa</h2>
+  <p><strong>O usuário não mede a performance em milissegundos, mede em sensações.</strong> Ele faz três perguntas, sempre nesta ordem, e cada métrica do Lighthouse responde a uma delas:</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  U(["👤 Usuário"]) --> Q1["① Está acontecendo<br/>alguma coisa?"]
+  U --> Q2["② Já dá para usar?"]
+  U --> Q3["③ Está respondendo?<br/>Está estável?"]
+  Q1 --> FCP["FCP"]
+  Q1 --> SI["Speed Index"]
+  Q2 --> LCP["LCP ⭐"]
+  Q3 --> TBT["TBT (≈ INP ⭐)"]
+  Q3 --> CLS["CLS ⭐"]
+    </pre>
+    <div class="caption">⭐ = Core Web Vital, as métricas que o Google usa no ranking de busca.</div>
+  </div>
+  <div class="callout">Performance é requisito de negócio: a taxa de abandono sobe muito à medida que o carregamento passa de 1 s para 3 s, e as Core Web Vitals afetam a posição no Google. Página lenta perde usuário, conversão e busca orgânica.</div>
+</section>
+
+<!-- 2 -->
+<section id="linha">
+  <h2>2. A linha do tempo de um carregamento</h2>
+  <p>Todas as métricas são <em>marcos</em> ou <em>intervalos</em> dentro desta sequência. Guarde este desenho, porque as próximas fases voltam a ele:</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  A["🌐 Requisição"] --> B["📄 HTML chega<br/>(TTFB)"]
+  B --> C["🎨 CSS e JS<br/>bloqueantes"]
+  C --> D(["FCP<br/>1º texto/imagem"])
+  D --> E["🔤 Fontes e<br/>🖼️ imagem hero"]
+  E --> F(["LCP<br/>maior elemento"])
+  F --> G["⚙️ JS executa<br/>(hidratação)"]
+  G --> H(["Página<br/>interativa"])
+  D -. "tarefas longas aqui<br/>somam TBT" .-> H
+  style D fill:#f2b93b,color:#000,stroke:#f2b93b
+  style F fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style H fill:#5b4bdb,color:#fff,stroke:#5b4bdb
+    </pre>
+  </div>
+  <p>Veja como isso aparece na prática, quadro a quadro (é parecido com a faixa de miniaturas que o Lighthouse mostra no relatório):</p>
+  <div class="card">
+    <div class="film" role="img" aria-label="Seis quadros de carregamento: tela vazia em 0 e 0,5 segundo, primeiro texto em 1 segundo (FCP), imagem carregando em 1,5 segundo, imagem principal em 2,2 segundos (LCP) e página completa em 3 segundos.">
+      <div class="frame"><div class="phone"></div><span>0,0 s</span></div>
+      <div class="frame"><div class="phone"></div><span>0,5 s</span></div>
+      <div class="frame"><div class="phone mark-fcp"><div class="ph-line short"></div></div><span><b>1,0 s</b><br><span class="flag fcp">FCP</span></span></div>
+      <div class="frame"><div class="phone"><div class="ph-line short"></div><div class="ph-hero loading"></div><div class="ph-line"></div></div><span>1,5 s</span></div>
+      <div class="frame"><div class="phone mark-lcp"><div class="ph-line short"></div><div class="ph-hero"></div><div class="ph-line"></div></div><span><b>2,2 s</b><br><span class="flag lcp">LCP</span></span></div>
+      <div class="frame"><div class="phone"><div class="ph-line short"></div><div class="ph-hero"></div><div class="ph-line"></div><div class="ph-card"></div><div class="ph-card"></div></div><span>3,0 s</span></div>
+    </div>
+    <div class="caption">O FCP acontece quando o primeiro texto aparece; o LCP, quando o maior elemento da tela (aqui, a imagem hero) termina de renderizar.</div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="metricas">
+  <h2>3. As cinco métricas</h2>
+
+  <div class="card metric">
+    <div class="metric-head"><h3>FCP: First Contentful Paint</h3><span class="tag">peso 10%</span></div>
+    <div class="question">“Está acontecendo alguma coisa?”</div>
+    <p>É o momento em que <strong>o primeiro texto ou imagem</strong> aparece na tela. Fundo colorido não conta.</p>
+    <div class="thresh"><div class="thresh-bar"><span style="flex:1.8"></span><span style="flex:1.2"></span><span style="flex:1.5"></span></div>
+      <div class="thresh-labels"><span>bom &lt; 1,8 s</span><span>1,8–3,0 s</span><span>ruim &gt; 3,0 s</span></div></div>
+    <p><strong>O que piora:</strong> CSS e JS no <code>&lt;head&gt;</code> bloqueando a renderização, servidor lento (TTFB alto), fonte segurando o texto invisível.</p>
+  </div>
+
+  <div class="card metric">
+    <div class="metric-head"><h3>LCP: Largest Contentful Paint ⭐</h3><span class="tag">peso 25%</span></div>
+    <div class="question">“Já dá para usar?”</div>
+    <p>É o momento em que <strong>o maior elemento visível da primeira tela</strong> termina de renderizar (imagem hero, banner ou título grande). <strong>Analogia:</strong> o FCP é o garçom trazer o pão; o LCP é o prato principal chegar.</p>
+    <div class="thresh"><div class="thresh-bar"><span style="flex:2.5"></span><span style="flex:1.5"></span><span style="flex:2"></span></div>
+      <div class="thresh-labels"><span>bom &lt; 2,5 s</span><span>2,5–4,0 s</span><span>ruim &gt; 4,0 s</span></div></div>
+    <p><strong>O que piora:</strong> imagem principal pesada ou com <code>loading="lazy"</code>, fonte web lenta, renderização bloqueada.</p>
+  </div>
+
+  <div class="card metric">
+    <div class="metric-head"><h3>TBT: Total Blocking Time (substituto do INP ⭐)</h3><span class="tag">peso 30%</span></div>
+    <div class="question">“Está respondendo?”</div>
+    <p>O navegador tem <strong>uma única thread principal</strong> para rodar JS, calcular layout e pintar. Toda tarefa que passa de <strong>50 ms</strong> trava a página, e o que passa desse limite é o tempo de bloqueio. O TBT soma esses excessos entre o FCP e o momento em que a página fica interativa.</p>
+    <div class="thread" role="img" aria-label="Thread principal com cinco tarefas: 30, 120, 40, 250 e 80 milissegundos. As partes acima de 50 milissegundos estão em vermelho.">
+      <div class="task" style="flex:30"><span class="ok" style="flex:30"></span></div>
+      <div class="gap" style="width:8px"></div>
+      <div class="task" style="flex:120"><span class="ok" style="flex:50"></span><span class="blk" style="flex:70"></span></div>
+      <div class="gap" style="width:8px"></div>
+      <div class="task" style="flex:40"><span class="ok" style="flex:40"></span></div>
+      <div class="gap" style="width:8px"></div>
+      <div class="task" style="flex:250"><span class="ok" style="flex:50"></span><span class="blk" style="flex:200"></span></div>
+      <div class="gap" style="width:8px"></div>
+      <div class="task" style="flex:80"><span class="ok" style="flex:50"></span><span class="blk" style="flex:30"></span></div>
+    </div>
+    <div class="thread-legend">
+      <span><i class="sw" style="background:var(--accent);opacity:.75"></i>primeiros 50 ms (tolerado)</span>
+      <span><i class="sw" style="background:var(--block)"></i>tempo bloqueando (conta no TBT)</span>
+    </div>
+    <table class="tasks-table">
+      <thead><tr><th>Tarefa</th><th>Duração</th><th>Bloqueio (− 50 ms)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>30 ms</td><td>0 ms</td></tr>
+        <tr><td>2</td><td>120 ms</td><td>70 ms</td></tr>
+        <tr><td>3</td><td>40 ms</td><td>0 ms</td></tr>
+        <tr><td>4</td><td>250 ms</td><td>200 ms</td></tr>
+        <tr><td>5</td><td>80 ms</td><td>30 ms</td></tr>
+      </tbody>
+      <tfoot><tr><td>TBT</td><td></td><td>300 ms</td></tr></tfoot>
+    </table>
+    <div class="thresh"><div class="thresh-bar"><span style="flex:2"></span><span style="flex:4"></span><span style="flex:3"></span></div>
+      <div class="thresh-labels"><span>bom &lt; 200 ms</span><span>200–600 ms</span><span>ruim &gt; 600 ms</span></div></div>
+    <div class="callout warn">A Core Web Vital oficial é o <strong>INP (Interaction to Next Paint)</strong>, que mede a resposta a cliques reais. O Lighthouse não clica em nada, então usa o <strong>TBT como substituto em laboratório</strong>: menos tarefas longas = resposta mais rápida aos cliques.</div>
+  </div>
+
+  <div class="card metric">
+    <div class="metric-head"><h3>CLS: Cumulative Layout Shift ⭐</h3><span class="tag">peso 25%</span></div>
+    <div class="question">“A página para quieta?”</div>
+    <p>Mede <strong>o quanto o layout “pula”</strong> sem ação do usuário. É uma pontuação sem unidade (não são segundos). Experimente:</p>
+    <div class="controls">
+      <button class="btn primary" id="cls-run" type="button">▶ Simular carregamento do anúncio</button>
+      <label><input type="checkbox" id="cls-reserve"> Reservar espaço antes (a correção)</label>
+    </div>
+    <div class="cls-stage" id="cls-stage" aria-live="polite">
+      <div id="cls-top"></div>
+      <div class="cls-content">
+        <p><strong>Notícia:</strong> Kubernetes, por que tantas empresas estão migrando.</p>
+        <button class="btn" type="button" id="cls-target">Ler artigo completo</button>
+      </div>
+    </div>
+    <div class="cls-result" id="cls-result">Repare onde o botão “Ler artigo completo” está antes de clicar.</div>
+    <div class="thresh"><div class="thresh-bar"><span style="flex:1"></span><span style="flex:1.5"></span><span style="flex:2"></span></div>
+      <div class="thresh-labels"><span>bom &lt; 0,1</span><span>0,1–0,25</span><span>ruim &gt; 0,25</span></div></div>
+    <p><strong>O que piora:</strong> imagens sem <code>width</code>/<code>height</code>, troca de fonte que muda o tamanho do texto, conteúdo injetado acima do que já está visível.</p>
+  </div>
+
+  <div class="card metric">
+    <div class="metric-head"><h3>Speed Index</h3><span class="tag">peso 10%</span></div>
+    <div class="question">“Com que rapidez a tela foi sendo preenchida?”</div>
+    <p>O Lighthouse grava o carregamento (como a faixa de quadros da seção 2) e mede <strong>com que rapidez o conteúdo visual aparece</strong>. Duas páginas podem ter o mesmo LCP, mas a que mostra conteúdo aos poucos tem Speed Index melhor que a que fica em branco e aparece de uma vez.</p>
+    <div class="thresh"><div class="thresh-bar"><span style="flex:3.4"></span><span style="flex:2.4"></span><span style="flex:2.5"></span></div>
+      <div class="thresh-labels"><span>bom &lt; 3,4 s</span><span>3,4–5,8 s</span><span>ruim &gt; 5,8 s</span></div></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="score">
+  <h2>4. Como o score de 0 a 100 é calculado</h2>
+  <p>O score de Performance é uma <strong>média ponderada</strong> das cinco métricas:</p>
+  <div class="weights" role="img" aria-label="Pesos: TBT 30%, LCP 25%, CLS 25%, FCP 10%, Speed Index 10%">
+    <div class="w-tbt">TBT<br>30%</div><div class="w-lcp">LCP<br>25%</div><div class="w-cls">CLS<br>25%</div><div class="w-fcp">FCP<br>10%</div><div class="w-si">SI<br>10%</div>
+  </div>
+  <div class="callout"><strong>Lição prática:</strong> TBT, LCP e CLS valem <strong>80%</strong> da nota. Se o tempo é curto, ataque esses três primeiro. Ganhar 200 ms no FCP quase não muda o score.</div>
+
+  <h3>Simulador</h3>
+  <p>Mova os controles e veja o efeito no score. É uma <em>aproximação didática</em> da curva do Lighthouse, que usa uma distribuição log-normal por métrica, mas os pesos e os limites são os reais.</p>
+  <div class="card sim" id="sim">
+    <label>FCP <input type="range" min="0.5" max="6" step="0.1" value="1.6" data-m="fcp"><output></output></label>
+    <label>Speed Index <input type="range" min="0.5" max="10" step="0.1" value="2.8" data-m="si"><output></output></label>
+    <label>LCP <input type="range" min="0.5" max="8" step="0.1" value="2.2" data-m="lcp"><output></output></label>
+    <label>TBT <input type="range" min="0" max="1500" step="10" value="120" data-m="tbt"><output></output></label>
+    <label>CLS <input type="range" min="0" max="0.6" step="0.01" value="0.05" data-m="cls"><output></output></label>
+    <div class="score-out">
+      <div class="gauge" id="gauge">–</div>
+      <div id="score-text" class="caption" style="margin:0"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="lab">
+  <h2>5. Dados de laboratório e dados de campo</h2>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TB
+  subgraph LAB["🧪 Laboratório (o que usamos)"]
+    L1["Lighthouse / aba Performance"] --> L2["1 execução simulada<br/>na sua máquina"]
+    L2 --> L3["Celular intermediário + 4G lenta<br/>(throttling)"]
+    L3 --> L4["✅ Reproduzível, bom para depurar<br/>⚠️ Não é o usuário real"]
+  end
+  subgraph CAMPO["🌍 Campo"]
+    C1["PageSpeed Insights (topo) / CrUX"] --> C2["Usuários reais do Chrome<br/>últimos 28 dias"]
+    C2 --> C3["✅ Experiência real, inclui INP<br/>⚠️ Exige tráfego"]
+  end
+    </pre>
+  </div>
+  <p>Na atividade usamos <strong>dados de laboratório</strong>, e por isso:</p>
+  <ul>
+    <li>as <strong>condições têm que ser idênticas</strong> entre o “antes” e o “depois” (build de produção, aba anônima, Mobile);</li>
+    <li>rodamos <strong>3 vezes</strong> e usamos a <strong>mediana</strong>, porque o resultado oscila de 5 a 10 pontos entre execuções;</li>
+    <li>a nota <strong>Mobile</strong> sai pior que a Desktop de propósito, por causa do throttling.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section id="mapa">
+  <h2>6. Mapa: técnica → métrica</h2>
+  <p>Este é o elo entre esta aula e as próximas fases do plano. Cada técnica que você vai aplicar mexe em métricas específicas:</p>
+  <div class="card scroll-x">
+    <table class="grid">
+      <thead><tr><th>Técnica (fase do plano)</th><th>FCP</th><th>LCP</th><th>TBT</th><th>CLS</th><th>Peso</th></tr></thead>
+      <tbody>
+        <tr><td>Imagens WebP/AVIF e redimensionadas (5)</td><td></td><td class="c yes">✔</td><td></td><td></td><td class="c yes">✔</td></tr>
+        <tr><td><code>loading="lazy"</code> abaixo da dobra (5)</td><td></td><td class="c warn-mark">✔*</td><td></td><td></td><td class="c yes">✔</td></tr>
+        <tr><td><code>width</code>/<code>height</code> nas imagens (5)</td><td></td><td></td><td></td><td class="c yes">✔</td><td></td></tr>
+        <tr><td>Minificação e compressão (6)</td><td class="c yes">✔</td><td class="c yes">✔</td><td></td><td></td><td class="c yes">✔</td></tr>
+        <tr><td>Remover código morto (7)</td><td class="c yes">✔</td><td></td><td class="c yes">✔</td><td></td><td class="c yes">✔</td></tr>
+        <tr><td>Trocar libs pesadas (8)</td><td class="c yes">✔</td><td></td><td class="c yes">✔</td><td></td><td class="c yes">✔</td></tr>
+        <tr><td>Menos fontes / <code>font-display</code> (9)</td><td class="c yes">✔</td><td class="c yes">✔</td><td></td><td class="c yes">✔</td><td class="c yes">✔</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">* Ajuda o LCP ao liberar banda para a imagem principal, mas <strong>atrapalha</strong> se for aplicado na própria imagem do LCP.</div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="projeto">
+  <h2>7. Aplicando ao nosso projeto</h2>
+  <p>Um profissional experiente <strong>prevê antes de medir</strong>. Depois compara a previsão com o relatório; é assim que se treina o olho. Estas são as nossas hipóteses para o Retro Tech Digest:</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  subgraph CODE["📁 Código"]
+    LY["app/layout.tsx<br/>3 fontes via next/font"]
+    PG["app/page.tsx<br/>Server Component estático"]
+    GC["app/globals.css<br/>body::after com feTurbulence"]
+    LA["ListaArtigos.tsx<br/>transition-all + box-shadow"]
+  end
+  LY -->|"título 'Home' em Audiowide"| LCP(["LCP"])
+  LY -->|"troca de fonte"| CLS(["CLS"])
+  PG -->|"pouco JS no cliente"| TBT(["TBT baixo ✅"])
+  GC -->|"custo de pintura ao rolar"| PERF["Aba Performance<br/>(fora do score)"]
+  LA -->|"repaint no hover"| PERF
+  style PERF fill:#f2b93b,color:#000,stroke:#f2b93b
+    </pre>
+  </div>
+  <ul>
+    <li><strong>LCP da home:</strong> sem imagens, deve ser um <strong>bloco de texto</strong>, o título “Home” ou o primeiro card. Texto depende de fonte, então as fontes de <code>app/layout.tsx</code> influenciam o LCP.</li>
+    <li><strong>TBT:</strong> deve ser baixo, porque as páginas são Server Components estáticas e mandam pouco JS ao navegador.</li>
+    <li><strong>CLS:</strong> pode vir da troca de fontes. O <code>next/font</code> já reduz isso com uma fonte reserva ajustada de tamanho, mas vale verificar.</li>
+    <li><strong><code>body::after</code></strong> é custo de <strong>pintura e composição</strong>, que não entra direto no score. Só a <strong>aba Performance</strong> mostra esse custo, e é por isso que o enunciado cita as duas ferramentas.</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section id="exercicio">
+  <h2>8. ✍️ Exercício</h2>
+  <p>Responda com suas palavras, sem consultar o texto acima, e mande no chat para correção:</p>
+  <div class="card">
+    <ol class="ex">
+      <li>Qual é a diferença entre o <strong>FCP</strong> e o <strong>LCP</strong>? Dê um exemplo de página em que os dois ficariam muito distantes.</li>
+      <li>Por que colocar <code>loading="lazy"</code> na imagem principal do topo <strong>piora</strong> o LCP?</li>
+      <li>O Lighthouse não mede o INP. Qual métrica ele usa no lugar, e por quê?</li>
+      <li>Se você só tivesse tempo para melhorar <strong>uma</strong> métrica, qual escolheria para subir o score? Justifique com os pesos.</li>
+      <li>Por que precisamos rodar o Lighthouse <strong>3 vezes</strong> e comparar sempre nas <strong>mesmas condições</strong>?</li>
+      <li><strong>Desafio:</strong> na home deste projeto, qual elemento você acha que será o LCP? O que no código pode atrasá-lo?</li>
+    </ol>
+  </div>
+  <p class="caption">Mande as respostas no chat; a correção será adicionada a esta página.</p>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://web.dev/articles/vitals">web.dev — Web Vitals</a> ·
+  <a href="https://developer.chrome.com/docs/lighthouse/performance/performance-scoring">Lighthouse — Performance scoring</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  // Mermaid acompanha o tema claro/escuro do sistema
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  // Demo de CLS
+  (function () {
+    var top = document.getElementById('cls-top');
+    var run = document.getElementById('cls-run');
+    var reserve = document.getElementById('cls-reserve');
+    var result = document.getElementById('cls-result');
+    var target = document.getElementById('cls-target');
+    var timer;
+
+    function reset() {
+      clearTimeout(timer);
+      top.innerHTML = reserve.checked ? '<div class="cls-slot">espaço reservado (90px)</div>' : '';
+    }
+
+    run.addEventListener('click', function () {
+      reset();
+      var before = target.getBoundingClientRect().top;
+      result.textContent = 'Carregando anúncio…';
+      timer = setTimeout(function () {
+        top.innerHTML = '<div class="cls-ad">ANÚNCIO 300×90</div>';
+        var shift = Math.round(target.getBoundingClientRect().top - before);
+        result.textContent = shift > 0
+          ? '❌ O botão foi empurrado ' + shift + 'px para baixo. Isso é layout shift; o usuário pode clicar no lugar errado.'
+          : '✅ Nada se moveu. O espaço já estava reservado, então o CLS ficou em 0.';
+      }, 900);
+    });
+    reserve.addEventListener('change', function () { reset(); result.textContent = 'Clique em “Simular” novamente.'; });
+    target.addEventListener('click', function () { result.textContent = 'Você clicou em “Ler artigo completo”.'; });
+  })();
+
+  // Simulador de score (aproximação didática da curva do Lighthouse)
+  (function () {
+    // [p10 (score 0,9), mediana (score 0,5)] por métrica — valores mobile do Lighthouse
+    var curves = {
+      fcp: { p10: 1.8, median: 3.0, w: 0.10, fmt: function (v) { return v.toFixed(1) + ' s'; } },
+      si:  { p10: 3.4, median: 5.8, w: 0.10, fmt: function (v) { return v.toFixed(1) + ' s'; } },
+      lcp: { p10: 2.5, median: 4.0, w: 0.25, fmt: function (v) { return v.toFixed(1) + ' s'; } },
+      tbt: { p10: 200, median: 600, w: 0.30, fmt: function (v) { return Math.round(v) + ' ms'; } },
+      cls: { p10: 0.1, median: 0.25, w: 0.25, fmt: function (v) { return v.toFixed(2); } }
+    };
+    // Aproximação log-normal: score = 1 - Φ(ln(x/median) / σ), com σ ajustado para que p10 -> 0,9
+    function erf(x) {
+      var s = x < 0 ? -1 : 1; x = Math.abs(x);
+      var t = 1 / (1 + 0.3275911 * x);
+      var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+      return s * y;
+    }
+    function metricScore(c, x) {
+      if (x <= 0) return 1;
+      var sigma = Math.log(c.median / c.p10) / 1.2816;
+      var z = Math.log(x / c.median) / sigma;
+      return 1 - 0.5 * (1 + erf(z / Math.SQRT2));
+    }
+    var inputs = document.querySelectorAll('#sim input');
+    var gauge = document.getElementById('gauge');
+    var text = document.getElementById('score-text');
+    function update() {
+      var total = 0, parts = [];
+      inputs.forEach(function (inp) {
+        var c = curves[inp.dataset.m], v = parseFloat(inp.value);
+        inp.nextElementSibling.textContent = c.fmt(v);
+        var s = metricScore(c, v);
+        total += s * c.w;
+        parts.push(inp.dataset.m.toUpperCase() + ' ' + Math.round(s * 100));
+      });
+      var score = Math.round(total * 100);
+      var color = score >= 90 ? 'var(--good)' : score >= 50 ? 'var(--ok)' : 'var(--bad)';
+      gauge.textContent = score;
+      gauge.style.border = '6px solid ' + color;
+      gauge.style.color = color;
+      text.textContent = 'Nota de cada métrica (0–100): ' + parts.join(' · ');
+    }
+    inputs.forEach(function (i) { i.addEventListener('input', update); });
+    update();
+  })();
+</script>
+</body>
+</html>
