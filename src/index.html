@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!--
+    Fonte legível da página. NÃO edite o index.html da raiz: ele é gerado por
+    `npm run build` (CSS do Tailwind minificado + HTML minificado).
+    Os caminhos (src/output.css, assets/...) são relativos à raiz do projeto,
+    onde o index.html final é publicado.
+-->
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="src/output.css">
+    <title>Pet&Style</title>
+</head>
+<body class="bg-white text-slate-800">
+    <header class="sticky top-0 z-10 bg-white shadow-sm">
+        <nav class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4">
+            <a href="#" class="flex items-center gap-2 font-bold text-2xl text-orange-500">
+                <img src="assets/logo-72.webp" alt="Logo da Pet&Style" width="36" height="36">
+                Pet&amp;Style
+            </a>
+            <ul class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm sm:text-base font-medium">
+                <li><a href="#inicio" class="hover:text-orange-500">Início</a></li>
+                <li><a href="#produtos" class="hover:text-orange-500">Produtos</a></li>
+                <li><a href="#depoimentos" class="hover:text-orange-500">Depoimentos</a></li>
+                <li><a href="#contato" class="hover:text-orange-500">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="bg-orange-50">
+            <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 px-4 py-16 md:py-24">
+                <div class="flex-1 text-center md:text-left">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-slate-900">
+                        Estilo e conforto para o seu <span class="text-orange-500">melhor amigo</span>
+                    </h1>
+                    <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-md mx-auto md:mx-0">
+                        Camas, brinquedos e acessórios pensados para deixar o seu pet ainda mais feliz e estiloso.
+                    </p>
+                    <a href="#produtos" class="inline-block mt-8 rounded-full bg-orange-500 px-8 py-3 font-semibold text-white hover:bg-orange-600 transition-colors">
+                        Ver produtos
+                    </a>
+                </div>
+                <div class="flex-1 w-full">
+                    <picture>
+                        <source type="image/avif" srcset="assets/produtos/hero-480.avif 480w, assets/produtos/hero-800.avif 800w, assets/produtos/hero-1080.avif 1080w" sizes="(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)">
+                        <img src="assets/produtos/hero-800.webp" srcset="assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, assets/produtos/hero-1080.webp 1080w" sizes="(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)" width="1080" height="720" fetchpriority="high" alt="Cães estilosos usando acessórios Pet&Style" class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg">
+                    </picture>
+                </div>
+            </div>
+        </section>
+
+        <section id="produtos" class="px-4 py-16">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center text-slate-900">Nossos produtos</h2>
+                <p class="mt-2 text-center text-slate-600">Selecionados com carinho para o dia a dia do seu pet.</p>
+
+                <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/caminha-400.avif 400w, assets/produtos/caminha-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/caminha-400.webp" srcset="assets/produtos/caminha-400.webp 400w, assets/produtos/caminha-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Caminha acolchoada para pets" class="w-full h-48 object-cover">
+                        </picture>
+                        <div class="flex flex-col flex-1 gap-2 p-5">
+                            <h3 class="font-semibold text-lg text-slate-900">Caminha Aconchego</h3>
+                            <p class="text-sm text-slate-600 flex-1">Caminha macia e resistente, perfeita para noites tranquilas.</p>
+                            <span class="font-bold text-orange-500">R$ 149,90</span>
+                        </div>
+                    </article>
+
+                    <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/brinquedo-400.avif 400w, assets/produtos/brinquedo-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/brinquedo-400.webp" srcset="assets/produtos/brinquedo-400.webp 400w, assets/produtos/brinquedo-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Brinquedo para pets" class="w-full h-48 object-cover">
+                        </picture>
+                        <div class="flex flex-col flex-1 gap-2 p-5">
+                            <h3 class="font-semibold text-lg text-slate-900">Bolinha Divertida</h3>
+                            <p class="text-sm text-slate-600 flex-1">Brinquedo resistente para brincadeiras sem fim no quintal.</p>
+                            <span class="font-bold text-orange-500">R$ 39,90</span>
+                        </div>
+                    </article>
+
+                    <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/coleira-400.avif 400w, assets/produtos/coleira-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/coleira-400.webp" srcset="assets/produtos/coleira-400.webp 400w, assets/produtos/coleira-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Coleira estilosa para pets" class="w-full h-48 object-cover">
+                        </picture>
+                        <div class="flex flex-col flex-1 gap-2 p-5">
+                            <h3 class="font-semibold text-lg text-slate-900">Coleira Chic</h3>
+                            <p class="text-sm text-slate-600 flex-1">Coleira ajustável com acabamento premium e muito estilo.</p>
+                            <span class="font-bold text-orange-500">R$ 69,90</span>
+                        </div>
+                    </article>
+
+                    <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/roupinha-400.avif 400w, assets/produtos/roupinha-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/roupinha-400.webp" srcset="assets/produtos/roupinha-400.webp 400w, assets/produtos/roupinha-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Roupinha para pets" class="w-full h-48 object-cover">
+                        </picture>
+                        <div class="flex flex-col flex-1 gap-2 p-5">
+                            <h3 class="font-semibold text-lg text-slate-900">Suéter Fofura</h3>
+                            <p class="text-sm text-slate-600 flex-1">Roupinha quentinha para os dias mais frios com muito charme.</p>
+                            <span class="font-bold text-orange-500">R$ 89,90</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="depoimentos" class="bg-slate-50 px-4 py-16">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center text-slate-900">O que dizem nossos clientes</h2>
+
+                <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <blockquote class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+                        <p class="text-slate-600 italic">"A caminha da Pet&Style virou o lugar favorito do meu cachorro. Qualidade excelente!"</p>
+                        <footer class="mt-4 font-semibold text-slate-900">— Mariana Alves</footer>
+                    </blockquote>
+                    <blockquote class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+                        <p class="text-slate-600 italic">"Comprei a coleira e os brinquedos, chegaram rápido e com ótimo acabamento."</p>
+                        <footer class="mt-4 font-semibold text-slate-900">— Rafael Souza</footer>
+                    </blockquote>
+                    <blockquote class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+                        <p class="text-slate-600 italic">"Atendimento nota 10 e meu gato amou o suéter novo. Recomendo muito!"</p>
+                        <footer class="mt-4 font-semibold text-slate-900">— Camila Ribeiro</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </section>
+
+        <section id="contato" class="px-4 py-16">
+            <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-center gap-12">
+                <div class="flex-1 max-w-md">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Fale conosco</h2>
+                    <p class="mt-2 text-slate-600">Dúvidas, sugestões ou parcerias? Estamos por aqui.</p>
+                    <ul class="mt-6 space-y-3 text-slate-700">
+                        <li class="flex items-center gap-2">
+                            <span class="font-semibold">E-mail:</span> contato@petstyle.com.br
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="font-semibold">Telefone:</span> (11) 99999-0000
+                        </li>
+                    </ul>
+                </div>
+
+                <form class="flex-1 max-w-md flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="nome" class="text-sm font-medium text-slate-700">Nome</label>
+                        <input id="nome" name="nome" type="text" placeholder="Seu nome" class="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="email" class="text-sm font-medium text-slate-700">E-mail</label>
+                        <input id="email" name="email" type="email" placeholder="seu@email.com" class="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="mensagem" class="text-sm font-medium text-slate-700">Mensagem</label>
+                        <textarea id="mensagem" name="mensagem" rows="4" placeholder="Como podemos ajudar?" class="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
+                    </div>
+                    <button type="submit" class="rounded-full bg-orange-500 px-8 py-3 font-semibold text-white hover:bg-orange-600 transition-colors">
+                        Enviar mensagem
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-300 text-center py-6 px-4">
+        <p>&copy; 2026 Pet&amp;Style. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

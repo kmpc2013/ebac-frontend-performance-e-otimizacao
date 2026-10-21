@@ -1,1 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+
+/* Só o HTML da página gera classes. Sem isso, a detecção automática do Tailwind v4
+   varreria a pasta inteira (inclusive docs/aulas) e colocaria classes extras no CSS. */
+@source "./index.html";
