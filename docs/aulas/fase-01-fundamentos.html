@@ -395,29 +395,32 @@ flowchart TB
 <!-- 7 -->
 <section id="projeto">
   <h2>7. Aplicando ao nosso projeto</h2>
-  <p>Um profissional experiente <strong>prevê antes de medir</strong>. Depois compara a previsão com o relatório; é assim que se treina o olho. Estas são as nossas hipóteses para o Retro Tech Digest:</p>
+  <p>Um profissional experiente <strong>prevê antes de medir</strong>. Depois compara a previsão com o relatório; é assim que se treina o olho. Estas são as nossas hipóteses para o <strong>Pet&amp;Style</strong>, uma landing page em HTML + Tailwind, sem JavaScript:</p>
   <div class="card">
     <pre class="mermaid">
 flowchart LR
   subgraph CODE["📁 Código"]
-    LY["app/layout.tsx<br/>3 fontes via next/font"]
-    PG["app/page.tsx<br/>Server Component estático"]
-    GC["app/globals.css<br/>body::after com feTurbulence"]
-    LA["ListaArtigos.tsx<br/>transition-all + box-shadow"]
+    HE["hero.jpg<br/>1200×1800 · 160 KB"]
+    PR["4 fotos de produto<br/>~290 KB · sem lazy"]
+    CS["src/output.css<br/>bloqueante · sem minificar"]
+    JS["Nenhum JavaScript"]
+    FT["Fontes do sistema"]
   end
-  LY -->|"título 'Home' em Audiowide"| LCP(["LCP"])
-  LY -->|"troca de fonte"| CLS(["CLS"])
-  PG -->|"pouco JS no cliente"| TBT(["TBT baixo ✅"])
-  GC -->|"custo de pintura ao rolar"| PERF["Aba Performance<br/>(fora do score)"]
-  LA -->|"repaint no hover"| PERF
-  style PERF fill:#f2b93b,color:#000,stroke:#f2b93b
+  HE -->|"maior elemento da 1ª tela"| LCP(["LCP"])
+  PR -->|"disputam banda com o hero"| LCP
+  CS -->|"bloqueia a 1ª pintura"| FCP(["FCP"])
+  JS -->|"nada travando a thread"| TBT(["TBT ≈ 0 ✅"])
+  FT -->|"zero downloads de fonte"| FCP
+  style LCP fill:#d93025,color:#fff,stroke:#d93025
+  style TBT fill:#0f9d58,color:#fff,stroke:#0f9d58
     </pre>
   </div>
   <ul>
-    <li><strong>LCP da home:</strong> sem imagens, deve ser um <strong>bloco de texto</strong>, o título “Home” ou o primeiro card. Texto depende de fonte, então as fontes de <code>app/layout.tsx</code> influenciam o LCP.</li>
-    <li><strong>TBT:</strong> deve ser baixo, porque as páginas são Server Components estáticas e mandam pouco JS ao navegador.</li>
-    <li><strong>CLS:</strong> pode vir da troca de fontes. O <code>next/font</code> já reduz isso com uma fonte reserva ajustada de tamanho, mas vale verificar.</li>
-    <li><strong><code>body::after</code></strong> é custo de <strong>pintura e composição</strong>, que não entra direto no score. Só a <strong>aba Performance</strong> mostra esse custo, e é por isso que o enunciado cita as duas ferramentas.</li>
+    <li><strong>LCP:</strong> deve ser a foto do <strong>hero</strong>, a maior coisa visível no topo. Ela tem 1200×1800 px e 160 KB, mas aparece com no máximo ~540×384. Por isso o LCP é o nosso alvo principal.</li>
+    <li><strong>As fotos dos produtos</strong> ficam abaixo da dobra, mas, sem <code>loading="lazy"</code>, são baixadas logo no início e <strong>disputam a rede com o hero</strong>.</li>
+    <li><strong>TBT:</strong> deve ficar perto de zero. A página não tem nenhum JavaScript.</li>
+    <li><strong>CLS:</strong> provavelmente baixo. As imagens têm altura fixa via CSS (<code>h-64</code>, <code>h-48</code>), então o espaço já está reservado antes da foto chegar. Vamos conferir.</li>
+    <li><strong>FCP:</strong> depende do <code>output.css</code>, que bloqueia a renderização. Ele é pequeno, e as fontes do sistema não exigem nenhum download. Deve ser bom.</li>
   </ul>
 </section>
 

@@ -1,6 +1,13 @@
 {
   "titulo": "Plano de estudos — Performance e Otimização para a Web (EBAC)",
   "objetivo": "Medir, diagnosticar e otimizar a performance de um projeto real, comprovando a melhoria com números e documentando tudo no README.",
+  "projeto": {
+    "nome": "Pet&Style — landing page de produtos para pets",
+    "origem": "Copiado de ../ebac-frontend-introducao-ao-tailwind-css",
+    "stack": "HTML estático + Tailwind CSS v4.3 (CSS gerado pela CLI em src/output.css), sem JavaScript, fontes do sistema",
+    "arquivos": ["index.html", "src/input.css", "src/output.css", "assets/logo.png", "assets/produtos/*.jpg"],
+    "historico": "O projeto base foi trocado em 2026-10-20. O commit inicial e a tag 'antes' já enviados ao GitHub apontam para o projeto Next.js anterior; a tag precisa ser movida para o commit do Pet&Style (ver aula 2)."
+  },
   "criterios_de_avaliacao": [
     "Melhoria mensurável entre o relatório inicial e o final (o que mais pesa)",
     "Aplicação efetiva das técnicas (imagens, lazy loading, minificação, código morto, libs enxutas)",
@@ -26,110 +33,99 @@
         { "topico": "Speed Index", "meta": "< 3,4 s", "status": "pendente" },
         { "topico": "Diferença entre dados de laboratório (Lighthouse) e de campo (CrUX/PageSpeed)", "status": "pendente" }
       ],
-      "exercicio": "Explicar com suas palavras o que cada métrica mede e qual técnica de otimização afeta cada uma.",
+      "exercicio": "Responder as 6 perguntas da seção 8 da aula.",
       "referencias": ["https://web.dev/articles/vitals", "https://developer.chrome.com/docs/lighthouse/performance/performance-scoring"]
     },
     {
       "id": 2,
-      "nome": "Escolha do projeto base",
+      "nome": "Projeto base e repositório",
       "status": "em_andamento",
-      "objetivos": ["Escolher um projeto que tenha gargalos reais para otimizar"],
       "aula": "docs/aulas/fase-02-projeto-base.html",
-      "projeto_escolhido": "Next.js 16 — Retro Tech Digest (este repositório)",
-      "observacao": "O projeto é enxuto: SSG, sem imagens, next/font, minificação automática no build. Provavelmente já pontua 95–100, então o ganho no score tende a ser pequeno. A melhoria será comprovada também por métricas finas: peso das fontes, bytes transferidos, nº de requisições e tempo de Paint/Composite na aba Performance. Passos que não se aplicarem devem ser justificados no README.",
+      "objetivos": ["Congelar o estado original do Pet&Style no git com a tag 'antes'"],
+      "observacao": "Projeto com margem real de melhoria: ~457 KB de JPGs superdimensionados (o hero tem 1200x1800 e aparece com no máximo ~540x384), nenhuma imagem com lazy loading, CSS e HTML sem minificação. O score do Lighthouse deve subir de forma visível.",
       "checklist": [
-        { "item": "Escolher o projeto base", "status": "concluido" },
-        { "item": "Confirmar que 'npm run build' compila e as rotas são estáticas", "status": "pendente" },
-        { "item": "Revisar .gitignore: a linha 'task.html' também ignora docs/task.html; decidir sobre docs/aulas/", "status": "pendente" },
-        { "item": "git init -b main + commit do estado ORIGINAL", "status": "pendente" },
-        { "item": "Tag anotada 'antes' (git tag -a antes)", "status": "pendente" },
-        { "item": "Criar repositório público no GitHub, push da main e das tags", "status": "pendente" }
-      ],
-      "alvos_de_otimizacao": [
-        { "item": "Reduzir famílias/pesos de fonte em app/layout.tsx (Audiowide, Space Grotesk, Share Tech Mono)", "status": "pendente" },
-        { "item": "Avaliar e reduzir o custo de paint do body::after (feTurbulence + mix-blend-mode) em app/globals.css", "status": "pendente" },
-        { "item": "Trocar transition-all por transições específicas (transform, border-color) em app/components/ListaArtigos.tsx", "status": "pendente" },
-        { "item": "Remover SVGs não usados em public/ (file, globe, next, vercel, window)", "status": "pendente" },
-        { "item": "Corrigir metadata padrão ('Create Next App') e lang='en' -> 'pt-BR' em app/layout.tsx", "status": "pendente" }
+        { "item": "Escolher o projeto base (Pet&Style)", "status": "concluido" },
+        { "item": "Commit da troca de projeto (remoção do Next.js + arquivos do Pet&Style + docs/)", "status": "pendente" },
+        { "item": "Mover a tag 'antes' para esse commit (local e remoto)", "status": "pendente" },
+        { "item": "Conferir no GitHub que a tag 'antes' mostra o Pet&Style", "status": "pendente" }
       ]
     },
     {
       "id": 3,
       "nome": "Medição inicial (baseline)",
-      "status": "pendente",
+      "status": "em_andamento",
+      "aula": "docs/aulas/fase-03-medicao-inicial.html",
       "objetivos": ["Gerar um relatório 'antes' confiável e reproduzível"],
+      "servidor": "npx serve . (http://localhost:3000) — nunca file:// nem Live Server (injeta script de recarga)",
+      "paginas_medidas": ["http://localhost:3000/ — Mobile (principal)", "http://localhost:3000/ — Desktop (complementar)"],
       "checklist": [
-        { "item": "Medir SEMPRE em build de produção: 'npm run build && npm start' (http://localhost:3000), nunca em 'npm run dev'", "status": "pendente" },
-        { "item": "Medir duas páginas: '/' (home) e '/artigos/[slug]' (um artigo)", "status": "pendente" },
-        { "item": "Usar janela anônima (sem extensões)", "status": "pendente" },
-        { "item": "Lighthouse: modo Navigation, dispositivo Mobile, categoria Performance", "status": "pendente" },
-        { "item": "Rodar 3 vezes e registrar a mediana", "status": "pendente" },
-        { "item": "Anotar na aba Network (Disable cache): peso total transferido e nº de requisições", "status": "pendente" },
-        { "item": "Salvar relatório (HTML/PDF) e prints em docs/relatorios/antes/", "status": "pendente" },
-        { "item": "Opcional: rodar PageSpeed Insights se o site estiver publicado", "status": "pendente" }
+        { "item": "Pré-requisito: código na tag 'antes' (fase 2)", "status": "pendente" },
+        { "item": "Servir com 'npx serve .'", "status": "pendente" },
+        { "item": "Anotar ambiente (máquina, versão do Chrome, data) em docs/relatorios/antes/ambiente.txt", "status": "pendente" },
+        { "item": "Janela anônima, notebook na tomada, outros programas fechados", "status": "pendente" },
+        { "item": "Lighthouse Mobile: 3 execuções, 4 categorias, salvar HTML", "status": "pendente" },
+        { "item": "Lighthouse Desktop: 3 execuções, salvar HTML", "status": "pendente" },
+        { "item": "Anotar o elemento LCP (insight 'LCP breakdown') e as fases do LCP", "status": "pendente" },
+        { "item": "Network (Disable cache): requisições, transferred, resources e peso por imagem", "status": "pendente" },
+        { "item": "Calcular as medianas na calculadora da aula e guardar a tabela Markdown", "status": "pendente" },
+        { "item": "Opcional: publicar no GitHub Pages e rodar o PageSpeed Insights", "status": "pendente" }
       ],
-      "entregavel": "docs/relatorios/antes/ com relatório + prints + tabela de métricas"
+      "entregavel": "docs/relatorios/antes/ com relatórios, prints e tabela de medianas"
     },
     {
       "id": 4,
       "nome": "Diagnóstico dos gargalos",
-      "status": "pendente",
-      "objetivos": ["Transformar o relatório em uma lista priorizada de problemas"],
+      "status": "em_andamento",
+      "aula": "docs/aulas/fase-04-diagnostico.html",
+      "objetivos": ["Transformar o relatório em uma lista priorizada de problemas, cada um ligado a uma linha de código"],
       "checklist": [
-        { "item": "Ler as seções Opportunities e Diagnostics do Lighthouse", "status": "pendente" },
-        { "item": "Usar a aba Coverage para medir CSS/JS não utilizado", "status": "pendente" },
-        { "item": "Usar a aba Performance para identificar long tasks e custo de paint/layout", "status": "pendente" },
-        { "item": "Para cada gargalo, registrar: recurso afetado, economia estimada, causa", "status": "pendente" },
-        { "item": "Priorizar pelo maior ganho estimado", "status": "pendente" }
-      ],
-      "gargalos_comuns": [
-        "Properly size images / Serve images in next-gen formats",
-        "Defer offscreen images",
-        "Eliminate render-blocking resources",
-        "Reduce unused JavaScript / CSS",
-        "Minify CSS / JavaScript"
+        { "item": "Ler os Insights (antigo Opportunities) e Diagnostics do Lighthouse", "status": "pendente" },
+        { "item": "Waterfall da Network: quando o hero termina × LCP; disputa de banda com os produtos", "status": "pendente" },
+        { "item": "Para cada imagem: tamanho natural × tamanho exibido (DevTools > Elements, passar o mouse no src)", "status": "pendente" },
+        { "item": "Coverage do output.css", "status": "pendente" },
+        { "item": "Console: erros (ex.: favicon 404)", "status": "pendente" },
+        { "item": "Preencher a tabela 'Gargalos identificados' e a matriz impacto × esforço", "status": "pendente" },
+        { "item": "Listar o que NÃO se aplica com evidência (JS, bibliotecas, fontes web)", "status": "pendente" }
       ],
       "alvos_neste_projeto": [
-        { "arquivo": "app/layout.tsx", "gargalo": "3 famílias do Google Fonts; Space Grotesk carrega todos os pesos", "como_medir": "Network > filtro Font: nº e peso dos .woff2" },
-        { "arquivo": "app/globals.css", "gargalo": "body::after fixo em tela cheia com feTurbulence + mix-blend-mode: overlay", "como_medir": "Performance: gravar scroll; Rendering > Paint flashing; aba Layers" },
-        { "arquivo": "app/components/ListaArtigos.tsx", "gargalo": "transition-all animando box-shadow no hover", "como_medir": "Performance: gravar hover nos cards e observar Paint" },
-        { "arquivo": "public/*.svg", "gargalo": "5 SVGs sobras do create-next-app, não referenciados", "como_medir": "Grep no código por 'file.svg', 'globe.svg' etc." },
-        { "arquivo": "app/layout.tsx (metadata)", "gargalo": "title 'Create Next App' e lang='en' com conteúdo em pt-BR", "como_medir": "Lighthouse categorias SEO/Acessibilidade" }
+        { "id": "G1", "arquivo": "assets/produtos/hero.jpg", "gargalo": "Imagem do LCP em JPG 1200x1800 (160 KB) exibida com no máximo ~540x384; sem fetchpriority", "metricas": ["LCP", "Speed Index", "peso"] },
+        { "id": "G2", "arquivo": "assets/produtos/{caminha,brinquedo,coleira,roupinha}.jpg", "gargalo": "4 JPGs (~290 KB) de até 800x1200 exibidos em cards de 192 px de altura, sem loading='lazy', disputando banda com o hero", "metricas": ["LCP", "peso"] },
+        { "id": "G3", "arquivo": "assets/logo.png", "gargalo": "PNG 447x447 exibido em 36x36 (6 KB — ganho pequeno, mas didático)", "metricas": ["peso"] },
+        { "id": "G4", "arquivo": "src/output.css", "gargalo": "CSS bloqueante sem minificação (16,9 KB; 3,8 KB com gzip) e 2 variáveis de tema sem uso (--color-amber-600, --color-blue-300)", "metricas": ["FCP", "peso"] },
+        { "id": "G5", "arquivo": "index.html", "gargalo": "HTML sem minificação (9,9 KB; 2,2 KB com gzip)", "metricas": ["FCP", "peso"] },
+        { "id": "G6", "arquivo": "index.html (head)", "gargalo": "Sem favicon (requisição 404 e erro no console) e sem meta description", "metricas": ["Boas práticas", "SEO"] }
       ],
-      "entregavel": "Rascunho da seção 'Gargalos identificados' do README"
+      "entregavel": "Tabela 'Gargalos identificados' para o README"
     },
     {
       "id": 5,
       "nome": "Otimização de imagens",
       "status": "pendente",
-      "objetivos": ["Reduzir o peso das imagens e melhorar LCP/CLS"],
-      "neste_projeto": {
-        "situacao": "O projeto não tem imagens de conteúdo.",
-        "opcao_didatica": "Adicionar capas aos artigos (campo novo em data/artigos.json + JPGs grandes em public/), medir esse estado como baseline e depois otimizar com next/image (AVIF/WebP, 'sizes', lazy automático). Documentar com transparência no README que as imagens foram introduzidas para o exercício.",
-        "atencao_next_16": "A prop 'priority' do next/image foi descontinuada no Next 16. Na imagem do LCP use loading='eager' ou fetchPriority='high' (ver node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md).",
-        "alternativa": "Se não for adicionar imagens, registrar no README 'não se aplica' com a justificativa."
-      },
+      "objetivos": ["Reduzir o peso das imagens e melhorar o LCP"],
+      "neste_projeto": "É a fase de maior impacto: imagens são ~94% dos bytes da página.",
       "checklist": [
-        { "item": "Converter para WebP ou AVIF (Squoosh, sharp, cwebp)", "status": "pendente" },
-        { "item": "Redimensionar para o tamanho real de exibição (usar srcset/sizes se responsivo)", "status": "pendente" },
-        { "item": "Aplicar loading='lazy' apenas em imagens abaixo da dobra", "status": "pendente" },
-        { "item": "NÃO usar lazy na imagem do LCP; usar fetchpriority='high' nela", "status": "pendente" },
-        { "item": "Definir width/height ou aspect-ratio para evitar CLS", "status": "pendente" },
+        { "item": "hero.jpg: recortar para paisagem, gerar versões em larguras diferentes, converter para AVIF/WebP", "status": "pendente" },
+        { "item": "hero: <picture> ou srcset/sizes + width/height + fetchpriority='high' (NUNCA lazy)", "status": "pendente" },
+        { "item": "Produtos: redimensionar para o tamanho exibido (considerando DPR), converter para WebP/AVIF", "status": "pendente" },
+        { "item": "Produtos: loading='lazy' + decoding='async' + width/height", "status": "pendente" },
+        { "item": "Logo: gerar versão 72x72 (2x) em WebP ou PNG otimizado", "status": "pendente" },
         { "item": "Registrar tamanho antes/depois de cada imagem", "status": "pendente" }
       ],
-      "metricas_afetadas": ["LCP", "Speed Index", "CLS", "peso total"]
+      "ferramentas": ["Squoosh (squoosh.app)", "sharp-cli", "cwebp / avifenc"],
+      "metricas_afetadas": ["LCP", "Speed Index", "peso total"]
     },
     {
       "id": 6,
-      "nome": "Minificação de HTML, CSS e JS",
+      "nome": "Minificação de HTML e CSS",
       "status": "pendente",
-      "objetivos": ["Reduzir bytes trafegados de texto"],
-      "neste_projeto": "O 'next build' já minifica HTML, CSS e JS. A tarefa vira PROVAR isso: comparar o tamanho dos chunks JS/CSS em 'npm run dev' x 'npm start' (aba Network) e mostrar o header content-encoding.",
+      "objetivos": ["Reduzir bytes de texto e o tempo do CSS bloqueante"],
+      "neste_projeto": "CSS: 'npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --minify'. HTML: html-minifier-terser (manter um index.html legível como fonte e gerar o minificado). Não há JS.",
+      "atencao": "A detecção automática de fontes do Tailwind v4 varre a pasta do projeto: os HTMLs de docs/aulas podem gerar classes extras no output.css. Excluir com '@source not \"../docs\";' no input.css (ou usar source(none) + '@source \"../index.html\";').",
       "checklist": [
-        { "item": "Verificar se o bundler já minifica (Vite/Next fazem no build)", "status": "pendente" },
-        { "item": "Se não houver bundler: terser (JS), cssnano ou lightningcss (CSS), html-minifier-terser (HTML)", "status": "pendente" },
-        { "item": "Comparar tamanho dos arquivos antes/depois", "status": "pendente" },
-        { "item": "Confirmar compressão gzip/brotli no servidor (header content-encoding)", "status": "pendente" }
+        { "item": "Regerar o CSS com --minify e excluir docs/ da varredura do Tailwind", "status": "pendente" },
+        { "item": "Minificar o HTML", "status": "pendente" },
+        { "item": "Comparar tamanho bruto e com gzip antes/depois", "status": "pendente" },
+        { "item": "Confirmar compressão no servidor (header content-encoding na Network)", "status": "pendente" }
       ],
       "metricas_afetadas": ["FCP", "peso total"]
     },
@@ -137,44 +133,40 @@
       "id": 7,
       "nome": "Remoção de código morto",
       "status": "pendente",
-      "objetivos": ["Eliminar imports, funções, estilos e arquivos não utilizados"],
+      "objetivos": ["Eliminar estilos e arquivos não utilizados"],
+      "neste_projeto": "Os utilitários do output.css batem 1:1 com as classes do index.html (verificado). Sobram 2 variáveis de tema sem uso (--color-amber-600, --color-blue-300), provável resquício de uma versão anterior do HTML; regerar o CSS deve removê-las. Imagens originais substituídas também devem sair do repositório.",
       "checklist": [
-        { "item": "Rodar ESLint para encontrar imports/variáveis sem uso", "status": "pendente" },
-        { "item": "Usar a aba Coverage para achar CSS/JS não executado", "status": "pendente" },
-        { "item": "Remover arquivos de assets não referenciados", "status": "pendente" },
-        { "item": "Testar o site depois de cada remoção", "status": "pendente" }
+        { "item": "Coverage do output.css antes e depois", "status": "pendente" },
+        { "item": "Confirmar que as variáveis sem uso sumiram ao regerar o CSS", "status": "pendente" },
+        { "item": "Remover JPGs/PNG originais que não são mais referenciados", "status": "pendente" }
       ],
-      "metricas_afetadas": ["TBT", "FCP", "peso total"]
+      "metricas_afetadas": ["peso total"]
     },
     {
       "id": 8,
       "nome": "Substituição de bibliotecas pesadas",
       "status": "pendente",
       "objetivos": ["Trocar dependências grandes por alternativas enxutas ou nativas"],
-      "neste_projeto": "As únicas dependências de runtime são next, react e react-dom. Registrar 'não se aplica' com a justificativa, ou tratar as fontes web como a 'dependência pesada' (trocar por fontes do sistema ou manter só 1 família).",
+      "neste_projeto": "Não se aplica: a página não carrega nenhum JavaScript nem biblioteca externa, e usa fontes do sistema (zero requisições de fonte). Justificar no README com a evidência da Network.",
       "exemplos": [
         "jQuery -> JavaScript nativo (querySelector, fetch, classList)",
         "Moment.js -> Intl.DateTimeFormat ou date-fns",
-        "Lodash completo -> import pontual ou código nativo",
         "Bootstrap completo -> apenas módulos usados",
         "Font Awesome completo -> SVGs dos ícones usados"
       ],
       "checklist": [
-        { "item": "Listar dependências e medir o peso em bundlephobia.com", "status": "pendente" },
-        { "item": "Substituir as que tiverem alternativa mais leve", "status": "pendente" },
-        { "item": "Se não houver lib pesada, justificar no README que este passo não se aplicou", "status": "pendente" }
-      ],
-      "metricas_afetadas": ["TBT", "FCP", "peso total"]
+        { "item": "Registrar no README que não há JS/bibliotecas, com print da Network filtrada por JS (vazia)", "status": "pendente" }
+      ]
     },
     {
       "id": 9,
       "nome": "Otimizações bônus (opcional, mas valorizadas)",
       "status": "pendente",
       "checklist": [
-        { "item": "defer/async em scripts", "status": "pendente" },
-        { "item": "preconnect para domínios externos", "status": "pendente" },
-        { "item": "Fontes: font-display: swap e menos pesos/famílias", "status": "pendente" },
-        { "item": "Animar apenas transform/opacity (evitar transition-all e box-shadow animado)", "status": "pendente" }
+        { "item": "Favicon e meta description", "status": "pendente" },
+        { "item": "Preload da imagem do LCP (<link rel='preload' as='image' imagesrcset=...>), se o LCP ainda estiver alto", "status": "pendente" },
+        { "item": "CSS crítico inline (o CSS inteiro tem ~3,8 KB com gzip)", "status": "pendente" },
+        { "item": "Publicar no GitHub Pages e rodar o PageSpeed Insights", "status": "pendente" }
       ]
     },
     {
@@ -183,10 +175,11 @@
       "status": "pendente",
       "objetivos": ["Provar a melhoria com números nas mesmas condições do baseline"],
       "checklist": [
-        { "item": "Repetir exatamente as condições da fase 3 (produção, anônimo, mobile, 3 execuções)", "status": "pendente" },
-        { "item": "Salvar relatório e prints em docs/relatorios/depois/", "status": "pendente" },
+        { "item": "Repetir exatamente o protocolo da fase 3 (npx serve, anônimo, Mobile e Desktop, 3 execuções)", "status": "pendente" },
+        { "item": "Medir 'antes' e 'depois' na mesma sessão (git switch --detach antes)", "status": "pendente" },
+        { "item": "Salvar relatórios e prints em docs/relatorios/depois/", "status": "pendente" },
         { "item": "Montar tabela antes x depois: Score, FCP, LCP, TBT, CLS, Speed Index, peso, requisições", "status": "pendente" },
-        { "item": "Identificar quais mudanças tiveram maior impacto (ideal: medir entre cada otimização)", "status": "pendente" }
+        { "item": "Identificar quais mudanças tiveram maior impacto (medir entre cada commit perf)", "status": "pendente" }
       ]
     },
     {
@@ -220,15 +213,15 @@
     }
   ],
   "estrutura_de_pastas_sugerida": {
-    "docs/relatorios/antes/": "relatório Lighthouse + prints do baseline",
-    "docs/relatorios/depois/": "relatório Lighthouse + prints finais",
+    "docs/relatorios/antes/": "relatórios Lighthouse + prints do baseline",
+    "docs/relatorios/depois/": "relatórios Lighthouse + prints finais",
     "README.md": "documentação completa"
   },
   "armadilhas_comuns": [
-    "Medir em modo dev em vez de build de produção",
+    "Medir abrindo o arquivo (file://) ou pelo Live Server (injeta script)",
     "Comparar medições feitas em condições diferentes",
     "Usar loading='lazy' na imagem principal (piora o LCP)",
     "Confiar em uma única execução do Lighthouse",
-    "Escolher um projeto já otimizado, sem margem de melhoria"
+    "Regerar o CSS do Tailwind sem excluir docs/ da varredura"
   ]
 }

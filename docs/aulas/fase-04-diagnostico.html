@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 4 — Diagnóstico</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* symptom vs cause */
+  .sc { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
+  .sc > div { border-radius: 12px; padding: 14px; font-size: 14px; }
+  .sc .s { background: color-mix(in srgb, var(--ok) 14%, transparent); border: 1px solid var(--ok); }
+  .sc .c { background: color-mix(in srgb, var(--good) 12%, transparent); border: 1px solid var(--good); }
+  .sc .arrow { font-size: 22px; color: var(--muted); padding: 0; }
+  .sc h4 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  @media (max-width: 600px) { .sc { grid-template-columns: 1fr; } .sc .arrow { transform: rotate(90deg); justify-self: center; } }
+
+  /* tools grid */
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .tool { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .tool h4 { margin: 0 0 4px; font-size: 15px; }
+  .tool .how { font: 12px var(--mono); color: var(--accent); margin-bottom: 6px; }
+  .tool p { font-size: 14px; margin: 0; }
+
+  /* elements tooltip mock */
+  .tip-demo { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  .tip-code { font: 13px/1.6 var(--mono); background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 8px; padding: 10px 12px; flex: 1; min-width: 260px; }
+  .tip-code u { text-decoration-color: var(--accent); text-decoration-thickness: 2px; }
+  .tip { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.15); padding: 10px 12px; font-size: 13px; min-width: 240px; }
+  .tip .thumb { height: 70px; border-radius: 4px; margin-bottom: 8px; background: linear-gradient(135deg, #f7b267, #f4845f 50%, #b56576); }
+  .tip div { display: flex; justify-content: space-between; gap: 12px; }
+  .tip b { font-family: var(--mono); }
+  .tip .bad { color: var(--bad); }
+
+  /* pixel waste drawing */
+  .px { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-end; justify-content: center; padding: 8px 0; }
+  .px figure { margin: 0; display: grid; gap: 8px; justify-items: center; text-align: center; font-size: 13px; color: var(--muted); }
+  .src { width: 180px; height: 270px; position: relative; border: 2px solid var(--bad); border-radius: 4px; overflow: hidden;
+    background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--bad) 18%, transparent) 0 8px, transparent 8px 16px); }
+  .src .band { position: absolute; left: 0; right: 0; top: 74px; height: 121px; background: linear-gradient(135deg, #f7b267, #f4845f 50%, #b56576); display: grid; place-items: center; color: #fff; font: 700 11px var(--mono); text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+  .src .lbl { position: absolute; left: 6px; font: 600 10px var(--mono); color: var(--bad); }
+  .need { border: 2px solid var(--good); border-radius: 4px; background: linear-gradient(135deg, #f7b267, #f4845f 50%, #b56576); }
+  .px figure b { color: var(--text); font-family: var(--mono); }
+
+  /* waste table bars */
+  .wbar { display: inline-block; height: 10px; border-radius: 2px; background: var(--bad); vertical-align: middle; margin-right: 6px; }
+
+  /* dossier cards */
+  .dossier { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; margin: 18px 0; overflow: hidden; }
+  .dossier-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .dossier-head h3 { margin: 0; font-size: 17px; flex: 1; min-width: 200px; }
+  .dossier-head .id { font: 700 12px var(--mono); background: var(--accent); color: #fff; border-radius: 6px; padding: 3px 8px; }
+  .dossier dl { margin: 0; display: grid; grid-template-columns: 150px 1fr; }
+  .dossier dt, .dossier dd { padding: 10px 18px; border-bottom: 1px solid var(--border); margin: 0; font-size: 14px; }
+  .dossier dt { color: var(--muted); font-weight: 600; }
+  .dossier dl > :nth-last-child(-n+2) { border-bottom: 0; }
+  @media (max-width: 600px) { .dossier dl { grid-template-columns: 1fr; } .dossier dt { border-bottom: 0; padding-bottom: 0; } }
+  .chip { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); margin: 0 4px 4px 0; }
+  .chip.h { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--text); }
+
+  /* matrix */
+  .matrix { display: grid; grid-template-columns: 32px 1fr 1fr; grid-template-rows: 1fr 1fr 28px; gap: 6px; height: 380px; }
+  .q { border-radius: 10px; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; }
+  .q b { width: 100%; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .q.q1 { background: color-mix(in srgb, var(--good) 16%, transparent); }
+  .q.q2 { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .q.q3 { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .q.q4 { background: var(--surface-2); }
+  .ax { display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .ax.y { writing-mode: vertical-rl; transform: rotate(180deg); grid-row: 1 / 3; }
+  .ax.x { grid-column: 2 / 4; }
+  .pill { font: 600 12px var(--mono); background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 4px 10px; height: fit-content; }
+  @media (max-width: 560px) { .matrix { height: auto; grid-template-rows: auto auto 28px; } .q { min-height: 140px; } }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 4 de 12 · Performance e Otimização para a Web</div>
+  <h1>Diagnóstico: do relatório à lista de gargalos</h1>
+  <p class="lead">O relatório da fase 3 mostra <em>sintomas</em>. Hoje você aprende a ir do sintoma até o <strong>arquivo e a linha</strong> que o causam, e a decidir o que atacar primeiro.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#metodo">1. O método</a>
+    <a href="#ferramentas">2. Ferramentas</a>
+    <a href="#pixels">3. Pixels desperdiçados</a>
+    <a href="#fichas">4. Fichas dos gargalos</a>
+    <a href="#nao">5. O que não é gargalo</a>
+    <a href="#prioridade">6. Priorizar</a>
+    <a href="#readme">7. Para o README</a>
+    <a href="#tarefa">8. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="metodo">
+  <h2>1. O método: sintoma → hipótese → causa</h2>
+  <p>Iniciante lê o relatório e sai mudando coisas. Profissional trata cada alerta como um <strong>sintoma</strong>, levanta uma <strong>hipótese</strong> e só aceita a causa depois de <strong>confirmar com uma segunda ferramenta</strong>.</p>
+  <div class="sc">
+    <div class="s"><h4>Sintoma (o relatório diz)</h4>“LCP de 4 s; no LCP breakdown, o <em>load duration</em> é a maior fatia.”</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="c"><h4>Causa (você prova)</h4>“O LCP é o <code>hero.jpg</code>: 160 KB, 1200×1800 px, exibido em 380×256. A Network mostra o download dividindo a banda com as 4 fotos de produto.”</div>
+  </div>
+  <p class="caption">Números ilustrativos. Use os seus, da fase 3.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  S["🩺 Sintoma<br/>Lighthouse"] --> H["💡 Hipótese<br/>o que pode causar?"]
+  H --> C{"🔬 Confirmado por<br/>outra ferramenta?"}
+  C -- "não" --> H
+  C -- "sim" --> R["📍 Causa raiz<br/>arquivo e linha"]
+  R --> A["🛠️ Ação planejada"]
+  A --> M["📈 Métrica que<br/>deve melhorar"]
+  style R fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+  <div class="callout warn"><strong>Um exemplo real de hipótese refutada, neste projeto:</strong> eu suspeitava que o <code>output.css</code> tivesse muitas classes mortas, sobras de versões antigas do HTML. Antes de afirmar, comparei com um script cada classe do <code>index.html</code> com as regras do CSS. Resultado: <strong>os utilitários batem 1 para 1</strong>. Sobraram só 2 variáveis de tema sem uso (<code>--color-amber-600</code> e <code>--color-blue-300</code>). A hipótese grande caiu e virou um achado pequeno, mas verdadeiro. <strong>Verifique antes de afirmar.</strong></div>
+</section>
+
+<!-- 2 -->
+<section id="ferramentas">
+  <h2>2. A caixa de ferramentas do diagnóstico</h2>
+  <div class="tools">
+    <div class="tool"><h4>Lighthouse: Insights</h4><div class="how">relatórios da fase 3</div><p><em>LCP breakdown</em>, <em>Improve image delivery</em> (economia por imagem), <em>Render-blocking requests</em> e <em>Network dependency tree</em>.</p></div>
+    <div class="tool"><h4>Elements: tamanho da imagem</h4><div class="how">Elements → passar o mouse no <code>src</code> de um &lt;img&gt;</div><p>Mostra o <strong>tamanho exibido</strong> × o <strong>tamanho natural</strong>. É a prova mais direta de imagem superdimensionada.</p></div>
+    <div class="tool"><h4>Network: waterfall + Priority</h4><div class="how">Network → Img → coluna Waterfall</div><p>Mostra <strong>quando</strong> cada imagem começou e terminou, e com qual prioridade. Revela a disputa de banda.</p></div>
+    <div class="tool"><h4>Coverage</h4><div class="how">Ctrl+Shift+P → “Show Coverage” → ⏺️ e recarregar</div><p>Quanto do <code>output.css</code> foi usado no carregamento. Leia a armadilha na ficha G4.</p></div>
+    <div class="tool"><h4>Console</h4><div class="how">aba Console, após recarregar</div><p>Erros de rede, como o <code>favicon.ico</code> 404 (ficha G6).</p></div>
+  </div>
+
+  <h3>Como o Elements denuncia uma imagem grande demais</h3>
+  <div class="tip-demo">
+    <div class="tip-code">&lt;img src="<u>assets/produtos/hero.jpg</u>"<br>&nbsp;&nbsp;alt="Cães estilosos…"<br>&nbsp;&nbsp;class="w-full h-64 sm:h-80 md:h-96 object-cover…"&gt;</div>
+    <div class="tip" role="img" aria-label="Dica do DevTools: tamanho exibido 380 por 256, tamanho natural 1200 por 1800">
+      <div class="thumb"></div>
+      <div><span>Rendered size:</span><b>380 × 256 px</b></div>
+      <div><span>Intrinsic size:</span><b class="bad">1200 × 1800 px</b></div>
+      <div><span>File size:</span><b class="bad">160 kB</b></div>
+    </div>
+  </div>
+  <p class="caption">Ilustração do que aparece ao passar o mouse no <code>src</code>, com o DevTools em modo mobile. Os valores exibidos dependem da largura da tela.</p>
+</section>
+
+<!-- 3 -->
+<section id="pixels">
+  <h2>3. Quantos pixels estamos desperdiçando?</h2>
+  <p>Para decidir o tamanho certo de uma imagem, entra um conceito novo: o <strong>DPR</strong> (<em>device pixel ratio</em>). Telas modernas têm mais pixels físicos que pixels CSS. O celular que o Lighthouse simula tem DPR <strong>1,75</strong>: uma imagem exibida com 380 px CSS de largura precisa de 380 × 1,75 ≈ <strong>665 px reais</strong> para ficar nítida.</p>
+  <div class="card">
+    <div class="px">
+      <figure>
+        <div class="src" role="img" aria-label="Imagem original de 1200 por 1800 pixels; só a faixa do meio aparece na tela, o resto é cortado pelo object-cover">
+          <span class="lbl" style="top:6px">cortado</span>
+          <div class="band">parte visível</div>
+          <span class="lbl" style="bottom:6px">cortado</span>
+        </div>
+        <figcaption><b>hero.jpg baixado</b><br>1200 × 1800 = 2,16 Mpx</figcaption>
+      </figure>
+      <figure>
+        <div class="need" style="width:100px;height:67px" role="img" aria-label="Necessário no celular: 665 por 448"></div>
+        <figcaption><b>necessário no celular</b><br>665 × 448 = 0,30 Mpx<br>(380×256 CSS × DPR 1,75)</figcaption>
+      </figure>
+      <figure>
+        <div class="need" style="width:81px;height:58px" role="img" aria-label="Necessário no desktop: 540 por 384"></div>
+        <figcaption><b>necessário no desktop</b><br>540 × 384 = 0,21 Mpx<br>(DPR 1)</figcaption>
+      </figure>
+    </div>
+    <div class="caption">Desenho em escala (15%). A foto é <strong>retrato</strong>, mas o espaço é <strong>paisagem</strong>: o <code>object-cover</code> corta mais da metade da altura. Esses pixels são baixados, decodificados e jogados fora.</div>
+  </div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Imagem</th><th>Natural</th><th>Necessário (mobile, DPR 1,75)</th><th>Necessário (desktop)</th><th>Pixels a mais (mobile)</th></tr></thead>
+      <tbody>
+        <tr><td>hero.jpg</td><td class="n">1200×1800</td><td class="n">665×448</td><td class="n">540×384</td><td><span class="wbar" style="width:73px"></span>~7×</td></tr>
+        <tr><td>caminha, roupinha</td><td class="n">800×1200</td><td class="n">665×336</td><td class="n">270×192</td><td><span class="wbar" style="width:43px"></span>~4×</td></tr>
+        <tr><td>brinquedo, coleira</td><td class="n">800×533</td><td class="n">665×336</td><td class="n">270×192</td><td><span class="wbar" style="width:19px"></span>~2×</td></tr>
+        <tr><td>logo.png</td><td class="n">447×447</td><td class="n">63×63</td><td class="n">36×36</td><td><span class="wbar" style="width:100px"></span>~50×</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Tamanhos exibidos calculados a partir das classes do <code>index.html</code>: o hero tem <code>w-full</code> com <code>h-64</code> (256 px) no mobile e <code>h-96</code> (384 px) no desktop; os produtos têm <code>h-48</code> (192 px); o logo, 36×36. Confirme no Elements. No desktop, os produtos aparecem em 4 colunas, e o desperdício chega a ~18× nas fotos em retrato.</div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="fichas">
+  <h2>4. Fichas de diagnóstico</h2>
+  <p>Cada ficha segue o método: evidência → hipótese → causa no código → como confirmar → métrica. Os campos <em>“seus números”</em> você preenche com os dados da fase 3.</p>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G1</span><h3>Hero: a imagem do LCP é grande demais</h3><span class="chip">LCP</span><span class="chip">Speed Index</span><span class="chip">KB</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>index.html</code>, o <code>&lt;img src="assets/produtos/hero.jpg"&gt;</code> da seção <code>#inicio</code>.</dd>
+      <dt>Evidência a procurar</dt><dd><em>LCP breakdown</em> apontando o hero, com <em>load duration</em> alto. <em>Improve image delivery</em> listando o hero com a economia estimada. Elements: 1200×1800 natural × ~380×256 exibido.</dd>
+      <dt>Hipótese</dt><dd>São três problemas somados: <strong>dimensão</strong> (~7× mais pixels que o necessário no mobile), <strong>formato</strong> (JPG; AVIF e WebP comprimem bem mais) e <strong>proporção</strong> (retrato num espaço paisagem).</dd>
+      <dt>Detalhe</dt><dd>O <code>&lt;img&gt;</code> não tem <code>fetchpriority</code>, e o navegador só sabe que ele é importante depois de calcular o layout. Confira na coluna <em>Priority</em> se o hero começa com a mesma prioridade das fotos de produto.</dd>
+      <dt>Como confirmar</dt><dd>No waterfall, compare o fim do download do hero com o LCP. Se forem próximos, o download está segurando o LCP.</dd>
+      <dt>Seus números</dt><dd>LCP _____ s · load duration _____ ms · economia estimada _____ KB · prioridade _____</dd>
+    </dl>
+  </article>
+
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  H["📄 index.html"] --> C["🎨 output.css<br/>bloqueia a pintura"]
+  H --> HE["🖼️ hero.jpg 160 KB"]
+  H --> P["🖼️ 4 produtos ~290 KB<br/>fora da tela"]
+  H --> L["🖼️ logo.png"]
+  HE --> B{{"📶 mesma banda<br/>4G simulada"}}
+  P --> B
+  L --> B
+  B --> LCP(["LCP só quando<br/>o hero termina"])
+  style P fill:#e8a200,color:#000,stroke:#e8a200
+  style LCP fill:#d93025,color:#fff,stroke:#d93025
+    </pre>
+    <div class="caption">Por que G1 e G2 andam juntas: todas as imagens começam a baixar logo depois do HTML e dividem a mesma banda. Cada byte de produto baixado nesse momento atrasa o hero.</div>
+  </div>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G2</span><h3>Fotos de produto: grandes e sem lazy loading</h3><span class="chip">LCP</span><span class="chip">KB</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>index.html</code>, os 4 <code>&lt;img&gt;</code> dentro de <code>#produtos</code>: <code>caminha.jpg</code>, <code>brinquedo.jpg</code>, <code>coleira.jpg</code> e <code>roupinha.jpg</code>.</dd>
+      <dt>Evidência a procurar</dt><dd>Network: as 4 baixadas no carregamento inicial, com o waterfall sobreposto ao do hero. <em>Improve image delivery</em> listando cada uma.</dd>
+      <dt>Hipótese</dt><dd>No mobile, a seção de produtos começa <strong>abaixo da dobra</strong>; o hero ocupa a primeira tela. Sem <code>loading="lazy"</code>, o navegador baixa as 4 imediatamente. Além disso, são 2× a 4× maiores que o necessário.</dd>
+      <dt>Como confirmar</dt><dd>Experimento <strong>no DevTools, sem mexer no código</strong>: Network → clique com o botão direito em <code>caminha.jpg</code> → <em>Block request URL</em>. Faça o mesmo com as outras 3 e rode o Lighthouse Mobile de novo. Se o LCP cair, a disputa de banda está provada. Depois, desbloqueie (Network request blocking → desmarcar).</dd>
+      <dt>Seus números</dt><dd>4 produtos = _____ KB · LCP com produtos bloqueados _____ s (antes _____ s)</dd>
+    </dl>
+  </article>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G3</span><h3>Logo: 447×447 para exibir 36×36</h3><span class="chip">KB</span><span class="chip h">ganho pequeno</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>index.html</code>, o <code>&lt;img src="assets/logo.png" width="36" height="36"&gt;</code> do header.</dd>
+      <dt>Evidência</dt><dd>Elements: natural 447×447. O arquivo tem 6 KB.</dd>
+      <dt>Impacto honesto</dt><dd>São ~50× mais pixels que o necessário, mas o arquivo é pequeno: o ganho absoluto é de poucos KB. Vale fazer porque é rápido e mostra o conceito. No README, diga o tamanho real do ganho.</dd>
+      <dt>Detalhe</dt><dd>O logo está <strong>no topo</strong>, visível na primeira tela: <strong>nada de lazy</strong> nele. E repare que ele já tem <code>width</code>/<code>height</code>. As outras imagens não.</dd>
+    </dl>
+  </article>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G4</span><h3>CSS bloqueante e sem minificar</h3><span class="chip">FCP</span><span class="chip">KB</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>src/output.css</code> (16,9 KB; ~3,8 KB com gzip), gerado pela CLI do Tailwind a partir de <code>src/input.css</code>.</dd>
+      <dt>Evidência</dt><dd><em>Render-blocking requests</em> listando o <code>output.css</code>. Abra o arquivo: tem indentação, quebras de linha e o comentário de licença. Dentro de <code>:root</code>, <code>--color-amber-600</code> e <code>--color-blue-300</code> não são usados por nenhuma regra.</dd>
+      <dt>Hipótese</dt><dd>Todo CSS no <code>&lt;head&gt;</code> bloqueia a primeira pintura, e é assim que deve ser. Não dá para eliminar o bloqueio, mas dá para encolher o arquivo. O ganho vai ser <strong>modesto</strong>: com gzip, a diferença é de poucos KB.</dd>
+      <dt>Armadilha da Coverage</dt><dd>A Coverage vai mostrar parte do CSS como “não usado”. Boa parte disso são variantes como <code>sm:</code>, <code>md:</code>, <code>lg:</code> e <code>hover:</code>, que <strong>não se aplicam</strong> naquela largura de tela ou ainda não aconteceram. <strong>Não é código morto.</strong></dd>
+      <dt>⚠️ Para a fase 6</dt><dd>O Tailwind v4 varre automaticamente os arquivos do projeto atrás de classes. Agora existem os HTMLs de <code>docs/aulas/</code>, cheios de classes. Se você regerar o CSS sem excluir <code>docs/</code>, ele pode <strong>engordar</strong>. Vamos tratar disso na fase 6.</dd>
+    </dl>
+  </article>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G5</span><h3>HTML sem minificar</h3><span class="chip">FCP</span><span class="chip h">ganho pequeno</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>index.html</code> (9,9 KB; ~2,2 KB com gzip).</dd>
+      <dt>Impacto honesto</dt><dd>O gzip já elimina a maior parte da repetição dos espaços. A minificação vai economizar centenas de bytes, não dezenas de KB. Mesmo assim, ela é <strong>obrigatória no enunciado</strong>: faça e registre o número real.</dd>
+    </dl>
+  </article>
+
+  <article class="dossier">
+    <div class="dossier-head"><span class="id">G6</span><h3>Sem favicon e sem meta description</h3><span class="chip">Boas práticas</span><span class="chip">SEO</span></div>
+    <dl>
+      <dt>Onde</dt><dd><code>index.html</code>, no <code>&lt;head&gt;</code>.</dd>
+      <dt>Evidência</dt><dd>Console: <em>Failed to load resource … 404</em> para <code>/favicon.ico</code>. O navegador pede o favicon sozinho, mesmo sem nenhuma tag. No Lighthouse, os itens <em>Browser errors were logged to the console</em> (Boas práticas) e <em>Document does not have a meta description</em> (SEO).</dd>
+      <dt>Por que importa</dt><dd>Uma requisição desperdiçada, um erro no console e um resultado de busca sem descrição. Não é o centro do exercício, mas é rápido de corrigir.</dd>
+    </dl>
+  </article>
+</section>
+
+<!-- 5 -->
+<section id="nao">
+  <h2>5. O que <em>não</em> é gargalo, e precisa ser dito</h2>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Item</th><th>Situação</th><th>Evidência para o README</th></tr></thead>
+      <tbody>
+        <tr><td>JavaScript / bibliotecas pesadas</td><td>Não há nenhum script</td><td>Network → filtro <em>JS</em> vazio; TBT ≈ 0.</td></tr>
+        <tr><td>Fontes web</td><td>Fontes do sistema (pilha padrão do Tailwind)</td><td>Network → filtro <em>Font</em> vazio. É uma boa decisão de projeto, e vale elogiar no README.</td></tr>
+        <tr><td>CLS</td><td>Provavelmente perto de 0</td><td>As imagens têm altura fixa por CSS (<code>h-64</code>, <code>h-48</code>), e o CSS chega antes da primeira pintura. Mesmo assim, <code>width</code>/<code>height</code> no <code>&lt;img&gt;</code> continuam sendo boa prática (fase 5).</td></tr>
+        <tr><td>Classes CSS mortas</td><td>Não há; só 2 variáveis</td><td>A comparação HTML × CSS da seção 1.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="prioridade">
+  <h2>6. Priorizar: impacto × esforço</h2>
+  <p>A posição abaixo é a <strong>minha estimativa inicial</strong>; ajuste com os seus números.</p>
+  <div class="card">
+    <div class="matrix">
+      <div class="ax y">impacto →</div>
+      <div class="q q1"><b>Fazer primeiro</b><span class="pill">G1 hero</span><span class="pill">G2 produtos</span></div>
+      <div class="q q2"><b>Planejar</b><span class="pill">G1+ srcset / &lt;picture&gt;</span></div>
+      <div class="q q3"><b>Fazer de brinde</b><span class="pill">G3 logo</span><span class="pill">G4 CSS</span><span class="pill">G5 HTML</span><span class="pill">G6 favicon/meta</span></div>
+      <div class="q q4"><b>Evitar (por enquanto)</b><span class="caption" style="margin:0">CSS crítico inline: o CSS inteiro tem ~3,8 KB com gzip</span></div>
+      <div class="ax x">esforço →</div>
+    </div>
+    <div class="caption">Converter e redimensionar o hero e os produtos é rápido e mexe direto no LCP. Servir vários tamanhos com <code>srcset</code>/<code>&lt;picture&gt;</code> dá mais trabalho, e por isso está em “planejar”. Vamos fazer na fase 5.</div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="readme">
+  <h2>7. O entregável: “Gargalos identificados”</h2>
+  <p>Modelo para o README (fase 11). Copie e preencha com os seus números:</p>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">## Gargalos identificados
+
+| # | Gargalo | Evidência (antes) | Causa no código | Métrica afetada | Prioridade |
+|---|---|---|---|---|---|
+| G1 | Imagem do LCP superdimensionada | hero.jpg 1200×1800, 160 KB, exibido em 380×256; LCP X s | `&lt;img&gt;` do hero em `index.html` | LCP, Speed Index | Alta |
+| G2 | Fotos de produto grandes e sem lazy | 4 JPGs, ~290 KB, baixados no carregamento inicial | `&lt;img&gt;` de `#produtos` sem `loading="lazy"` | LCP, bytes | Alta |
+| G3 | Logo superdimensionado | 447×447 exibido em 36×36 (6 KB) | `assets/logo.png` | bytes | Baixa |
+| G4 | CSS bloqueante sem minificar | 16,9 KB (3,8 KB gzip); 2 variáveis sem uso | `src/output.css` | FCP, bytes | Baixa |
+| G5 | HTML sem minificar | 9,9 KB (2,2 KB gzip) | `index.html` | FCP, bytes | Baixa |
+| G6 | Sem favicon e meta description | favicon 404 no console; SEO X | `&lt;head&gt;` do `index.html` | Boas práticas, SEO | Baixa |
+
+**Não se aplica:** JavaScript/bibliotecas (nenhum script na página), fontes web (fontes do sistema),
+CLS (alturas fixas via CSS; CLS = X).</pre>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="tarefa">
+  <h2>8. ✍️ Tarefa da fase 4</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="ins"><span>Ler os Insights do Lighthouse (Mobile e Desktop) e anotar os que aparecem</span></label></li>
+      <li><label><input type="checkbox" data-k="el"><span>Elements: tamanho exibido × natural de cada imagem</span></label></li>
+      <li><label><input type="checkbox" data-k="wf"><span>Waterfall + Priority: o hero disputa banda com os produtos?</span></label></li>
+      <li><label><input type="checkbox" data-k="block"><span>G2: experimento bloqueando as 4 fotos de produto</span></label></li>
+      <li><label><input type="checkbox" data-k="cov"><span>Coverage do <code>output.css</code> (sem cair na armadilha das variantes)</span></label></li>
+      <li><label><input type="checkbox" data-k="console"><span>Console: favicon 404</span></label></li>
+      <li><label><input type="checkbox" data-k="mat"><span>Matriz de prioridade ajustada com os meus números</span></label></li>
+      <li><label><input type="checkbox" data-k="tpl"><span>Tabela “Gargalos identificados” preenchida</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A tabela “Gargalos identificados” preenchida.</li>
+    <li>A prioridade do hero e dos produtos na coluna <em>Priority</em>.</li>
+    <li>O resultado do experimento da G2: quanto o LCP mudou com os produtos bloqueados?</li>
+    <li>Alguma hipótese foi <strong>refutada</strong>? Qual, e o que a evidência mostrou?</li>
+    <li><strong>Pergunta conceitual:</strong> por que a imagem do hero precisa de ~665 px de largura no celular simulado, se ela aparece com 380 px? E por que não faz sentido servir 1200 px?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://web.dev/articles/optimize-lcp">web.dev — Optimize LCP</a> ·
+  <a href="https://web.dev/articles/serve-responsive-images">web.dev — Serve responsive images</a> ·
+  <a href="https://web.dev/articles/browser-level-image-lazy-loading">web.dev — Lazy loading de imagens</a> ·
+  <a href="https://developer.chrome.com/docs/devtools/coverage">DevTools — Coverage</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    var btn = this, text = document.getElementById('tpl').innerText;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+    }, function () {});
+  });
+
+  (function () {
+    var KEY = 'ebac-perf-fase4-petstyle', state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    });
+  })();
+</script>
+</body>
+</html>

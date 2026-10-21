@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 3 — Medição inicial</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+
+  /* server options */
+  .servers { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .srv { border-radius: 12px; padding: 14px; border: 2px solid; font-size: 14px; }
+  .srv h4 { margin: 0 0 6px; font: 700 14px var(--mono); }
+  .srv.no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+  .srv.yes { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .srv.opt { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* environment checklist */
+  .env { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .env div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; }
+  .env b { display: block; font-size: 22px; margin-bottom: 2px; }
+
+  /* devtools mock */
+  .dt { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 10px; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; }
+  .dt-tabs { display: flex; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-border); padding: 0 8px; overflow-x: auto; }
+  .dt-tabs span { padding: 7px 10px; color: var(--dt-muted); white-space: nowrap; }
+  .dt-tabs span.on { color: var(--dt-text); box-shadow: inset 0 -2px 0 var(--dt-blue); }
+  .dt-body { padding: 16px; }
+  .lh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+  .lh-group h5 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dt-muted); }
+  .opt { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .radio, .box { width: 14px; height: 14px; border: 2px solid var(--dt-muted); flex-shrink: 0; }
+  .radio { border-radius: 50%; }
+  .box { border-radius: 3px; }
+  .opt.sel .radio { border-color: var(--dt-blue); background: radial-gradient(circle, var(--dt-blue) 0 3px, transparent 4px); }
+  .opt.sel .box { border-color: var(--dt-blue); background: var(--dt-blue); position: relative; }
+  .opt.sel .box::after { content: "✓"; color: #fff; font-size: 10px; position: absolute; inset: -3px 0 0 1px; }
+  .opt.sel { font-weight: 600; }
+  .opt small { color: var(--dt-muted); font-weight: 400; }
+  .lh-btn { display: inline-block; margin-top: 14px; background: var(--dt-blue); color: #fff; padding: 6px 14px; border-radius: 4px; font-weight: 600; }
+
+  /* report anatomy */
+  .anat { display: grid; gap: 10px; }
+  .anat-row { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+  .pin { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 13px var(--mono); }
+  .anat-box { border: 1px solid var(--dt-border); background: var(--dt-bg); color: var(--dt-text); border-radius: 8px; padding: 12px; }
+  .anat-box p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+  .lh-gauge { display: flex; align-items: center; gap: 14px; }
+  .lh-gauge .g { width: 64px; height: 64px; border-radius: 50%; border: 5px solid var(--ok); color: var(--ok); display: grid; place-items: center; font: 700 22px var(--mono); }
+  .lh-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 16px; font-size: 13px; }
+  .lh-metrics span::before { content: "●"; color: var(--good); margin-right: 6px; }
+  .lh-metrics span.o::before { content: "■"; color: var(--ok); }
+  .strip { display: flex; gap: 4px; }
+  .strip i { flex: 1; aspect-ratio: 9/16; background: var(--surface-2); border: 1px solid var(--dt-border); border-radius: 3px; }
+  .strip i.f { background: linear-gradient(var(--surface-2) 25%, var(--dt-muted) 25% 40%, var(--surface-2) 40%); }
+  .strip i.l { background: linear-gradient(var(--surface-2) 25%, var(--dt-muted) 25% 40%, var(--surface-2) 40% 55%, #e8a200 55% 85%, var(--surface-2) 85%); }
+  .ins { font-size: 13px; display: grid; gap: 4px; }
+  .ins span { padding: 4px 8px; border-radius: 4px; background: var(--dt-bar); }
+  .ins span::before { content: "▸ "; color: var(--dt-muted); }
+
+  /* LCP breakdown */
+  .lcpbar { display: flex; height: 40px; border-radius: 6px; overflow: hidden; font: 600 11px var(--mono); color: #fff; }
+  .lcpbar div { display: grid; place-items: center; text-align: center; padding: 0 4px; line-height: 1.1; }
+  .lcp-legend { display: grid; gap: 6px; font-size: 14px; margin-top: 12px; }
+  .lcp-legend div { display: grid; grid-template-columns: 16px 130px 1fr; gap: 8px; align-items: start; }
+  .lcp-legend i { width: 14px; height: 14px; border-radius: 3px; margin-top: 4px; }
+  @media (max-width: 560px) { .lcp-legend div { grid-template-columns: 16px 1fr; } .lcp-legend div span:last-child { grid-column: 2; } }
+
+  /* network mock */
+  .netrows { font: 12px var(--mono); }
+  .netrows div { display: grid; grid-template-columns: 1.4fr .6fr .6fr .6fr; gap: 8px; padding: 4px 10px; border-bottom: 1px solid var(--dt-border); }
+  .netrows div:first-child { color: var(--dt-muted); }
+  .netrows div span:not(:first-child) { text-align: right; }
+  .netbar { display: flex; flex-wrap: wrap; font: 12px var(--mono); background: var(--dt-bar); border-top: 1px solid var(--dt-border); }
+  .netbar span { padding: 6px 10px; border-right: 1px solid var(--dt-border); color: var(--dt-muted); }
+  .netbar span.hl { color: var(--dt-text); background: color-mix(in srgb, var(--accent) 20%, transparent); font-weight: 700; }
+
+  /* size compare */
+  .sizes { display: grid; gap: 8px; }
+  .sizes-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; font-size: 14px; }
+  .sizes-row .b { height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; color: #fff; font: 600 12px var(--mono); white-space: nowrap; }
+  @media (max-width: 560px) { .sizes-row { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* median calculator */
+  .calc-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .calc-tabs button { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+  .calc-tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  table.calc { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+  table.calc th, table.calc td { padding: 4px; border-bottom: 1px solid var(--border); text-align: center; }
+  table.calc th { color: var(--muted); font-weight: 600; }
+  table.calc td:first-child, table.calc th:first-child { text-align: left; white-space: nowrap; }
+  table.calc input { width: 100%; min-width: 52px; font: 13px var(--mono); padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); text-align: center; }
+  table.calc tr.med td { font: 700 13px var(--mono); color: var(--accent); }
+  .extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 14px; }
+  .extra label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .extra input { font: 13px var(--mono); padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); }
+  .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:focus-visible, .calc-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .md-out { width: 100%; min-height: 150px; margin-top: 12px; font: 12px/1.5 var(--mono); padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); resize: vertical; }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+  /* tree */
+  .tree { font: 14px/1.7 var(--mono); background: var(--surface-2); border-radius: 10px; padding: 14px 18px; overflow-x: auto; white-space: pre; }
+  .tree .new { color: var(--good); font-weight: 700; }
+  .tree .note { color: var(--muted); }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 3 de 12 · Performance e Otimização para a Web</div>
+  <h1>Medição inicial: o baseline</h1>
+  <p class="lead">Hoje você gera os números do “antes” do Pet&amp;Style. Tudo o que fizermos depois vai ser comparado com eles, então o mais importante aqui é o <strong>método</strong>: se o baseline estiver errado, o comparativo inteiro perde valor.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#protocolo">1. Protocolo</a>
+    <a href="#servir">2. Como servir</a>
+    <a href="#ambiente">3. Ambiente</a>
+    <a href="#lighthouse">4. Lighthouse</a>
+    <a href="#relatorio">5. Ler o relatório</a>
+    <a href="#network">6. Network</a>
+    <a href="#mediana">7. Calculadora</a>
+    <a href="#evidencias">8. Evidências</a>
+    <a href="#tarefa">9. Tarefa</a>
+  </nav>
+</header>
+
+<div class="callout warn"><strong>Pré-requisito:</strong> conclua a fase 2 (commit do Pet&amp;Style + tag <code>antes</code> movida) <em>antes</em> de medir. Assim os números correspondem exatamente a um commit que dá para reproduzir.</div>
+
+<!-- 1 -->
+<section id="protocolo">
+  <h2>1. O protocolo de medição</h2>
+  <p>Um <strong>protocolo</strong> é uma receita fixa. Na fase 10 você vai repetir esta receita, passo a passo, para medir o “depois”. Se mudar qualquer passo, a comparação deixa de ser justa.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  A["🏷️ Código na tag antes"] --> B["npx serve .<br/>localhost:3000"]
+  B --> C["Chrome em janela anônima<br/>sem extensões"]
+  C --> D{"Dispositivo"}
+  D --> M["📱 Mobile<br/>Lighthouse × 3"]
+  D --> K["🖥️ Desktop<br/>Lighthouse × 3"]
+  M --> G["Medianas"]
+  K --> G
+  C --> N["Network<br/>Disable cache"]
+  G --> J[("📁 docs/relatorios/antes")]
+  N --> J
+  style J fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+  <p>O Pet&amp;Style tem <strong>uma única página</strong>. Em vez de medir duas páginas, medimos a mesma página em dois dispositivos:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Medição</th><th>Por que</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Mobile</strong> (principal)</td><td>Simula celular intermediário + 4G lenta. É onde imagens pesadas mais doem, e é o que o Google usa. O comparativo do README se baseia nela.</td></tr>
+        <tr><td><strong>Desktop</strong> (complementar)</td><td>Tela larga e rede rápida. No desktop, os 4 produtos aparecem lado a lado, logo, menores. Mostra o efeito do redimensionamento em outro cenário.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="servir">
+  <h2>2. Como servir o site para medir</h2>
+  <p>Com o Next.js, a dúvida era “dev ou produção”. Com um site estático, a pergunta é: <strong>de onde o navegador vai buscar os arquivos?</strong></p>
+  <div class="servers">
+    <div class="srv no"><h4>❌ file://</h4>Abrir o <code>index.html</code> com dois cliques. Não há servidor HTTP: nada de cabeçalhos, compressão ou cache reais. O resultado não representa um site de verdade.</div>
+    <div class="srv no"><h4>❌ Live Server</h4>A extensão do VS Code <strong>injeta um script</strong> de recarga automática e abre um WebSocket. Você estaria medindo JavaScript que o site não tem.</div>
+    <div class="srv yes"><h4>✅ npx serve .</h4>Servidor HTTP estático de verdade, com <strong>compressão gzip</strong> ligada por padrão. Reproduzível e local. <strong>É o nosso padrão.</strong></div>
+    <div class="srv opt"><h4>➕ GitHub Pages</h4>Rede real, HTTPS e compressão. Permite rodar o <strong>PageSpeed Insights</strong>. Ótimo como bônus, mas a rede varia mais, então não misture com as medições locais.</div>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal, na raiz do projeto</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npx serve .
+<span class="c"># Serving!  Local: http://localhost:3000   (deixe este terminal aberto)</span></pre></div>
+  <p class="caption">Na primeira vez, o <code>npx</code> pergunta se pode baixar o pacote <code>serve</code>; responda <em>y</em>. Se a porta 3000 estiver ocupada, ele usa outra. Use a URL que ele mostrar, e <strong>sempre a mesma</strong> no antes e no depois.</p>
+</section>
+
+<!-- 3 -->
+<section id="ambiente">
+  <h2>3. Preparar o ambiente</h2>
+  <p>O Lighthouse roda <strong>na sua máquina</strong> e simula um celular em cima dela. Tudo o que disputa CPU com o Chrome contamina o resultado:</p>
+  <div class="env">
+    <div><b>🕶️</b><strong>Janela anônima</strong><br>Extensões injetam JS em todas as páginas.</div>
+    <div><b>🔌</b><strong>Notebook na tomada</strong><br>Na bateria, o sistema reduz a velocidade da CPU.</div>
+    <div><b>🧹</b><strong>Feche o que puder</strong><br>Outras abas, Teams, IDE indexando.</div>
+    <div><b>🖥️</b><strong>Uma aba só</strong><br>A aba medida em primeiro plano.</div>
+    <div><b>📐</b><strong>Anote tudo</strong><br>Máquina, versão do Chrome (<code>chrome://version</code>) e data. Vai para a “Metodologia” do README.</div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="lighthouse">
+  <h2>4. Configurar e rodar o Lighthouse</h2>
+  <p>Abra <code>http://localhost:3000</code>, depois o DevTools (<code>F12</code>) → aba <strong>Lighthouse</strong>:</p>
+  <div class="dt" role="img" aria-label="Painel do Lighthouse com modo Navigation, dispositivo Mobile e as quatro categorias marcadas">
+    <div class="dt-tabs"><span>Elements</span><span>Console</span><span>Sources</span><span>Network</span><span>Performance</span><span class="on">Lighthouse</span></div>
+    <div class="dt-body">
+      <div class="lh-grid">
+        <div class="lh-group">
+          <h5>Mode</h5>
+          <div class="opt sel"><i class="radio"></i>Navigation <small>(Default)</small></div>
+          <div class="opt"><i class="radio"></i>Timespan</div>
+          <div class="opt"><i class="radio"></i>Snapshot</div>
+        </div>
+        <div class="lh-group">
+          <h5>Device</h5>
+          <div class="opt sel"><i class="radio"></i>Mobile <small>(depois Desktop)</small></div>
+          <div class="opt"><i class="radio"></i>Desktop</div>
+        </div>
+        <div class="lh-group">
+          <h5>Categories</h5>
+          <div class="opt sel"><i class="box"></i>Performance</div>
+          <div class="opt sel"><i class="box"></i>Accessibility</div>
+          <div class="opt sel"><i class="box"></i>Best practices</div>
+          <div class="opt sel"><i class="box"></i>SEO</div>
+        </div>
+      </div>
+      <span class="lh-btn">Analyze page load</span>
+    </div>
+  </div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Opção</th><th>Escolha</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Mode</td><td>Navigation</td><td>Mede um carregamento completo, do zero. É o único modo que gera o score de 0 a 100.</td></tr>
+        <tr><td>Device</td><td>Mobile, depois Desktop</td><td>3 execuções de cada.</td></tr>
+        <tr><td>Categories</td><td>As 4</td><td>Vamos corrigir favicon e meta description (G6). Medir Boas práticas e SEO agora garante o “antes” delas.</td></tr>
+        <tr><td>⚙️ Clear storage</td><td>Marcado (padrão)</td><td>Simula a primeira visita, sem cache. Não mexa.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Quando terminar, abra o menu <strong>⋮</strong> do relatório → <strong>Save as HTML</strong>. Repita até ter <strong>3 relatórios Mobile e 3 Desktop</strong>.</p>
+
+  <h3>Bônus: Lighthouse pela linha de comando</h3>
+  <p>Opcional: a CLI já salva o arquivo com o nome certo e roda num Chrome limpo.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal (com o serve rodando em outro)</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="c"># mobile é o padrão da CLI</span>
+<span class="p">$ </span>npx lighthouse http://localhost:3000/ --output=html --output-path=docs/relatorios/antes/mobile/lighthouse-1.html
+<span class="c"># desktop</span>
+<span class="p">$ </span>npx lighthouse http://localhost:3000/ --preset=desktop --output=html --output-path=docs/relatorios/antes/desktop/lighthouse-1.html</pre></div>
+</section>
+
+<!-- 5 -->
+<section id="relatorio">
+  <h2>5. Anatomia do relatório</h2>
+  <div class="anat">
+    <div class="anat-row"><span class="pin">1</span><div class="anat-box">
+      <div class="lh-gauge"><div class="g">??</div><strong>Performance</strong></div>
+      <p><strong>Score.</strong> Anote, mas lembre: ele é a média ponderada da aula 1.</p></div></div>
+    <div class="anat-row"><span class="pin">2</span><div class="anat-box">
+      <div class="lh-metrics"><span>First Contentful Paint</span><span class="o">Largest Contentful Paint</span><span>Total Blocking Time</span><span>Cumulative Layout Shift</span><span>Speed Index</span></div>
+      <p><strong>Métricas.</strong> Vão para a calculadora da seção 7. Círculo verde = bom, quadrado laranja = precisa melhorar, triângulo vermelho = ruim.</p></div></div>
+    <div class="anat-row"><span class="pin">3</span><div class="anat-box">
+      <div class="strip"><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="l"></i><i class="l"></i><i class="l"></i><i class="l"></i></div>
+      <p><strong>Filmstrip.</strong> Repare: o texto do hero aparece antes, e a foto (em laranja no desenho) chega depois. O intervalo entre um e outro é o espaço entre o FCP e o LCP.</p></div></div>
+    <div class="anat-row"><span class="pin">4</span><div class="anat-box">
+      <div class="ins"><span>LCP breakdown</span><span>Improve image delivery</span><span>Render-blocking requests</span><span>Network dependency tree</span><span>Layout shift culprits</span></div>
+      <p><strong>Insights e Diagnostics.</strong> É a lista de problemas, com a economia estimada. Nas versões antigas do Chrome, esta seção se chamava <em>Opportunities</em> e os nomes eram outros (como <em>Properly size images</em>). A ideia é a mesma. É o material da <strong>fase 4</strong>; hoje, salve e tire prints.</p></div></div>
+  </div>
+
+  <h3>O insight mais importante de hoje: <em>LCP breakdown</em></h3>
+  <p>Ele mostra <strong>qual elemento é o LCP</strong> (lembra do desafio da aula 1?) e divide o tempo em quatro fases. Quando o LCP é uma <strong>imagem</strong>, as quatro fases importam:</p>
+  <div class="card">
+    <div class="lcpbar" role="img" aria-label="LCP de imagem dividido em quatro fases: TTFB, atraso de carregamento, duração do carregamento e atraso de renderização">
+      <div style="flex:1;background:#5b4bdb">TTFB</div>
+      <div style="flex:1.5;background:#8d8676">load<br>delay</div>
+      <div style="flex:4;background:#d93025">load duration</div>
+      <div style="flex:.8;background:#0f9d58">render<br>delay</div>
+    </div>
+    <div class="lcp-legend">
+      <div><i style="background:#5b4bdb"></i><strong>TTFB</strong><span>Tempo até o primeiro byte do HTML. Num servidor local, quase zero.</span></div>
+      <div><i style="background:#8d8676"></i><strong>Load delay</strong><span>Do HTML até o navegador <em>começar</em> a baixar a imagem. Cresce quando ela é descoberta tarde ou recebe prioridade baixa.</span></div>
+      <div><i style="background:#d93025"></i><strong>Load duration</strong><span>O download em si. Cresce com o <strong>tamanho do arquivo</strong> e com a disputa de banda com outras imagens.</span></div>
+      <div><i style="background:#0f9d58"></i><strong>Render delay</strong><span>Da imagem baixada até ela aparecer na tela.</span></div>
+    </div>
+    <div class="caption">Proporções ilustrativas. Minha aposta: no Pet&amp;Style, o <strong>load duration</strong> vai dominar (160 KB numa 4G simulada, disputando com mais ~290 KB de produtos). Confira e anote.</div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="network">
+  <h2>6. Aba Network: peso e requisições</h2>
+  <p>O Lighthouse dá tempos; a Network dá <strong>bytes</strong>, e é aqui que a otimização de imagens vai aparecer com mais força.</p>
+  <ol>
+    <li>DevTools → <strong>Network</strong> → marque <strong>Disable cache</strong>.</li>
+    <li>Recarregue a página (<code>Ctrl+Shift+R</code>).</li>
+    <li>Leia a barra de status, no rodapé.</li>
+    <li>Clique no filtro <strong>Img</strong> e anote cada imagem.</li>
+    <li>Clique com o botão direito no cabeçalho da tabela e ative a coluna <strong>Priority</strong>. Na fase 5, vamos mudar a prioridade do hero.</li>
+  </ol>
+  <div class="dt" role="img" aria-label="Painel Network filtrado por imagens com hero, quatro produtos e logo, com colunas de prioridade, transferido e tamanho">
+    <div class="dt-tabs"><span>All</span><span>Fetch/XHR</span><span>Doc</span><span>CSS</span><span>JS</span><span>Font</span><span class="on">Img</span></div>
+    <div class="netrows">
+      <div><span>Name</span><span>Priority</span><span>Transferred</span><span>Size</span></div>
+      <div><span>logo.png</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+      <div><span>hero.jpg</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+      <div><span>caminha.jpg</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+      <div><span>brinquedo.jpg</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+      <div><span>coleira.jpg</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+      <div><span>roupinha.jpg</span><span>??</span><span>?? kB</span><span>?? kB</span></div>
+    </div>
+    <div class="netbar"><span class="hl">N requests</span><span class="hl">X kB transferred</span><span class="hl">Y kB resources</span><span>Finish: …</span><span>DOMContentLoaded: …</span><span>Load: …</span></div>
+  </div>
+  <p class="caption">Ilustração com “??” de propósito: os números são seus. Repare que <strong>as 6 imagens são baixadas no carregamento inicial</strong>, mesmo as que estão fora da tela. Guarde isso para a fase 5.</p>
+
+  <h3>“Transferred” ou “resources”?</h3>
+  <div class="card sizes">
+    <div class="sizes-row"><span><strong>output.css</strong><br><span class="caption" style="margin:0">resources</span></span><div class="b" style="width:100%;background:#8d8676">16,9 kB</div></div>
+    <div class="sizes-row"><span><strong>output.css</strong><br><span class="caption" style="margin:0">transferred (gzip)</span></span><div class="b" style="width:23%;background:var(--accent)">~3,8 kB</div></div>
+    <div class="sizes-row"><span><strong>hero.jpg</strong><br><span class="caption" style="margin:0">resources</span></span><div class="b" style="width:100%;background:#8d8676">160 kB</div></div>
+    <div class="sizes-row"><span><strong>hero.jpg</strong><br><span class="caption" style="margin:0">transferred</span></span><div class="b" style="width:100%;background:#d93025">~160 kB</div></div>
+    <div class="caption">Valores que calculei a partir dos arquivos. O <code>serve</code> comprime <strong>texto</strong> (HTML, CSS) com gzip, que encolhe muito. <strong>JPG já é comprimido</strong> e não encolhe nada. Por isso, para imagem, a única saída é um arquivo menor de verdade: menos pixels e um formato melhor. Para conferir a compressão, clique no <code>output.css</code> → <em>Headers</em> → <code>content-encoding: gzip</code>.</div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="mediana">
+  <h2>7. Calculadora de mediana</h2>
+  <p>Digite os números das 3 execuções. A mediana é calculada sozinha, e a tabela em Markdown sai pronta para o README. Os dados ficam salvos só neste navegador.</p>
+  <div class="card" id="calc">
+    <div class="calc-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-page="mobile">📱 Mobile</button>
+      <button type="button" role="tab" aria-selected="false" data-page="desktop">🖥️ Desktop</button>
+    </div>
+    <div class="scroll-x">
+      <table class="calc">
+        <thead><tr><th></th><th>Score</th><th>FCP (s)</th><th>LCP (s)</th><th>TBT (ms)</th><th>CLS</th><th>SI (s)</th><th>A11y</th><th>Boas pr.</th><th>SEO</th></tr></thead>
+        <tbody id="calc-body"></tbody>
+      </table>
+    </div>
+    <div class="extra" id="calc-extra"></div>
+    <div class="row-actions">
+      <button class="btn primary" type="button" id="md-copy">Copiar tabela Markdown</button>
+      <button class="btn" type="button" id="md-clear">Limpar este dispositivo</button>
+    </div>
+    <textarea class="md-out" id="md-out" readonly aria-label="Tabela Markdown gerada"></textarea>
+  </div>
+  <div class="callout">Por que <strong>mediana</strong> e não média? Uma execução ruim por acaso (o antivírus rodou no meio) puxa a média para baixo, mas não muda a mediana.</div>
+</section>
+
+<!-- 8 -->
+<section id="evidencias">
+  <h2>8. Organizar as evidências</h2>
+  <div class="tree">docs/relatorios/<span class="new">antes/</span>
+├── mobile/
+│   ├── lighthouse-1.html
+│   ├── lighthouse-2.html
+│   ├── lighthouse-3.html
+│   ├── lighthouse-mediana.png      <span class="note"># print do topo da execução mediana</span>
+│   ├── lcp-breakdown.png           <span class="note"># elemento LCP + fases</span>
+│   └── image-delivery.png          <span class="note"># insight de imagens, com a economia estimada</span>
+├── desktop/
+│   └── <span class="note">(lighthouse-1..3.html + lighthouse-mediana.png)</span>
+├── network-img.png                 <span class="note"># filtro Img + barra de status</span>
+└── ambiente.txt                    <span class="note"># máquina, versão do Chrome, data, URL usada</span></div>
+  <p class="caption">Prints: <code>Win+Shift+S</code>, ou <code>Ctrl+Shift+P</code> → “Capture full size screenshot” no DevTools. Pode apagar o <code>.gitkeep</code> da pasta quando houver arquivos nela.</p>
+</section>
+
+<!-- 9 -->
+<section id="tarefa">
+  <h2>9. ✍️ Tarefa da fase 3</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="tag"><span>Código na tag <code>antes</code> (fase 2 concluída)</span></label></li>
+      <li><label><input type="checkbox" data-k="serve"><span><code>npx serve .</code> rodando</span></label></li>
+      <li><label><input type="checkbox" data-k="env"><span>Ambiente preparado e anotado em <code>ambiente.txt</code></span></label></li>
+      <li><label><input type="checkbox" data-k="lh-m"><span>3 × Lighthouse Mobile (HTML salvo)</span></label></li>
+      <li><label><input type="checkbox" data-k="lh-d"><span>3 × Lighthouse Desktop (HTML salvo)</span></label></li>
+      <li><label><input type="checkbox" data-k="lcp"><span>Print do LCP breakdown e do insight de imagens</span></label></li>
+      <li><label><input type="checkbox" data-k="net"><span>Network: requisições, transferred, resources e cada imagem</span></label></li>
+      <li><label><input type="checkbox" data-k="calc"><span>Medianas na calculadora e tabela Markdown copiada</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>As duas tabelas Markdown (Mobile e Desktop) geradas pela calculadora.</li>
+    <li><strong>Qual elemento foi o LCP</strong> e quanto tempo cada fase do LCP breakdown levou. Sua previsão da aula 1 acertou?</li>
+    <li>Os números da Network, incluindo a <strong>prioridade</strong> de cada imagem.</li>
+    <li><strong>Pergunta conceitual:</strong> o <code>output.css</code> encolhe de 16,9 kB para ~3,8 kB na rede, e o <code>hero.jpg</code> não encolhe nada. Por quê? O que isso diz sobre onde concentrar o esforço?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://developer.chrome.com/docs/lighthouse/overview">Lighthouse — visão geral</a> ·
+  <a href="https://web.dev/articles/optimize-lcp">web.dev — Optimize LCP</a> ·
+  <a href="https://developer.chrome.com/docs/devtools/network">DevTools — Network panel</a> ·
+  <a href="https://www.npmjs.com/package/serve">serve (npm)</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+
+  // Botão "copiar" dos terminais: só as linhas de comando
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var text = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n');
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+      }, function () {});
+    });
+  });
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase3-petstyle';
+    var state = store(KEY);
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () { state[cb.dataset.k] = cb.checked; store(KEY, state); });
+    });
+  })();
+
+  // Calculadora de mediana
+  (function () {
+    var KEY = 'ebac-perf-baseline-petstyle';
+    var cols = [
+      { k: 'score', label: 'Score', dec: 0 },
+      { k: 'fcp', label: 'FCP (s)', dec: 1 },
+      { k: 'lcp', label: 'LCP (s)', dec: 1 },
+      { k: 'tbt', label: 'TBT (ms)', dec: 0 },
+      { k: 'cls', label: 'CLS', dec: 3 },
+      { k: 'si', label: 'Speed Index (s)', dec: 1 },
+      { k: 'a11y', label: 'Acessibilidade', dec: 0 },
+      { k: 'bp', label: 'Boas práticas', dec: 0 },
+      { k: 'seo', label: 'SEO', dec: 0 }
+    ];
+    var extras = [
+      { k: 'req', label: 'Requisições' },
+      { k: 'transf', label: 'Transferred (kB)' },
+      { k: 'res', label: 'Resources (kB)' },
+      { k: 'imgKB', label: 'Imagens (kB transferidos)' },
+      { k: 'heroKB', label: 'hero.jpg (kB)' },
+      { k: 'lcpEl', label: 'Elemento LCP' },
+      { k: 'lcpLoad', label: 'LCP load duration (ms)' }
+    ];
+    var pageNames = { mobile: 'Mobile', desktop: 'Desktop' };
+    var data = store(KEY);
+    var page = 'mobile';
+    var body = document.getElementById('calc-body');
+    var extraBox = document.getElementById('calc-extra');
+    var out = document.getElementById('md-out');
+
+    function num(v) { var n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? null : n; }
+    function median(arr) {
+      var a = arr.filter(function (x) { return x !== null; }).sort(function (x, y) { return x - y; });
+      if (!a.length) return null;
+      var m = Math.floor(a.length / 2);
+      return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+    }
+    function fmt(v, dec) { return v === null ? '—' : v.toFixed(dec).replace('.', ','); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+    function pd() { data[page] = data[page] || { runs: [{}, {}, {}], extra: {} }; return data[page]; }
+
+    function render() {
+      var d = pd();
+      body.innerHTML = '';
+      for (var r = 0; r < 3; r++) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>Execução ' + (r + 1) + '</td>' + cols.map(function (c) {
+          return '<td><input inputmode="decimal" aria-label="' + c.label + ' execução ' + (r + 1) + '" data-r="' + r + '" data-k="' + c.k + '" value="' + esc(d.runs[r][c.k] || '') + '"></td>';
+        }).join('');
+        body.appendChild(tr);
+      }
+      var med = document.createElement('tr');
+      med.className = 'med';
+      med.id = 'med-row';
+      body.appendChild(med);
+      extraBox.innerHTML = extras.map(function (e) {
+        return '<label>' + e.label + '<input data-e="' + e.k + '" value="' + esc(d.extra[e.k] || '') + '"></label>';
+      }).join('');
+      update();
+    }
+
+    function update() {
+      var d = pd();
+      var meds = cols.map(function (c) { return median(d.runs.map(function (run) { return num(run[c.k]); })); });
+      document.getElementById('med-row').innerHTML = '<td>Mediana</td>' + meds.map(function (m, i) { return '<td>' + fmt(m, cols[i].dec) + '</td>'; }).join('');
+      var md = '### ' + pageNames[page] + ' — antes\n\n| Métrica | Exec. 1 | Exec. 2 | Exec. 3 | **Mediana** |\n|---|---|---|---|---|\n';
+      cols.forEach(function (c, i) {
+        md += '| ' + c.label + ' | ' + d.runs.map(function (run) { return fmt(num(run[c.k]), c.dec); }).join(' | ') + ' | **' + fmt(meds[i], c.dec) + '** |\n';
+      });
+      var ex = extras.filter(function (e) { return d.extra[e.k]; });
+      if (ex.length) {
+        md += '\n| Recurso | Valor |\n|---|---|\n';
+        ex.forEach(function (e) { md += '| ' + e.label + ' | ' + d.extra[e.k] + ' |\n'; });
+      }
+      out.value = md;
+      store(KEY, data);
+    }
+
+    body.addEventListener('input', function (ev) {
+      var t = ev.target; if (!t.dataset.k) return;
+      pd().runs[+t.dataset.r][t.dataset.k] = t.value; update();
+    });
+    extraBox.addEventListener('input', function (ev) {
+      var t = ev.target; if (!t.dataset.e) return;
+      pd().extra[t.dataset.e] = t.value; update();
+    });
+    document.querySelectorAll('.calc-tabs button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.calc-tabs button').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        page = b.dataset.page; render();
+      });
+    });
+    document.getElementById('md-copy').addEventListener('click', function () {
+      var btn = this;
+      if (navigator.clipboard) navigator.clipboard.writeText(out.value).then(function () {
+        btn.textContent = 'Copiado ✓'; setTimeout(function () { btn.textContent = 'Copiar tabela Markdown'; }, 1500);
+      }, function () { out.select(); });
+      else out.select();
+    });
+    document.getElementById('md-clear').addEventListener('click', function () {
+      data[page] = { runs: [{}, {}, {}], extra: {} }; render();
+    });
+    render();
+  })();
+</script>
+</body>
+</html>
