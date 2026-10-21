@@ -10,7 +10,7 @@
     <header class="sticky top-0 z-10 bg-white shadow-sm">
         <nav class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4">
             <a href="#" class="flex items-center gap-2 font-bold text-2xl text-orange-500">
-                <img src="assets/logo.png" alt="Logo da Pet&Style" width="36" height="36">
+                <img src="assets/logo-72.webp" alt="Logo da Pet&Style" width="36" height="36">
                 Pet&amp;Style
             </a>
             <ul class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm sm:text-base font-medium">
@@ -37,7 +37,10 @@
                     </a>
                 </div>
                 <div class="flex-1 w-full">
-                    <img src="assets/produtos/hero.jpg" alt="Cães estilosos usando acessórios Pet&Style" class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg">
+                    <picture>
+                        <source type="image/avif" srcset="assets/produtos/hero-480.avif 480w, assets/produtos/hero-800.avif 800w, assets/produtos/hero-1080.avif 1080w" sizes="(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)">
+                        <img src="assets/produtos/hero-800.webp" srcset="assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, assets/produtos/hero-1080.webp 1080w" sizes="(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)" width="1080" height="720" fetchpriority="high" alt="Cães estilosos usando acessórios Pet&Style" class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg">
+                    </picture>
                 </div>
             </div>
         </section>
@@ -49,7 +52,10 @@
 
                 <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <img src="assets/produtos/caminha.jpg" alt="Caminha acolchoada para pets" class="w-full h-48 object-cover">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/caminha-400.avif 400w, assets/produtos/caminha-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/caminha-400.webp" srcset="assets/produtos/caminha-400.webp 400w, assets/produtos/caminha-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Caminha acolchoada para pets" class="w-full h-48 object-cover">
+                        </picture>
                         <div class="flex flex-col flex-1 gap-2 p-5">
                             <h3 class="font-semibold text-lg text-slate-900">Caminha Aconchego</h3>
                             <p class="text-sm text-slate-600 flex-1">Caminha macia e resistente, perfeita para noites tranquilas.</p>
@@ -58,7 +64,10 @@
                     </article>
 
                     <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <img src="assets/produtos/brinquedo.jpg" alt="Brinquedo para pets" class="w-full h-48 object-cover">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/brinquedo-400.avif 400w, assets/produtos/brinquedo-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/brinquedo-400.webp" srcset="assets/produtos/brinquedo-400.webp 400w, assets/produtos/brinquedo-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Brinquedo para pets" class="w-full h-48 object-cover">
+                        </picture>
                         <div class="flex flex-col flex-1 gap-2 p-5">
                             <h3 class="font-semibold text-lg text-slate-900">Bolinha Divertida</h3>
                             <p class="text-sm text-slate-600 flex-1">Brinquedo resistente para brincadeiras sem fim no quintal.</p>
@@ -67,7 +76,10 @@
                     </article>
 
                     <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <img src="assets/produtos/coleira.jpg" alt="Coleira estilosa para pets" class="w-full h-48 object-cover">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/coleira-400.avif 400w, assets/produtos/coleira-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/coleira-400.webp" srcset="assets/produtos/coleira-400.webp 400w, assets/produtos/coleira-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Coleira estilosa para pets" class="w-full h-48 object-cover">
+                        </picture>
                         <div class="flex flex-col flex-1 gap-2 p-5">
                             <h3 class="font-semibold text-lg text-slate-900">Coleira Chic</h3>
                             <p class="text-sm text-slate-600 flex-1">Coleira ajustável com acabamento premium e muito estilo.</p>
@@ -76,7 +88,10 @@
                     </article>
 
                     <article class="flex flex-col rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <img src="assets/produtos/roupinha.jpg" alt="Roupinha para pets" class="w-full h-48 object-cover">
+                        <picture>
+                            <source type="image/avif" srcset="assets/produtos/roupinha-400.avif 400w, assets/produtos/roupinha-800.avif 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)">
+                            <img src="assets/produtos/roupinha-400.webp" srcset="assets/produtos/roupinha-400.webp 400w, assets/produtos/roupinha-800.webp 800w" sizes="(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)" width="800" height="533" loading="lazy" decoding="async" alt="Roupinha para pets" class="w-full h-48 object-cover">
+                        </picture>
                         <div class="flex flex-col flex-1 gap-2 p-5">
                             <h3 class="font-semibold text-lg text-slate-900">Suéter Fofura</h3>
                             <p class="text-sm text-slate-600 flex-1">Roupinha quentinha para os dias mais frios com muito charme.</p>
