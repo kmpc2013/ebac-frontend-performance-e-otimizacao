@@ -1,0 +1,16 @@
+Ambiente da medição (baseline "antes")
+======================================
+Data:            2026-10-21
+Código medido:   tag "antes" (commit e852300), extraído com "git archive antes"
+Máquina:         12th Gen Intel(R) Core(TM) i7-1255U / 16 GB RAM / Windows 11 Pro 10.0.26200
+Navegador:       Microsoft Edge 155 (Chromium) em modo headless
+Lighthouse:      12.8.2 (CLI, via npx)
+Servidor:        serve (npx serve, http://localhost:3000, gzip ligado)
+Protocolo:       3 execuções Mobile (preset padrão, throttling simulado) + 3 Desktop (--preset=desktop)
+Categorias:      Performance, Acessibilidade, Boas práticas, SEO
+Comando:         node scripts/medir.mjs <pasta> docs/relatorios/antes antes
+Resultado:       resumo.md (medianas) e resumo.json (todas as execuções)
+
+Observação: os relatórios 127.0.0.1_5500-*.html são uma primeira medição feita pelo
+Live Server (porta 5500). Ficam só como histórico: o Live Server injeta um script de
+recarga, então a comparação oficial usa os relatórios antes-*.report.html.

@@ -1,0 +1,132 @@
+{
+  "rotulo": "antes",
+  "data": "2026-10-21T23:35:48.102Z",
+  "resultados": {
+    "mobile": [
+      {
+        "performance": 89,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 1058.92265,
+        "lcp": 3649.8453,
+        "tbt": 38,
+        "cls": 0,
+        "si": 2833.5316891268913,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 88,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 854.28105,
+        "lcp": 3622.5621,
+        "tbt": 169,
+        "cls": 0,
+        "si": 2682.2826539389603,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 90,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 835.90715,
+        "lcp": 3623.8143,
+        "tbt": 14,
+        "cls": 0,
+        "si": 881.8067540728848,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      }
+    ],
+    "desktop": [
+      {
+        "performance": 100,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 227.78290000000004,
+        "lcp": 703.5658,
+        "tbt": 0,
+        "cls": 0,
+        "si": 373.58051748821026,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 267.422,
+        "lcp": 706.844,
+        "tbt": 0,
+        "cls": 0,
+        "si": 471.7942621946987,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 94,
+        "boasPraticas": 96,
+        "seo": 91,
+        "fcp": 323.188,
+        "lcp": 714.376,
+        "tbt": 0,
+        "cls": 0,
+        "si": 796.1692095945865,
+        "pesoKB": 462.388671875,
+        "requisicoes": 9,
+        "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      }
+    ]
+  },
+  "medianas": {
+    "mobile": {
+      "performance": 89,
+      "acessibilidade": 94,
+      "boasPraticas": 96,
+      "seo": 91,
+      "fcp": 854.28105,
+      "lcp": 3623.8143,
+      "tbt": 38,
+      "cls": 0,
+      "si": 2682.2826539389603,
+      "pesoKB": 462.388671875,
+      "requisicoes": 9,
+      "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+      "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+    },
+    "desktop": {
+      "performance": 100,
+      "acessibilidade": 94,
+      "boasPraticas": 96,
+      "seo": 91,
+      "fcp": 267.422,
+      "lcp": 706.844,
+      "tbt": 0,
+      "cls": 0,
+      "si": 471.7942621946987,
+      "pesoKB": 462.388671875,
+      "requisicoes": 9,
+      "elementoLcp": "<img src=\"assets/produtos/hero.jpg\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+      "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+    }
+  }
+}
