@@ -7,6 +7,7 @@
 // Ex.:   node scripts/medir.mjs --resumir docs/relatorios/antes antes
 //
 // A pasta é servida com `serve` em http://localhost:3000 (compressão gzip, como em produção).
+// Outra porta: PORTA=3010 node scripts/medir.mjs ...  A porta precisa estar livre.
 // Precisa de um Chrome/Edge instalado; defina CHROME_PATH se ele não for encontrado sozinho.
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -16,13 +17,17 @@ const args = process.argv.slice(2);
 const soResumir = args[0] === '--resumir';
 if (soResumir) args.shift();
 const [raiz = '.', saida = 'docs/relatorios/medicao', rotulo = 'medicao'] = soResumir ? ['', ...args] : args;
-const URL = 'http://localhost:3000/';
+const PORTA = process.env.PORTA ?? '3000';
+const URL = `http://localhost:${PORTA}/`;
 const EXECUCOES = 3;
 const PRESETS = ['mobile', 'desktop'];
 
 mkdirSync(saida, { recursive: true });
 
-const servidor = soResumir ? null : spawn('npx', ['serve', resolve(raiz), '-l', '3000', '--no-clipboard'], { shell: true, stdio: 'ignore' });
+// Se já houver algo na porta, mediríamos a página errada sem perceber.
+if (!soResumir && (await responde())) throw new Error(`A porta ${PORTA} já está em uso: feche o servidor ou use PORTA=<outra>`);
+
+const servidor = soResumir ? null : spawn('npx', ['serve', resolve(raiz), '-l', PORTA, '--no-clipboard'], { shell: true, stdio: 'ignore' });
 if (servidor) await esperarServidor();
 
 const resultados = {};
@@ -113,10 +118,14 @@ function tabela(med) {
   ].join('\n');
 }
 
+async function responde() {
+  try { return (await fetch(URL)).ok; } catch { return false; }
+}
+
 async function esperarServidor() {
   for (let i = 0; i < 60; i++) {
-    try { if ((await fetch(URL)).ok) return; } catch {}
+    if (await responde()) return;
     await new Promise((r) => setTimeout(r, 500));
   }
-  throw new Error('O servidor não subiu em http://localhost:3000');
+  throw new Error(`O servidor não subiu em ${URL}`);
 }
