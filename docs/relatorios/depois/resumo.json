@@ -1,0 +1,132 @@
+{
+  "rotulo": "depois",
+  "data": "2026-10-22T00:06:02.650Z",
+  "resultados": {
+    "mobile": [
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 695.39455,
+        "lcp": 1214.7891,
+        "tbt": 0,
+        "cls": 0,
+        "si": 695.39455,
+        "pesoKB": 98.8173828125,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 673.65975,
+        "lcp": 1209.3195,
+        "tbt": 0,
+        "cls": 0,
+        "si": 673.65975,
+        "pesoKB": 98.8173828125,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 678.5872,
+        "lcp": 1209.1744,
+        "tbt": 0,
+        "cls": 0,
+        "si": 678.5872,
+        "pesoKB": 98.8173828125,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      }
+    ],
+    "desktop": [
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 191.4572,
+        "lcp": 270.9144,
+        "tbt": 0,
+        "cls": 0,
+        "si": 209.55347709166847,
+        "pesoKB": 53.9169921875,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 185.72305,
+        "lcp": 329.4461,
+        "tbt": 0,
+        "cls": 0,
+        "si": 203.01396542874434,
+        "pesoKB": 53.9169921875,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      },
+      {
+        "performance": 100,
+        "acessibilidade": 100,
+        "boasPraticas": 100,
+        "seo": 100,
+        "fcp": 194.78795,
+        "lcp": 269.5759,
+        "tbt": 0,
+        "cls": 0,
+        "si": 231.3233983367606,
+        "pesoKB": 53.9169921875,
+        "requisicoes": 8,
+        "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+        "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+      }
+    ]
+  },
+  "medianas": {
+    "mobile": {
+      "performance": 100,
+      "acessibilidade": 100,
+      "boasPraticas": 100,
+      "seo": 100,
+      "fcp": 678.5872,
+      "lcp": 1209.3195,
+      "tbt": 0,
+      "cls": 0,
+      "si": 678.5872,
+      "pesoKB": 98.8173828125,
+      "requisicoes": 8,
+      "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+      "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+    },
+    "desktop": {
+      "performance": 100,
+      "acessibilidade": 100,
+      "boasPraticas": 100,
+      "seo": 100,
+      "fcp": 191.4572,
+      "lcp": 270.9144,
+      "tbt": 0,
+      "cls": 0,
+      "si": 209.55347709166847,
+      "pesoKB": 53.9169921875,
+      "requisicoes": 8,
+      "elementoLcp": "<img src=\"http://localhost:3010/assets/produtos/hero-800.avif\" srcset=\"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, as…\" sizes=\"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100v…\" width=\"1080\" height=\"720\" fetchpriority=\"high\" alt=\"Cães estilosos usando acessórios Pet&amp;Style\" class=\"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg\">",
+      "navegador": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0"
+    }
+  }
+}

@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 7 — Código morto</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; font-size: 13px; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .add { color: #7ee2a8; }
+  .term .del { color: #ff8a80; }
+  .term .hl { color: #febc2e; }
+
+  /* devtools mock */
+  .dt { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 10px; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; }
+  .dt-tabs { display: flex; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-border); padding: 0 8px; overflow-x: auto; }
+  .dt-tabs span, .dt-tabs button { padding: 7px 10px; color: var(--dt-muted); white-space: nowrap; font: inherit; background: none; border: 0; cursor: default; }
+  .dt-tabs button { cursor: pointer; }
+  .dt-tabs .on, .dt-tabs button[aria-selected="true"] { color: var(--dt-text); box-shadow: inset 0 -2px 0 var(--dt-blue); }
+  .cov { font: 12px var(--mono); min-width: 560px; }
+  .cov div { display: grid; grid-template-columns: 2fr .5fr .7fr 1.2fr 1.4fr; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--dt-border); align-items: center; }
+  .cov div:first-child { color: var(--dt-muted); }
+  .cov .bar { display: flex; height: 12px; border-radius: 2px; overflow: hidden; background: var(--dt-bar); }
+  .cov .bar i { background: #e05555; }
+  .cov .bar b { background: #55a868; }
+  .covsrc { font: 12px/1.7 var(--mono); padding: 8px 0; border-top: 1px solid var(--dt-border); overflow-x: auto; white-space: pre; }
+  .covsrc span { display: block; padding: 0 10px 0 8px; border-left: 4px solid transparent; }
+  .covsrc .u { border-left-color: #55a868; }
+  .covsrc .x { border-left-color: #e05555; }
+
+  /* compare boxes */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs > div { border-radius: 12px; padding: 14px; font-size: 14px; border: 2px solid; }
+  .vs .no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+  .vs .yes { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .vs h4 { margin: 0 0 6px; font: 700 14px var(--mono); }
+  .vs pre { margin: 6px 0 0; font: 12.5px/1.55 var(--mono); white-space: pre-wrap; background: var(--surface-2); padding: 8px 10px; border-radius: 8px; }
+  @media (max-width: 640px) { .vs { grid-template-columns: 1fr; } }
+
+  /* hunt demo */
+  .hunt { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .hunt { grid-template-columns: 1fr; } }
+  .hunt textarea { width: 100%; min-height: 230px; font: 12.5px/1.55 var(--mono); padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); resize: vertical; }
+  .hunt h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .rules li { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; background: var(--surface); font-size: 13px; }
+  .rules .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .rules code { flex: 1; min-width: 160px; background: none; padding: 0; font-size: 12.5px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 99px; overflow: hidden; }
+  .seg button { font: 12px var(--mono); border: 0; background: var(--surface); color: var(--muted); padding: 3px 9px; cursor: pointer; }
+  .seg button[aria-pressed="true"].u { background: var(--good); color: #fff; }
+  .seg button[aria-pressed="true"].m { background: var(--bad); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .rules .why { display: none; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+  .rules.checked .why { display: block; }
+  .rules li.right { border-color: var(--good); }
+  .rules li.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 6%, var(--surface)); }
+  .verdict { font: 700 11px var(--mono); padding: 2px 6px; border-radius: 99px; display: none; }
+  .rules.checked .verdict { display: inline-block; }
+  .verdict.live { background: color-mix(in srgb, var(--good) 20%, transparent); color: var(--text); }
+  .verdict.dead { background: color-mix(in srgb, var(--bad) 20%, transparent); color: var(--text); }
+  .score { font: 700 15px var(--mono); margin-left: 8px; }
+
+  .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+
+  /* kinds grid */
+  .kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .kind { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px; }
+  .kind h4 { margin: 0 0 4px; font-size: 15px; }
+  .kind .tag { font: 600 11px var(--mono); padding: 2px 8px; border-radius: 99px; display: inline-block; margin-bottom: 6px; }
+  .kind .tag.d { background: color-mix(in srgb, var(--bad) 18%, transparent); }
+  .kind .tag.l { background: color-mix(in srgb, var(--good) 18%, transparent); }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 7 de 12 · Performance e Otimização para a Web</div>
+  <h1>Remoção de código morto</h1>
+  <p class="lead">Código morto é tudo o que o navegador baixa (ou o repositório guarda) e ninguém usa. Hoje você aprende a <strong>provar</strong> o que está morto, a não confundir “não usado agora” com “nunca usado” e a apagar com segurança.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#conceito">1. O que é</a>
+    <a href="#tailwind">2. Tailwind gera sob demanda</a>
+    <a href="#inverso">3. O risco inverso</a>
+    <a href="#prova">4. A prova: HTML × CSS</a>
+    <a href="#caca">5. Caça ao código morto</a>
+    <a href="#coverage">6. Coverage</a>
+    <a href="#arquivos">7. Arquivos mortos</a>
+    <a href="#readme">8. Para o README</a>
+    <a href="#tarefa">9. Tarefa</a>
+  </nav>
+</header>
+
+<div class="callout warn"><strong>Onde estamos:</strong> as fases 5 e 6 já foram commitadas (imagens otimizadas em <code>3a1813f</code>; CSS e HTML minificados em <code>da893d7</code>). A fase 7 é, em boa parte, <strong>conferir e documentar</strong> o que a fase 6 já limpou, e fazer a faxina de arquivos (<code>5c53e6c</code>).</div>
+
+<!-- 1 -->
+<section id="conceito">
+  <h2>1. O que é (e o que não é) código morto</h2>
+  <p>Na fase 4 eu suspeitei que o <code>output.css</code> estava cheio de classes mortas. A comparação mostrou que não: só sobravam <strong>2 variáveis</strong>. Essa é a lição número um desta fase: <strong>“a Coverage marcou em vermelho” não é a mesma coisa que “está morto”</strong>.</p>
+  <div class="kinds">
+    <div class="kind"><span class="tag d">morto</span><h4>Regra sem elemento</h4>Uma classe no CSS que nenhum elemento do HTML usa, em nenhuma largura de tela, em nenhum estado.</div>
+    <div class="kind"><span class="tag d">morto</span><h4>Variável sem <code>var()</code></h4>Uma custom property declarada em <code>:root</code> que nenhuma regra lê. Ex.: <code>--color-amber-600</code>.</div>
+    <div class="kind"><span class="tag d">morto</span><h4>Arquivo sem referência</h4>Uma imagem que nenhum <code>src</code>/<code>srcset</code> aponta. Não pesa na página, mas pesa no repositório e confunde quem lê.</div>
+    <div class="kind"><span class="tag l">vivo</span><h4>Variante que “ainda não aconteceu”</h4><code>sm:flex-row</code>, <code>md:h-96</code>, <code>hover:bg-orange-800</code>, <code>focus:ring-2</code>. A Coverage marca como não usada no carregamento, mas é usada em outra largura ou estado.</div>
+  </div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  A["Regra marcada como<br/>não usada na Coverage"] --> B{"A classe aparece em<br/>algum class do HTML?"}
+  B -- "não" --> M["🪦 Morta<br/>pode remover"]
+  B -- "sim" --> C{"É variante?<br/>sm: md: lg: hover: focus:"}
+  C -- "sim" --> V["✅ Viva<br/>só não se aplicou agora"]
+  C -- "não" --> D["🔎 Investigar<br/>elemento escondido? JS?"]
+  style M fill:#d93025,color:#fff,stroke:#d93025
+  style V fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="tailwind">
+  <h2>2. Por que o Tailwind v4 já não gera classes não usadas</h2>
+  <p>Em frameworks CSS “clássicos” (Bootstrap completo, por exemplo) você baixa <strong>tudo</strong> e usa 5%. O Tailwind faz o contrário: ele <strong>lê os seus arquivos</strong>, coleta todo texto que <em>parece</em> uma classe (os <strong>candidatos</strong>) e gera CSS <strong>só</strong> para os candidatos que existem no catálogo dele. Isso se chama geração sob demanda (o antigo modo “JIT”, que no v4 é o único modo).</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  S["📄 src/index.html"] --> SC["🔍 Scanner<br/>quebra o texto em tokens"]
+  SC --> K["Candidatos<br/>flex, text-orange-700,<br/>md:h-96, Pet, Style..."]
+  K --> F{"Existe utilitário<br/>com esse nome?"}
+  F -- "sim" --> G["🎨 Gera a regra<br/>e as variáveis que ela usa"]
+  F -- "não" --> X["Ignora em silêncio"]
+  G --> O["src/output.css"]
+  style O fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+    <div class="caption">O scanner não entende HTML: ele lê texto. <code>Pet</code> e <code>Style</code> também viram candidatos, mas não existe utilitário com esses nomes, então nada é gerado.</div>
+  </div>
+  <p>Consequência prática: <strong>não existe passo de “purge” para fazer</strong>. Se uma classe sai do HTML, ela sai do CSS no próximo build. Foi exatamente isso que aconteceu com as 2 variáveis:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show antes:src/output.css (trecho do :root, antes da fase 6)</span></div>
+<pre>  --color-orange-500: oklch(70.5% 0.213 47.604);
+  --color-orange-600: oklch(64.6% 0.222 41.116);
+<span class="del">  --color-amber-600: oklch(66.6% 0.179 58.318);</span>   <span class="c">← nenhuma regra faz var(--color-amber-600)</span>
+<span class="del">  --color-blue-300: oklch(80.9% 0.105 251.813);</span>    <span class="c">← nenhuma regra faz var(--color-blue-300)</span></pre></div>
+  <p>Por que elas existiam? O <code>output.css</code> original foi gerado com uma versão anterior do HTML, que tinha alguma classe <code>amber-600</code>/<code>blue-300</code>. O HTML mudou, o CSS <strong>não foi regerado</strong>, e as sobras ficaram. Ao regerar na fase 6, elas sumiram sozinhas. A mensagem do commit registra isso:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show da893d7 --stat</span></div>
+<pre>perf(build): CSS do Tailwind e HTML minificados
+
+- src/index.html passa a ser a fonte legível; o index.html da raiz é gerado por npm run build
+- input.css com source(none) + @source "./index.html": docs/ fica fora da varredura
+- output.css: 16,9 KB -> 13,5 KB (gzip 3,8 -> 3,5 KB); <span class="hl">some o código morto</span>
+  <span class="hl">(--color-amber-600 e --color-blue-300)</span></pre></div>
+  <div class="callout"><strong>Lição de processo:</strong> código morto em projeto Tailwind quase sempre significa <strong>CSS gerado e esquecido</strong> (commitado sem build). A cura é ter o build como script (<code>npm run build</code>) e regerar sempre que o HTML mudar.</div>
+</section>
+
+<!-- 3 -->
+<section id="inverso">
+  <h2>3. O risco inverso: varrer arquivos demais</h2>
+  <p>Se o scanner lê texto, ele também lê <strong>texto que não é a sua página</strong>. No Tailwind v4, a detecção automática varre a pasta do projeto inteira (respeitando o <code>.gitignore</code>). Este repositório tem <code>docs/aulas/*.html</code>, cheios de palavras como <code>grid</code>, <code>flex</code>, <code>hidden</code>, <code>block</code>… Tudo isso viraria regra no <code>output.css</code> da loja.</p>
+  <div class="vs">
+    <div class="no"><h4>❌ antes: src/input.css</h4><pre>@import "tailwindcss";</pre><p class="caption">Varredura automática: o projeto inteiro, inclusive <code>docs/</code>.</p></div>
+    <div class="yes"><h4>✅ depois (da893d7)</h4><pre>@import "tailwindcss" source(none);
+
+/* Só o HTML da página gera classes. */
+@source "./index.html";</pre><p class="caption"><code>source(none)</code> desliga a detecção automática; <code>@source</code> lista explicitamente o que pode gerar classes. O caminho é relativo ao <code>input.css</code>, por isso é <code>./index.html</code> (o <code>src/index.html</code>).</p></div>
+  </div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  subgraph AUTO["Detecção automática"]
+    A1["src/index.html"]
+    A2["docs/aulas/*.html"]
+    A3["docs/task.html"]
+  end
+  subgraph EXPL["source(none) + @source"]
+    B1["src/index.html"]
+  end
+  AUTO --> C1["CSS com classes<br/>das aulas 🐘"]
+  EXPL --> C2["CSS só da página 🐁"]
+  style C1 fill:#d93025,color:#fff,stroke:#d93025
+  style C2 fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+
+  <h3>Achado ao vivo: o scanner lê até comentários</h3>
+  <p>Mesmo com a varredura restrita, o arquivo varrido inteiro conta. Rodando a comparação da próxima seção no código do commit <code>86429b4</code>, apareceu uma regra que nenhum elemento usava:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/output.css e src/index.html no commit 86429b4 (antes da correção)</span></div>
+<pre><span class="c">/* output.css */</span>
+.flex{display:flex}.grid{display:grid}<span class="hl">.inline{display:inline}</span>.inline-block{...}
+
+<span class="c">&lt;!-- src/index.html, linha 14 (adicionado no commit 9f2c305) --&gt;</span>
+&lt;!-- No build, este link é trocado pelo CSS inteiro <span class="hl">inline</span> (ver scripts/build-html.mjs). --&gt;</pre></div>
+  <p>A palavra <code>inline</code> no <strong>comentário</strong> virou candidato, e <code>inline</code> é um utilitário válido do Tailwind (<code>display: inline</code>). Resultado: ~24 bytes de CSS morto, que entraram quando o CSS foi regerado no commit <code>86429b4</code>. É insignificante em bytes, mas é um <strong>ótimo exemplo</strong> de como o mecanismo funciona e de por que a verificação precisa ser feita de novo a cada build.</p>
+  <div class="callout good"><strong>Resolvido no commit <code>40c13bf</code>:</strong> o comentário foi reescrito para “embutido numa tag style”, o <code>npm run build</code> regerou o CSS e <code>.inline{display:inline}</code> sumiu do <code>output.css</code>. Confira com <code>git show 40c13bf -- src/index.html</code>. Se a regra precisasse ficar fora mesmo com a palavra, o Tailwind v4 tem <code>@source not inline("inline");</code>, que bloqueia um candidato específico.</div>
+</section>
+
+<!-- 4 -->
+<section id="prova">
+  <h2>4. A prova: comparar seletores do CSS com as classes do HTML</h2>
+  <p>A frase da fase 4, <em>“todos os utilitários batem 1:1 com o HTML”</em>, veio de um script simples. Ele não é parte do projeto; é uma ferramenta de investigação que você pode rodar de qualquer pasta:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>comparar-css.mjs (ferramenta de diagnóstico, fora do projeto)</span></div>
+<pre>import { readFileSync } from 'node:fs';
+const [htmlPath = 'src/index.html', cssPath = 'src/output.css'] = process.argv.slice(2);
+const html = readFileSync(htmlPath, 'utf8');
+const css = readFileSync(cssPath, 'utf8');
+
+<span class="c">// 1. Todas as classes usadas em atributos class="..."</span>
+const usadas = new Set([...html.matchAll(/class="([^"]+)"/g)]
+  .flatMap(m =&gt; m[1].trim().split(/\s+/)));
+
+<span class="c">// 2. Todos os seletores de classe do CSS (.md\:h-96 vira md:h-96)</span>
+const regras = new Set([...css.matchAll(/\.((?:\\.|[A-Za-z_-])(?:\\.|[\w-])*)/g)]
+  .map(m =&gt; m[1].replace(/\\(.)/g, '$1')));
+
+<span class="c">// 3. Variáveis declaradas que nenhum var() lê</span>
+const vars = [...css.matchAll(/(--color-[\w-]+):/g)].map(m =&gt; m[1]);
+
+console.log('no HTML sem regra:', [...usadas].filter(c =&gt; !regras.has(c)));
+console.log('no CSS sem uso:', [...regras].filter(c =&gt; !usadas.has(c)));
+console.log('variáveis sem var():', vars.filter(v =&gt; !css.includes(`var(${v}`)));</pre></div>
+  <p>Saída real, rodada neste repositório:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre><span class="c"># ANTES: HTML e CSS da tag antes</span>
+<span class="p">$ </span>git show antes:index.html &gt; /tmp/a.html &amp;&amp; git show antes:src/output.css &gt; /tmp/a.css
+<span class="p">$ </span>node comparar-css.mjs /tmp/a.html /tmp/a.css
+classes no HTML: 99 | classes no CSS: 100
+no HTML sem regra: []
+no CSS sem uso: [ 'com' ]                         <span class="c">← falso positivo: "tailwindcss.com" no comentário de licença</span>
+<span class="hl">variáveis sem var(): [ '--color-amber-600', '--color-blue-300' ]</span>
+
+<span class="c"># DEPOIS: commit 86429b4 (antes da correção 40c13bf)</span>
+<span class="p">$ </span>node comparar-css.mjs
+classes no HTML: 99 | classes no CSS: 101
+no HTML sem regra: []
+no CSS sem uso: [ 'com', <span class="hl">'inline'</span> ]               <span class="c">← o achado da seção 3</span>
+<span class="c"># no código atual (depois do 40c13bf), sobra só o falso positivo: no CSS sem uso: [ 'com' ]</span>
+variáveis sem var(): []</pre></div>
+  <div class="callout"><strong>Leia as duas direções.</strong> “No HTML sem regra” vazio prova que <strong>nada quebrou</strong> (toda classe usada tem estilo). “No CSS sem uso” mostra o que é <strong>candidato a morto</strong>. E repare que o script também tem falsos positivos (<code>com</code>): ferramenta de diagnóstico se lê com senso crítico.</div>
+</section>
+
+<!-- 5 -->
+<section id="caca">
+  <h2>5. Demo: caça ao código morto</h2>
+  <p>À esquerda, um pedaço de HTML (pode editar!). À direita, regras de um CSS gerado. Marque cada uma como <strong>viva</strong> ou <strong>morta</strong> e clique em <em>Conferir</em>. A conferência é feita de verdade, lendo os <code>class="..."</code> do HTML.</p>
+  <div class="card">
+    <div class="hunt">
+      <div>
+        <h4>HTML (editável)</h4>
+        <textarea id="hunt-html" spellcheck="false" aria-label="HTML de exemplo"></textarea>
+        <div class="caption">Teste: adicione <code>hidden</code> em um <code>class</code> e confira de novo.</div>
+      </div>
+      <div>
+        <h4>Regras no CSS</h4>
+        <ul class="rules" id="hunt-rules"></ul>
+      </div>
+    </div>
+    <div class="row-actions">
+      <button class="btn primary" type="button" id="hunt-check">Conferir</button>
+      <button class="btn" type="button" id="hunt-reset">Recomeçar</button>
+      <span class="score" id="hunt-score" aria-live="polite"></span>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="coverage">
+  <h2>6. Conferindo com a Coverage do DevTools</h2>
+  <p>A Coverage mostra, byte a byte, o que do CSS (e do JS) foi <strong>usado durante o carregamento</strong>. É a ferramenta que o enunciado espera ver, mas ela tem duas armadilhas que você precisa explicar no README.</p>
+  <ol>
+    <li>Abra a página servida (<code>npx serve .</code>) e o DevTools.</li>
+    <li><code>Ctrl+Shift+P</code> → digite <em>Show Coverage</em> → Enter.</li>
+    <li>Clique no botão de recarregar dentro do painel (⟳ <em>Start instrumenting coverage and reload page</em>).</li>
+    <li>Clique numa linha para abrir o arquivo no Sources: a barra à esquerda de cada regra fica <span style="color:#55a868">verde</span> (usada) ou <span style="color:#e05555">vermelha</span> (não usada).</li>
+  </ol>
+
+  <div class="dt" role="group" aria-label="Simulação do painel Coverage">
+    <div class="dt-tabs" role="tablist">
+      <span>Console</span><span>Network</span>
+      <button type="button" role="tab" aria-selected="true" data-cov="antes">Coverage — antes (CSS externo)</button>
+      <button type="button" role="tab" aria-selected="false" data-cov="depois">Coverage — depois (CSS inline)</button>
+    </div>
+    <div class="scroll-x">
+      <div class="cov" id="cov-table"></div>
+    </div>
+    <div class="covsrc" id="cov-src"></div>
+  </div>
+  <p class="caption">Ilustração com “??” nos números de propósito: os valores são seus. As cores das regras no trecho de código são o padrão esperado numa tela de celular.</p>
+
+  <h3>Armadilha 1: variantes aparecem como “não usadas”</h3>
+  <p>No celular, <code>md:flex-row</code> não se aplica; no desktop, ela se aplica, mas aí <code>sm:h-80</code> é sobrescrita… E <code>hover:</code>/<code>focus:</code> só “acontecem” com interação. Por isso a porcentagem não usada <strong>nunca chega a zero</strong> num CSS responsivo, e não deve. Para ver isso: ligue a Coverage, redimensione a janela, passe o mouse nos links e veja regras ficarem verdes (a Coverage continua gravando depois do carregamento).</p>
+
+  <h3>Armadilha 2: com CSS inline, a linha muda de nome</h3>
+  <p>Desde o commit <code>9f2c305</code> (fase 9), o CSS não é mais um arquivo baixado: ele vai dentro de um <code>&lt;style&gt;</code> no <code>index.html</code>. A Coverage então <strong>não mostra mais</strong> <code>src/output.css</code>; ela mostra o <strong>próprio documento</strong> (<code>http://localhost:3000/</code>) com tipo <em>CSS</em>, contando os bytes do bloco inline. Se você procurar <code>output.css</code> na lista e não achar, é isso.</p>
+  <div class="callout good"><strong>Como usar a Coverage no README:</strong> tire um print “antes” (tag <code>antes</code>) e “depois”, e escreva a interpretação: “a porcentagem não usada é composta por variantes responsivas e de estado; a comparação HTML × CSS confirma que não há utilitários sem uso”. Print sem interpretação não prova nada.</div>
+</section>
+
+<!-- 7 -->
+<section id="arquivos">
+  <h2>7. Arquivos mortos: as imagens originais</h2>
+  <p>Depois da fase 5, a página passou a usar <code>hero-480.avif</code>, <code>caminha-400.webp</code>, <code>logo-72.webp</code> etc. Os originais (<code>hero.jpg</code>, <code>logo.png</code>…) ficaram no repositório sem nenhuma referência. Eles não pesam na página (ninguém os pede), mas pesam no clone, confundem quem lê e podem ser publicados por engano.</p>
+  <h3>Passo 1: provar que ninguém aponta para eles</h3>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="c"># procura os nomes antigos em todo o código da página (fora de docs/)</span>
+<span class="p">$ </span>git grep -nE "hero\.jpg|caminha\.jpg|brinquedo\.jpg|coleira\.jpg|roupinha\.jpg|logo\.png" -- . ":!docs"
+<span class="c"># esperado: só aparecem em scripts/images.mjs (como ORIGEM lida da tag antes)</span></pre></div>
+  <h3>Passo 2: remover sem perder</h3>
+  <p>Apagar do repositório não é apagar da história. A tag <code>antes</code> guarda o estado original, e o script de imagens lê os originais <strong>direto dela</strong>:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>scripts/images.mjs (trecho real)</span></div>
+<pre><span class="c">// Os originais (JPG/PNG superdimensionados) não ficam mais no repositório: o script os lê</span>
+<span class="c">// direto da tag `antes` com `git show`, então o resultado é reproduzível a qualquer momento.</span>
+const TAG = 'antes';
+const lerOriginal = (caminho) =&gt;
+  execFileSync('git', ['show', `${TAG}:${caminho}`], { maxBuffer: 1 &lt;&lt; 26 });
+
+const original = lerOriginal('assets/produtos/hero.jpg');   <span class="c">// Buffer com o JPG de 160 KB</span>
+await sharp(original).resize(800, 533, { fit: 'cover' }).avif({ quality: 50 })...</pre></div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  T[("🏷️ tag antes<br/>hero.jpg, logo.png...")] -- "git show antes:..." --> S["⚙️ scripts/images.mjs"]
+  S --> O["assets/produtos/<br/>hero-480.avif, hero-800.webp..."]
+  S --> F["assets/favicon.png<br/>assets/logo-72.webp"]
+  W["🧹 working tree<br/>sem os originais"] -.->|"commit 5c53e6c<br/>originais só na tag"| T
+  style T fill:#5b4bdb,color:#fff,stroke:#5b4bdb
+    </pre>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show 5c53e6c --stat</span></div>
+<pre>chore: remove as imagens originais que não são mais referenciadas
+
+Os originais continuam acessíveis pela tag antes; scripts/images.mjs os lê de lá.
+
+ assets/logo.png               | Bin 6454 -&gt; 0 bytes
+ assets/produtos/brinquedo.jpg | Bin 75620 -&gt; 0 bytes
+ assets/produtos/caminha.jpg   | Bin 93320 -&gt; 0 bytes
+ assets/produtos/coleira.jpg   | Bin 45001 -&gt; 0 bytes
+ assets/produtos/hero.jpg      | Bin 164227 -&gt; 0 bytes
+ assets/produtos/roupinha.jpg  | Bin 79507 -&gt; 0 bytes
+ 6 files changed, 0 insertions(+), 0 deletions(-)</pre></div>
+  <p class="caption">~453 KB a menos na árvore de trabalho. Repare no tipo do commit: <code>chore</code>, e não <code>perf</code>. A página não ficou mais rápida com isso (ela já não pedia esses arquivos); o ganho é de <strong>manutenção</strong>. Seja honesto com isso no README.</p>
+  <h3>Passo 3: provar que nada quebrou</h3>
+  <p>Depois de remover, recarregue com a Network aberta e <strong>Disable cache</strong>: nenhum <code>404</code>. E rode <code>npm run images</code>: se ele regenerar tudo sem erro, a dependência da tag está funcionando.</p>
+</section>
+
+<!-- 8 -->
+<section id="readme">
+  <h2>8. Para o README</h2>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">### Remoção de código morto
+
+**CSS.** O Tailwind v4 gera CSS só para as classes encontradas nos arquivos varridos.
+Ao regerar o `output.css` (commit da893d7), sumiram as 2 variáveis de tema sem uso
+(`--color-amber-600`, `--color-blue-300`), sobras de uma versão anterior do HTML.
+Uma comparação automática HTML × CSS confirma: toda classe do HTML tem regra, e não há
+utilitários sem uso (o único caso, `.inline`, gerado a partir de um comentário, foi corrigido no commit 40c13bf).
+
+**Varredura.** `src/input.css` usa `source(none)` + `@source "./index.html"`, para que os
+HTMLs de `docs/` não gerem classes extras.
+
+**Coverage.** X% do CSS aparece como não usado no carregamento Mobile; são variantes
+responsivas (`sm:`, `md:`, `lg:`) e de estado (`hover:`, `focus:`), que se aplicam em outras
+larguras/interações. Print: docs/relatorios/depois/coverage.png
+
+**Arquivos.** As imagens originais (~453 KB) foram removidas do repositório (commit 5c53e6c).
+Elas continuam na tag `antes`, de onde `scripts/images.mjs` as lê com `git show`.</pre>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="tarefa">
+  <h2>9. ✍️ Tarefa da fase 7</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="diff"><span>Confirmar no <code>git show da893d7</code> que <code>--color-amber-600</code> e <code>--color-blue-300</code> sumiram</span></label></li>
+      <li><label><input type="checkbox" data-k="cmp"><span>Rodar a comparação HTML × CSS (antes e depois) e anotar a saída</span></label></li>
+      <li><label><input type="checkbox" data-k="inline"><span>Explicar o caso <code>.inline</code> e conferir a correção (<code>git show 40c13bf</code>)</span></label></li>
+      <li><label><input type="checkbox" data-k="cov"><span>Coverage antes e depois: prints + interpretação das variantes</span></label></li>
+      <li><label><input type="checkbox" data-k="grep"><span><code>git grep</code> provando que os originais não são referenciados</span></label></li>
+      <li><label><input type="checkbox" data-k="404"><span>Network sem nenhum 404 após a remoção</span></label></li>
+      <li><label><input type="checkbox" data-k="tpl"><span>Seção do README preenchida</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A saída da comparação HTML × CSS, antes e depois.</li>
+    <li>A porcentagem não usada da Coverage (Mobile e Desktop) e <strong>três exemplos</strong> de regras vermelhas que estão vivas.</li>
+    <li>O resultado do <code>git grep</code> e a confirmação de que não há 404.</li>
+    <li><strong>Pergunta conceitual:</strong> se o Tailwind já não gera classes não usadas, como o <code>output.css</code> original conseguiu ter 2 variáveis mortas? E o que o comentário com a palavra <em>inline</em> ensina sobre como o scanner funciona?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://tailwindcss.com/docs/detecting-classes-in-source-files">Tailwind — Detecting classes in source files</a> ·
+  <a href="https://developer.chrome.com/docs/devtools/coverage">DevTools — Coverage</a> ·
+  <a href="https://web.dev/articles/unused-css-rules">web.dev — Remove unused CSS</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+  function copyText(btn, text, label) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = label; }, 1500);
+    }, function () {});
+  }
+
+  // Botão "copiar" dos terminais: só as linhas de comando
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var text = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n');
+      copyText(btn, text, 'copiar');
+    });
+  });
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    copyText(this, document.getElementById('tpl').innerText, 'copiar');
+  });
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase7-petstyle';
+    var state = store(KEY);
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () { state[cb.dataset.k] = cb.checked; store(KEY, state); });
+    });
+  })();
+
+  // Coverage mock
+  (function () {
+    var data = {
+      antes: {
+        rows: [
+          ['URL', 'Type', 'Total', 'Unused', 'Uso'],
+          ['localhost:3000/src/output.css', 'CSS', '16,9 kB', '?? kB (??%)', 65]
+        ],
+        src: [
+          ['u', '.flex{display:flex}'],
+          ['u', '.text-orange-500{color:var(--color-orange-500)}'],
+          ['x', '.sm\\:flex-row{flex-direction:row}        ← variante: viva'],
+          ['x', '.md\\:h-96{height:calc(var(--spacing)*96)}  ← variante: viva'],
+          ['x', '.hover\\:bg-orange-600:hover{...}          ← estado: viva'],
+          ['x', ':root{--color-amber-600:...}              ← morta de verdade']
+        ]
+      },
+      depois: {
+        rows: [
+          ['URL', 'Type', 'Total', 'Unused', 'Uso'],
+          ['localhost:3000/  (o documento)', 'CSS', '?? kB', '?? kB (??%)', 68],
+          ['src/output.css', '—', 'não aparece', 'não é baixado', -1]
+        ],
+        src: [
+          ['u', '<style>.flex{display:flex}'],
+          ['u', '.text-orange-700{color:var(--color-orange-700)}'],
+          ['x', '.sm\\:flex-row{flex-direction:row}        ← variante: viva'],
+          ['x', '.md\\:h-96{height:calc(var(--spacing)*96)}  ← variante: viva'],
+          ['x', '.hover\\:bg-orange-800:hover{...}          ← estado: viva'],
+          ['x', '.focus\\:ring-2:focus{...}</style>         ← estado: viva']
+        ]
+      }
+    };
+    var table = document.getElementById('cov-table'), src = document.getElementById('cov-src');
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function render(k) {
+      var d = data[k];
+      table.innerHTML = d.rows.map(function (r, i) {
+        var bar = i === 0 ? r[4] : (r[4] < 0 ? '' : '<span class="bar"><b style="width:' + r[4] + '%"></b><i style="flex:1"></i></span>');
+        return '<div><span>' + esc(r[0]) + '</span><span>' + r[1] + '</span><span>' + r[2] + '</span><span>' + r[3] + '</span>' + (i === 0 ? '<span>' + bar + '</span>' : bar || '<span></span>') + '</div>';
+      }).join('');
+      src.innerHTML = d.src.map(function (l) { return '<span class="' + l[0] + '">' + esc(l[1]) + '</span>'; }).join('');
+    }
+    document.querySelectorAll('[data-cov]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('[data-cov]').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        render(b.dataset.cov);
+      });
+    });
+    render('antes');
+  })();
+
+  // Caça ao código morto
+  (function () {
+    var HTML0 = [
+      '<!-- No build, este link vira CSS inline -->',
+      '<nav class="flex flex-col sm:flex-row gap-3">',
+      '  <a href="#" class="font-bold text-orange-700">',
+      '    Pet&amp;Style',
+      '  </a>',
+      '  <a href="#produtos"',
+      '     class="rounded-full bg-orange-700 text-white',
+      '            hover:bg-orange-800">',
+      '    Ver produtos',
+      '  </a>',
+      '</nav>'
+    ].join('\n');
+    // kind: 'class' (viva se a classe aparece em algum class="") ou 'var' (viva se alguma regra VIVA a usa)
+    var RULES = [
+      { sel: '.flex{display:flex}', kind: 'class', name: 'flex' },
+      { sel: '.sm\\:flex-row{flex-direction:row}', kind: 'class', name: 'sm:flex-row', note: 'Só se aplica a partir de 640 px. A Coverage no celular marca vermelho, mas a regra é viva.' },
+      { sel: '.text-orange-700{color:var(--color-orange-700)}', kind: 'class', name: 'text-orange-700' },
+      { sel: '.hover\\:bg-orange-800:hover{background:var(--color-orange-800)}', kind: 'class', name: 'hover:bg-orange-800', note: 'Só se aplica ao passar o mouse. Viva.' },
+      { sel: '.inline{display:inline}', kind: 'class', name: 'inline', note: 'A palavra está só no comentário. O Tailwind gera a regra mesmo assim (o scanner lê texto), mas nenhum elemento a usa. Foi um caso real deste projeto, corrigido no commit 40c13bf.' },
+      { sel: '.hidden{display:none}', kind: 'class', name: 'hidden' },
+      { sel: '.text-amber-600{color:var(--color-amber-600)}', kind: 'class', name: 'text-amber-600', note: 'Sobra de uma versão antiga do HTML: o CSS não foi regerado.' },
+      { sel: '--color-orange-800: oklch(47% .157 37.3)', kind: 'var', name: '--color-orange-800', users: ['hover:bg-orange-800'] },
+      { sel: '--color-amber-600: oklch(66.6% .179 58.3)', kind: 'var', name: '--color-amber-600', users: ['text-amber-600'], note: 'Só uma regra morta a usa. Removendo a regra, a variável também morre: foi o caso real deste projeto.' },
+      { sel: '--color-blue-300: oklch(80.9% .105 251.8)', kind: 'var', name: '--color-blue-300', users: [] }
+    ];
+    var ta = document.getElementById('hunt-html'), ul = document.getElementById('hunt-rules'), score = document.getElementById('hunt-score');
+    var guesses = {};
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function render() {
+      ul.className = 'rules';
+      score.textContent = '';
+      ul.innerHTML = RULES.map(function (r, i) {
+        var g = guesses[i];
+        return '<li data-i="' + i + '"><div class="top"><code>' + esc(r.sel) + '</code>' +
+          '<span class="seg" role="group" aria-label="Classificar ' + esc(r.name) + '">' +
+          '<button type="button" class="u" aria-pressed="' + (g === 'live') + '" data-g="live">viva</button>' +
+          '<button type="button" class="m" aria-pressed="' + (g === 'dead') + '" data-g="dead">morta</button></span>' +
+          '<span class="verdict"></span></div><div class="why"></div></li>';
+      }).join('');
+    }
+    function classesIn(html) {
+      var set = {}, re = /class\s*=\s*"([^"]*)"/g, m;
+      while ((m = re.exec(html))) m[1].trim().split(/\s+/).forEach(function (c) { if (c) set[c] = true; });
+      return set;
+    }
+    function check() {
+      var used = classesIn(ta.value), ok = 0;
+      RULES.forEach(function (r, i) {
+        var live;
+        if (r.kind === 'class') live = !!used[r.name];
+        else live = r.users.some(function (u) { return !!used[u]; });
+        var li = ul.querySelector('li[data-i="' + i + '"]');
+        var v = li.querySelector('.verdict'), why = li.querySelector('.why');
+        v.textContent = live ? 'VIVA' : 'MORTA';
+        v.className = 'verdict ' + (live ? 'live' : 'dead');
+        var right = guesses[i] === (live ? 'live' : 'dead');
+        if (right) ok++;
+        li.classList.toggle('right', right);
+        li.classList.toggle('wrong', !right);
+        var base = r.kind === 'class'
+          ? (live ? 'A classe <code>' + esc(r.name) + '</code> aparece num class="".' : 'Nenhum class="" contém <code>' + esc(r.name) + '</code>.')
+          : (live ? 'Usada por uma regra viva (' + r.users.map(esc).join(', ') + ').' : (r.users.length ? 'Só é lida por regra morta.' : 'Nenhuma regra faz var(' + esc(r.name) + ').'));
+        why.innerHTML = base + (r.note ? ' ' + r.note : '');
+      });
+      ul.classList.add('checked');
+      score.textContent = ok + ' / ' + RULES.length + ' certas';
+    }
+    ul.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-g]'); if (!b) return;
+      var i = +b.closest('li').dataset.i;
+      guesses[i] = b.dataset.g;
+      b.parentNode.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+    document.getElementById('hunt-check').addEventListener('click', check);
+    document.getElementById('hunt-reset').addEventListener('click', function () { guesses = {}; ta.value = HTML0; render(); });
+    ta.addEventListener('input', function () { if (ul.classList.contains('checked')) check(); });
+    ta.value = HTML0;
+    render();
+  })();
+</script>
+</body>
+</html>

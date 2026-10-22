@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 8 — Bibliotecas pesadas</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; font-size: 13px; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .hl { color: #febc2e; }
+
+  /* devtools mock */
+  .dt { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 10px; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; margin: 12px 0; }
+  .dt-tabs { display: flex; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-border); padding: 0 8px; overflow-x: auto; }
+  .dt-tabs span, .dt-tabs button { padding: 7px 10px; color: var(--dt-muted); white-space: nowrap; font: inherit; background: none; border: 0; }
+  .dt-tabs button { cursor: pointer; }
+  .dt-tabs .on, .dt-tabs button[aria-selected="true"] { color: var(--dt-text); box-shadow: inset 0 -2px 0 var(--dt-blue); }
+  .dt-tabs button:focus-visible { outline: 2px solid var(--dt-blue); outline-offset: -2px; }
+  .netrows { font: 12px var(--mono); min-height: 120px; }
+  .netrows div { display: grid; grid-template-columns: 1.6fr .7fr .6fr .6fr; gap: 8px; padding: 4px 10px; border-bottom: 1px solid var(--dt-border); }
+  .netrows div:first-child { color: var(--dt-muted); }
+  .netrows div span:not(:first-child) { text-align: right; }
+  .netrows .empty { display: block; text-align: center; color: var(--dt-muted); border: 0; padding: 32px 10px; font-family: system-ui, sans-serif; }
+  .netbar { display: flex; flex-wrap: wrap; font: 12px var(--mono); background: var(--dt-bar); border-top: 1px solid var(--dt-border); }
+  .netbar span { padding: 6px 10px; border-right: 1px solid var(--dt-border); color: var(--dt-muted); }
+  .netbar span.hl { color: var(--dt-text); background: color-mix(in srgb, var(--accent) 20%, transparent); font-weight: 700; }
+
+  /* swap cards */
+  .swaps { display: grid; gap: 14px; }
+  .swap { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; overflow: hidden; }
+  .swap-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+  .swap-head h3 { margin: 0; font-size: 16px; flex: 1; min-width: 200px; }
+  .swap-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .swap-body > div { padding: 12px 16px; font-size: 14px; }
+  .swap-body > div + div { border-left: 1px solid var(--border); }
+  .swap-body h4 { margin: 0 0 6px; font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+  .swap-body .no h4 { color: var(--bad); }
+  .swap-body .yes h4 { color: var(--good); }
+  .swap pre { margin: 0; font: 12px/1.55 var(--mono); white-space: pre-wrap; background: var(--surface-2); padding: 8px 10px; border-radius: 8px; }
+  @media (max-width: 640px) { .swap-body { grid-template-columns: 1fr; } .swap-body > div + div { border-left: 0; border-top: 1px solid var(--border); } }
+  .chip { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+
+  /* budget demo */
+  .budget { display: grid; gap: 8px; }
+  .brow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .brow small { display: block; color: var(--muted); font-size: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 99px; overflow: hidden; }
+  .seg button { font: 12px var(--mono); border: 0; background: var(--surface); color: var(--muted); padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .seg button[aria-pressed="true"][data-v="0"] { background: var(--muted); }
+  .seg button[aria-pressed="true"][data-v="2"] { background: var(--good); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .meter { display: grid; gap: 8px; margin-top: 16px; }
+  .mrow { display: grid; grid-template-columns: 170px 1fr 90px; gap: 10px; align-items: center; font-size: 13px; }
+  .mrow .track { height: 18px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .mrow .fill { height: 100%; border-radius: 4px; transition: width .3s; }
+  .mrow b { font-family: var(--mono); text-align: right; }
+  @media (max-width: 560px) { .mrow { grid-template-columns: 1fr 80px; } .mrow .track { grid-column: 1 / -1; grid-row: 2; } }
+
+  /* evidence */
+  .ev { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .ev div { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-size: 14px; }
+  .ev b { display: block; font-size: 22px; margin-bottom: 2px; }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 8 de 12 · Performance e Otimização para a Web</div>
+  <h1>Substituição de bibliotecas pesadas</h1>
+  <p class="lead">Neste projeto, a resposta é <strong>“não se aplica”</strong>. Mas “não se aplica” sem prova é só uma opinião. Hoje você aprende o conceito (para os próximos projetos) e monta a <strong>evidência</strong> de que o Pet&amp;Style não tem JS, bibliotecas nem fontes web.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#custo">1. Quanto custa uma lib</a>
+    <a href="#trocas">2. As trocas clássicas</a>
+    <a href="#orcamento">3. Simulador</a>
+    <a href="#fontes">4. Fontes web</a>
+    <a href="#prova">5. Provar o “não se aplica”</a>
+    <a href="#lighthouse">6. Lista do Lighthouse</a>
+    <a href="#antes">7. Antes de instalar</a>
+    <a href="#readme">8. Para o README</a>
+    <a href="#tarefa">9. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="custo">
+  <h2>1. Quanto custa uma biblioteca de verdade</h2>
+  <p>Imagem e JavaScript de mesmo tamanho <strong>não custam o mesmo</strong>. A imagem é baixada e decodificada (em geral fora da thread principal). O JavaScript é baixado, <strong>analisado, compilado e executado na thread principal</strong>, que é a mesma que responde a cliques e pinta a tela.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  D["📶 Download<br/>pesa em LCP/FCP<br/>se bloquear"] --> P["🧩 Parse e compile"]
+  P --> E["⚙️ Execução"]
+  E --> T["🧵 Thread principal ocupada"]
+  T --> TBT["TBT<br/>no laboratório"]
+  T --> INP["INP<br/>no usuário real"]
+  style T fill:#d93025,color:#fff,stroke:#d93025
+    </pre>
+    <div class="caption">Um <code>&lt;script&gt;</code> no <code>&lt;head&gt;</code> sem <code>defer</code>/<code>async</code> ainda <strong>bloqueia o parser</strong>: o HTML para até o script ser baixado e executado.</div>
+  </div>
+  <div class="callout"><strong>Curiosidade do nosso baseline:</strong> o Pet&amp;Style não tem nenhum script, mas o TBT Mobile (mediana) foi <strong>27 ms</strong> no “antes”, e não zero (uma das 3 execuções deu 63 ms; numa etapa intermediária, a mediana chegou a 170 ms). No “depois” ficou em 0 ms, mas não porque algum script saiu: não havia nenhum. TBT mede tarefas longas na thread principal, de <em>qualquer</em> origem: parse do HTML, cálculo de estilo, layout, decodificação de imagem. Com o CPU 4× mais lento da simulação, algumas tarefas passam de 50 ms. Por isso “TBT ≈ 0” é uma evidência <strong>fraca</strong> sozinha; a Network é a evidência forte.</div>
+</section>
+
+<!-- 2 -->
+<section id="trocas">
+  <h2>2. As trocas clássicas</h2>
+  <p>Os quatro exemplos do plano da atividade. Os tamanhos são <strong>aproximados</strong> (versões recentes, minificado/gzip). Antes de citar num README, confira no arquivo real ou no <a href="https://bundlephobia.com">bundlephobia.com</a>.</p>
+  <div class="swaps">
+    <article class="swap">
+      <div class="swap-head"><h3>jQuery → JavaScript nativo</h3><span class="chip">~87 KB min · ~30 KB gzip → 0</span></div>
+      <div class="swap-body">
+        <div class="no"><h4>com jQuery</h4><pre>$('.menu-btn').on('click', function () {
+  $('#menu').toggleClass('aberto');
+});
+$.getJSON('/api/produtos', render);</pre></div>
+        <div class="yes"><h4>nativo</h4><pre>document.querySelector('.menu-btn')
+  .addEventListener('click', () =&gt;
+    document.getElementById('menu')
+      .classList.toggle('aberto'));
+fetch('/api/produtos').then(r =&gt; r.json()).then(render);</pre></div>
+      </div>
+    </article>
+    <article class="swap">
+      <div class="swap-head"><h3>Moment.js → Intl.DateTimeFormat (ou date-fns)</h3><span class="chip">~58 KB min · ~18 KB gzip, mais locales → 0</span></div>
+      <div class="swap-body">
+        <div class="no"><h4>com Moment</h4><pre>import moment from 'moment';
+import 'moment/locale/pt-br';
+moment(pedido.data).format('LL');
+// "21 de outubro de 2026"</pre></div>
+        <div class="yes"><h4>nativo</h4><pre>new Intl.DateTimeFormat('pt-BR', {
+  dateStyle: 'long'
+}).format(new Date(pedido.data));
+// "21 de outubro de 2026"</pre></div>
+      </div>
+    </article>
+    <article class="swap">
+      <div class="swap-head"><h3>Bootstrap completo → só os módulos usados</h3><span class="chip">CSS ~230 KB min · ~30 KB gzip</span></div>
+      <div class="swap-body">
+        <div class="no"><h4>tudo</h4><pre>&lt;link rel="stylesheet"
+  href="bootstrap.min.css"&gt;
+&lt;script src="bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;!-- usa só grid, botões e navbar --&gt;</pre></div>
+        <div class="yes"><h4>só o necessário (Sass)</h4><pre>@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/nav";</pre></div>
+      </div>
+    </article>
+    <article class="swap">
+      <div class="swap-head"><h3>Font Awesome completo → SVG dos ícones usados</h3><span class="chip">CSS ~100 KB + fonte ~150 KB → ~1 KB</span></div>
+      <div class="swap-body">
+        <div class="no"><h4>fonte de ícones inteira</h4><pre>&lt;link rel="stylesheet" href="all.min.css"&gt;
+&lt;i class="fa-solid fa-cart-shopping"&gt;&lt;/i&gt;
+&lt;!-- baixa milhares de ícones para usar 3 --&gt;</pre></div>
+        <div class="yes"><h4>SVG inline</h4><pre>&lt;svg width="20" height="20" viewBox="0 0 24 24"
+     aria-hidden="true"&gt;
+  &lt;path d="M7 4h-2l-1 2h2l3.6 7.6..."/&gt;
+&lt;/svg&gt;</pre></div>
+      </div>
+    </article>
+  </div>
+  <div class="callout warn"><strong>O raciocínio é sempre o mesmo:</strong> quanto da biblioteca eu uso? O navegador já faz isso sozinho? Dá para importar só a parte usada? “Trocar” nem sempre é o melhor: às vezes é <strong>importar menos</strong> (tree-shaking, imports por módulo) ou <strong>carregar depois</strong> (<code>defer</code>, import dinâmico só quando o usuário clica).</div>
+</section>
+
+<!-- 3 -->
+<section id="orcamento">
+  <h2>3. Simulador: o peso das escolhas</h2>
+  <p>Escolha, para cada necessidade, se o site usaria a versão pesada, a enxuta ou nada. O medidor mostra os bytes extras e o tempo só de <strong>download</strong> na rede do Lighthouse Mobile (~1,6 Mbit/s). Execução de JS não está incluída: o custo real é maior.</p>
+  <div class="card">
+    <div class="budget" id="budget"></div>
+    <div class="meter">
+      <div class="mrow"><span>Pet&amp;Style hoje (texto: HTML com CSS inline)</span><div class="track"><div class="fill" id="m-base" style="background:var(--good)"></div></div><b id="v-base"></b></div>
+      <div class="mrow"><span>+ bibliotecas escolhidas</span><div class="track"><div class="fill" id="m-libs" style="background:var(--bad)"></div></div><b id="v-libs"></b></div>
+      <div class="mrow"><span>download extra (4G simulada)</span><div class="track"><div class="fill" id="m-time" style="background:var(--ok)"></div></div><b id="v-time"></b></div>
+    </div>
+    <p class="caption">Valores aproximados (gzip). A base do Pet&amp;Style é o <code>index.html</code> atual: ~5,8 KB com gzip, já com o CSS inteiro dentro. Repare que uma única lib “inocente” pode pesar 5× a página inteira.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="fontes">
+  <h2>4. Fontes web: a “biblioteca” que ninguém lembra</h2>
+  <p>Fonte web também é dependência externa. Com Google Fonts, o caminho até o texto aparecer com a fonte certa tem várias etapas:</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  H["📄 HTML"] --> C["🔗 fonts.googleapis.com<br/>DNS + TLS + CSS"]
+  C --> W["🔗 fonts.gstatic.com<br/>DNS + TLS + woff2"]
+  W --> T["🔤 texto com a fonte"]
+  H -.-> S["🔤 Pet&Style hoje<br/>fonte do sistema, imediato"]
+  style S fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style W fill:#e8a200,color:#000,stroke:#e8a200
+    </pre>
+    <div class="caption">Dois domínios novos, um CSS bloqueante e um arquivo por peso de fonte. Riscos: texto invisível enquanto a fonte baixa (FOIT) e salto de layout quando ela chega (CLS).</div>
+  </div>
+  <p>O Pet&amp;Style usa a pilha padrão do Tailwind (<code>font-sans</code>: <code>ui-sans-serif, system-ui, sans-serif, …</code>). O navegador usa a fonte que <strong>já está instalada</strong>: zero requisições. É uma decisão de projeto boa, e o README deve dizer isso.</p>
+  <p>Se um dia o projeto precisar de uma fonte própria: hospede o <code>woff2</code> junto do site, use só os pesos necessários, <code>font-display: swap</code> e <code>&lt;link rel="preload" as="font" type="font/woff2" crossorigin&gt;</code> para a fonte do texto principal.</p>
+</section>
+
+<!-- 5 -->
+<section id="prova">
+  <h2>5. Provando o “não se aplica” no DevTools</h2>
+  <p>Três prints bastam. Faça na página servida (<code>npx serve .</code>), janela anônima, Network com <strong>Disable cache</strong>, recarregando com <code>Ctrl+Shift+R</code>.</p>
+  <div class="dt" role="group" aria-label="Simulação do painel Network com filtros">
+    <div class="dt-tabs" role="tablist" id="net-tabs">
+      <button type="button" role="tab" aria-selected="false" data-f="all">All</button>
+      <button type="button" role="tab" aria-selected="false" data-f="doc">Doc</button>
+      <button type="button" role="tab" aria-selected="false" data-f="css">CSS</button>
+      <button type="button" role="tab" aria-selected="true" data-f="js">JS</button>
+      <button type="button" role="tab" aria-selected="false" data-f="font">Font</button>
+      <button type="button" role="tab" aria-selected="false" data-f="img">Img</button>
+    </div>
+    <div class="netrows" id="net-rows"></div>
+    <div class="netbar" id="net-bar"></div>
+  </div>
+  <p class="caption">Simulação com a lista <strong>do baseline</strong> (tag <code>antes</code>), tirada do relatório Lighthouse salvo em <code>docs/relatorios/antes/</code>. Clique nos filtros. O que importa no print é o rodapé: <strong>“0 / 9 requests”</strong> com o filtro JS.</p>
+
+  <div class="ev">
+    <div><b>📭</b><strong>Network → JS</strong><br>Lista vazia. Rodapé: <code>0 / N requests</code>. Prova que nenhum script é baixado.</div>
+    <div><b>🔤</b><strong>Network → Font</strong><br>Lista vazia. Prova que não há fonte web.</div>
+    <div><b>📊</b><strong>Coverage</strong><br>Nenhuma linha do tipo <em>JS</em>. Depois do CSS inline (fase 9), só o documento aparece, como <em>CSS</em>.</div>
+    <div><b>🔍</b><strong>Elements</strong><br><code>Ctrl+F</code> → <code>&lt;script</code> → “0 of 0”. Prova no próprio HTML.</div>
+  </div>
+  <div class="callout warn"><strong>Cuidado com o Live Server e extensões:</strong> eles injetam scripts. Se o filtro JS mostrar algo como <code>livereload.js</code> ou <code>content.js</code>, o problema é o ambiente, não o site (lembra da fase 3?). Por isso: <code>npx serve .</code> e janela anônima.</div>
+</section>
+
+<!-- 6 -->
+<section id="lighthouse">
+  <h2>6. A lista completa: auditoria <code>network-requests</code> do Lighthouse</h2>
+  <p>O Lighthouse guarda a lista de todas as requisições numa auditoria chamada <code>network-requests</code>. Ela não aparece no relatório visual, mas está dentro do HTML salvo. É a evidência mais completa, porque mostra o <strong>tipo</strong> de cada recurso.</p>
+  <h3>Como extrair</h3>
+  <p>Abra um relatório salvo (por exemplo, <code>docs/relatorios/antes/antes-mobile-1.report.html</code>) no navegador → DevTools → <strong>Console</strong> → cole:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>Console do DevTools, com o relatório aberto</span><button type="button" data-copy-all>copiar</button></div>
+<pre>console.table(__LIGHTHOUSE_JSON__.audits['network-requests'].details.items
+  .map(i =&gt; ({ tipo: i.resourceType, url: i.url, kB: +(i.transferSize / 1024).toFixed(1), status: i.statusCode })))</pre></div>
+  <p>Resultado real do baseline (execução Mobile 1):</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>resourceType</th><th>URL</th><th>Transferido</th><th>Prioridade</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Document</td><td><code>/</code></td><td class="n">2,5 KB</td><td>VeryHigh</td><td>200</td></tr>
+        <tr><td>Stylesheet</td><td><code>/src/output.css</code></td><td class="n">4,1 KB</td><td>VeryHigh</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/logo.png</code></td><td class="n">6,6 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/hero.jpg</code></td><td class="n">160,6 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/caminha.jpg</code></td><td class="n">91,4 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/brinquedo.jpg</code></td><td class="n">74,1 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/coleira.jpg</code></td><td class="n">44,2 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/roupinha.jpg</code></td><td class="n">77,9 KB</td><td>Medium</td><td>200</td></tr>
+        <tr><td>Other</td><td><code>/favicon.ico</code></td><td class="n">0,9 KB</td><td>High</td><td><strong>404</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="caption">9 requisições: <strong>nenhuma</strong> do tipo <code>Script</code> ou <code>Font</code>. No mesmo relatório: <em>JavaScript execution time</em> = 0,0 s, e as auditorias <em>Reduce unused JavaScript</em>, <em>Legacy JavaScript</em> e <em>Third parties</em> passam sem nada a apontar.</div>
+  </div>
+  <p>E o mesmo comando num relatório <strong>depois</strong> (<code>docs/relatorios/depois/depois-mobile-1.report.html</code>):</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>resourceType</th><th>URL</th><th>Transferido</th><th>Prioridade</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Document</td><td><code>/</code> (com o CSS inline)</td><td class="n">6,1 KB</td><td>VeryHigh</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/logo-72.webp</code></td><td class="n">1,6 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/hero-800.avif</code></td><td class="n">18,3 KB</td><td>High</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/caminha-800.avif</code></td><td class="n">13,8 KB</td><td>Low</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/brinquedo-800.avif</code></td><td class="n">31,5 KB</td><td>Low</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/coleira-800.avif</code></td><td class="n">16,4 KB</td><td>Low</td><td>200</td></tr>
+        <tr><td>Image</td><td><code>/assets/produtos/roupinha-800.avif</code></td><td class="n">9,4 KB</td><td>Low</td><td>200</td></tr>
+        <tr><td>Other</td><td><code>/assets/favicon.png</code></td><td class="n">1,8 KB</td><td>High</td><td>200</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">8 requisições, e de novo <strong>nenhuma</strong> <code>Script</code> ou <code>Font</code>. Sumiu o <code>output.css</code> (agora inline), o 404 virou <code>favicon.png</code> 200, e os produtos caíram para prioridade <strong>Low</strong>: o <code>loading="lazy"</code> não significa “nunca”, e sim “depois, e só quando estiver perto da tela”. O Chrome usa uma margem generosa (centenas a milhares de px), por isso no celular simulado eles ainda são baixados, mas sem disputar banda com o hero.</div>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>alternativa: Lighthouse CLI em JSON + Node</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npx lighthouse http://localhost:3000/ --output=json --output-path=lh.json --quiet --chrome-flags="--headless=new"
+<span class="p">$ </span>node -e "const j=require('./lh.json');for(const i of j.audits['network-requests'].details.items)console.log(i.resourceType.padEnd(11),i.url)"
+<span class="c"># filtre por Script/Font: nenhuma linha</span></pre></div>
+</section>
+
+<!-- 7 -->
+<section id="antes">
+  <h2>7. Checklist antes de instalar qualquer biblioteca</h2>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  N["Preciso de X"] --> A{"O navegador<br/>já faz?"}
+  A -- "sim" --> NAT["✅ API nativa<br/>Intl, fetch, dialog, details"]
+  A -- "não" --> B{"Uso uma parte<br/>pequena da lib?"}
+  B -- "sim" --> MOD["✅ Import por módulo<br/>ou lib menor"]
+  B -- "não" --> C{"Precisa na<br/>primeira tela?"}
+  C -- "não" --> LAZY["✅ defer ou<br/>import dinâmico"]
+  C -- "sim" --> OK["Instalar, medir<br/>e registrar o custo"]
+  style NAT fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="readme">
+  <h2>8. Para o README</h2>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">### Substituição de bibliotecas pesadas — não se aplica
+
+A página não carrega nenhum JavaScript nem biblioteca externa, e usa a pilha de fontes
+do sistema (`font-sans` do Tailwind): zero requisições de fonte.
+
+Evidências (docs/relatorios/depois/):
+- Network com filtro **JS**: 0 de N requisições (print `network-js.png`)
+- Network com filtro **Font**: 0 de N requisições (print `network-font.png`)
+- Lighthouse, auditoria `network-requests`: nenhum recurso do tipo Script ou Font;
+  "JavaScript execution time" = 0,0 s
+
+Observação: no "antes", o TBT Mobile não era zero (27 ms) mesmo sem JS, porque mede tarefas longas de
+parse, estilo, layout e decodificação de imagens com a CPU 4× mais lenta da simulação.</pre>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="tarefa">
+  <h2>9. ✍️ Tarefa da fase 8</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="js"><span>Print da Network filtrada por JS (vazia, com o rodapé visível)</span></label></li>
+      <li><label><input type="checkbox" data-k="font"><span>Print da Network filtrada por Font (vazia)</span></label></li>
+      <li><label><input type="checkbox" data-k="cov"><span>Coverage sem nenhuma linha do tipo JS</span></label></li>
+      <li><label><input type="checkbox" data-k="lh"><span>Lista <code>network-requests</code> extraída de um relatório (antes e, na fase 10, depois)</span></label></li>
+      <li><label><input type="checkbox" data-k="tpl"><span>Seção “não se aplica” do README escrita com as evidências</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>O rodapé da Network com o filtro JS (o texto “0 / N requests”).</li>
+    <li>A tabela do <code>console.table</code> de um relatório seu.</li>
+    <li><strong>Pergunta conceitual:</strong> por que 30 KB de jQuery custam mais para a experiência do que 30 KB de imagem WebP? Responda falando da thread principal.</li>
+    <li><strong>Pergunta prática:</strong> se o cliente pedisse um carrossel no Pet&amp;Style, qual seria a sua primeira tentativa antes de instalar uma biblioteca? (Dica: <code>scroll-snap</code>.)</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://web.dev/articles/optimize-long-tasks">web.dev — Optimize long tasks</a> ·
+  <a href="https://youmightnotneedjquery.com/">You Might Not Need jQuery</a> ·
+  <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat">MDN — Intl.DateTimeFormat</a> ·
+  <a href="https://web.dev/articles/font-best-practices">web.dev — Font best practices</a> ·
+  <a href="https://bundlephobia.com">bundlephobia</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+  function copyText(btn, text) {
+    var label = btn.textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = label; }, 1500);
+    }, function () {});
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      copyText(btn, pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n'));
+    });
+  });
+  document.querySelectorAll('[data-copy-all]').forEach(function (btn) {
+    btn.addEventListener('click', function () { copyText(btn, btn.closest('.term').querySelector('pre').innerText); });
+  });
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    copyText(this, document.getElementById('tpl').innerText);
+  });
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase8-petstyle';
+    var state = store(KEY);
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () { state[cb.dataset.k] = cb.checked; store(KEY, state); });
+    });
+  })();
+
+  // Network mock (dados reais do baseline)
+  (function () {
+    var REQ = [
+      ['(index)', 'doc', 'VeryHigh', '2.5 kB', '200'],
+      ['output.css', 'css', 'VeryHigh', '4.1 kB', '200'],
+      ['logo.png', 'img', 'High', '6.6 kB', '200'],
+      ['hero.jpg', 'img', 'High', '160.6 kB', '200'],
+      ['caminha.jpg', 'img', 'High', '91.4 kB', '200'],
+      ['brinquedo.jpg', 'img', 'High', '74.1 kB', '200'],
+      ['coleira.jpg', 'img', 'High', '44.2 kB', '200'],
+      ['roupinha.jpg', 'img', 'Medium', '77.9 kB', '200'],
+      ['favicon.ico', 'other', 'High', '0.9 kB', '404']
+    ];
+    var total = 462.4;
+    var rows = document.getElementById('net-rows'), bar = document.getElementById('net-bar');
+    function render(f) {
+      var list = REQ.filter(function (r) { return f === 'all' || r[1] === f; });
+      var kb = list.reduce(function (s, r) { return s + parseFloat(r[3]); }, 0);
+      var head = '<div><span>Name</span><span>Priority</span><span>Transferred</span><span>Status</span></div>';
+      rows.innerHTML = head + (list.length
+        ? list.map(function (r) { return '<div><span>' + r[0] + '</span><span>' + r[2] + '</span><span>' + r[3] + '</span><span>' + r[4] + '</span></div>'; }).join('')
+        : '<div class="empty">Nenhuma requisição corresponde a este filtro.</div>');
+      var hl = (f === 'js' || f === 'font') ? ' class="hl"' : '';
+      bar.innerHTML = '<span' + hl + '>' + list.length + ' / ' + REQ.length + ' requests</span><span' + hl + '>' + kb.toFixed(1) + ' kB / ' + total + ' kB transferred</span>';
+    }
+    document.querySelectorAll('#net-tabs button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('#net-tabs button').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        render(b.dataset.f);
+      });
+    });
+    render('js');
+  })();
+
+  // Simulador de orçamento
+  (function () {
+    var BASE = 5.8; // index.html atual, gzip
+    var NEEDS = [
+      { k: 'dom', label: 'Manipular o DOM / requisições', opts: [['nada', 0], ['jQuery', 30], ['nativo', 0]] },
+      { k: 'data', label: 'Formatar datas', opts: [['nada', 0], ['Moment + locale', 20], ['Intl', 0]] },
+      { k: 'ui', label: 'Grid e componentes', opts: [['nada', 0], ['Bootstrap CSS+JS', 53], ['só módulos', 9]] },
+      { k: 'ico', label: '3 ícones', opts: [['nada', 0], ['Font Awesome', 120], ['SVG inline', 1]] },
+      { k: 'font', label: 'Tipografia', opts: [['sistema', 0], ['Google Fonts (2 pesos)', 45], ['woff2 próprio, 1 peso', 20]] }
+    ];
+    var sel = {};
+    NEEDS.forEach(function (n) { sel[n.k] = 0; });
+    var box = document.getElementById('budget');
+    box.innerHTML = NEEDS.map(function (n) {
+      return '<div class="brow"><span>' + n.label + '</span><span class="seg" role="group" aria-label="' + n.label + '">' +
+        n.opts.map(function (o, i) {
+          return '<button type="button" data-n="' + n.k + '" data-v="' + i + '" aria-pressed="' + (i === 0) + '">' + o[0] + (o[1] ? ' · ' + o[1] + ' KB' : '') + '</button>';
+        }).join('') + '</span></div>';
+    }).join('');
+    function update() {
+      var libs = NEEDS.reduce(function (s, n) { return s + n.opts[sel[n.k]][1]; }, 0);
+      var max = 300;
+      var secs = libs * 1024 * 8 / 1.6e6; // só transferência, sem RTT
+      document.getElementById('m-base').style.width = Math.min(100, BASE / max * 100) + '%';
+      document.getElementById('m-libs').style.width = Math.min(100, libs / max * 100) + '%';
+      document.getElementById('m-time').style.width = Math.min(100, secs / 1.5 * 100) + '%';
+      document.getElementById('v-base').textContent = BASE.toFixed(1).replace('.', ',') + ' KB';
+      document.getElementById('v-libs').textContent = '+' + libs + ' KB';
+      document.getElementById('v-time').textContent = '+' + secs.toFixed(2).replace('.', ',') + ' s';
+    }
+    box.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-n]'); if (!b) return;
+      sel[b.dataset.n] = +b.dataset.v;
+      b.parentNode.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      update();
+    });
+    update();
+  })();
+</script>
+</body>
+</html>

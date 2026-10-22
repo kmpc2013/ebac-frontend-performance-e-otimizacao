@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 6 — Minificação de HTML e CSS</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+  .good { color: var(--good); }
+
+  /* terminal / código */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 13px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .k { color: #c3a6ff; }
+  .term .s { color: #ffd580; }
+  .term .hl { background: rgba(126,226,168,.16); border-radius: 3px; }
+  .term .del { color: #ff8f87; }
+
+  /* minificar x comprimir */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs > div { border-radius: 12px; padding: 14px; font-size: 14px; border: 1px solid var(--border); background: var(--surface); }
+  .vs h4 { margin: 0 0 6px; font-size: 15px; }
+  .vs .when { font: 12px var(--mono); color: var(--accent); margin-bottom: 6px; }
+  @media (max-width: 600px) { .vs { grid-template-columns: 1fr; } }
+
+  /* árvore de arquivos */
+  .tree { font: 14px/1.7 var(--mono); background: var(--surface-2); border-radius: 10px; padding: 14px 18px; overflow-x: auto; white-space: pre; }
+  .tree .new { color: var(--good); font-weight: 700; }
+  .tree .gen { color: var(--accent); font-weight: 700; }
+  .tree .note { color: var(--muted); }
+
+  /* demos */
+  .demo-ctrl { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 10px 0 14px; font-size: 14px; }
+  .demo-ctrl label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .demo-ctrl input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ab { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ab > div { display: grid; gap: 6px; }
+  .ab h4 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+  .ab h4 b { font-family: var(--mono); color: var(--text); text-transform: none; letter-spacing: 0; }
+  .ab textarea, .ab pre { width: 100%; min-height: 260px; margin: 0; font: 12px/1.5 var(--mono); padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); resize: vertical; }
+  .ab pre { white-space: pre-wrap; word-break: break-all; overflow: auto; max-height: 360px; }
+  @media (max-width: 640px) { .ab { grid-template-columns: 1fr; } .ab textarea, .ab pre { min-height: 180px; } }
+
+  .sizes { display: grid; gap: 8px; }
+  .sizes-row { display: grid; grid-template-columns: 170px 1fr; gap: 10px; align-items: center; font-size: 14px; }
+  .sizes-row .track { background: var(--surface-2); border-radius: 4px; }
+  .sizes-row .b { height: 24px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; color: #fff; font: 600 12px var(--mono); white-space: nowrap; transition: width .35s ease; min-width: 2px; }
+  .sizes h4 { margin: 10px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  @media (max-width: 560px) { .sizes-row { grid-template-columns: 1fr; gap: 2px; } }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; }
+
+  .ws-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ws-demo > div { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface-2); }
+  .ws-demo h4 { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+  .ws-demo .out { font: 12px/1.5 var(--mono); word-break: break-all; color: var(--muted); margin-top: 8px; }
+  .ws-demo .render { font-size: 15px; background: var(--surface); border-radius: 8px; padding: 10px; }
+  .ws-demo .badge { display: inline-block; font: 600 12px/1 var(--mono); padding: 5px 9px; border-radius: 99px; background: var(--accent); color: #fff; }
+  @media (max-width: 600px) { .ws-demo { grid-template-columns: 1fr; } }
+
+  /* devtools mock */
+  .dt { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 10px; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; }
+  .dt-tabs { display: flex; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-border); padding: 0 8px; overflow-x: auto; }
+  .dt-tabs span { padding: 7px 10px; color: var(--dt-muted); white-space: nowrap; }
+  .dt-tabs span.on { color: var(--dt-text); box-shadow: inset 0 -2px 0 var(--dt-blue); }
+  .dt-split { display: grid; grid-template-columns: 220px 1fr; }
+  .dt-list { border-right: 1px solid var(--dt-border); font: 12px var(--mono); }
+  .dt-list div { padding: 6px 10px; border-bottom: 1px solid var(--dt-border); }
+  .dt-list div.sel { background: color-mix(in srgb, var(--dt-blue) 18%, transparent); }
+  .dt-list small { display: block; color: var(--dt-muted); }
+  .dt-hdr { padding: 10px 14px; font: 12px/1.7 var(--mono); }
+  .dt-hdr h5 { margin: 8px 0 2px; font: 600 12px system-ui, sans-serif; color: var(--dt-muted); }
+  .dt-hdr h5:first-child { margin-top: 0; }
+  .dt-hdr .k { color: var(--dt-muted); }
+  .dt-hdr .mark { background: color-mix(in srgb, var(--good) 22%, transparent); border-radius: 3px; padding: 0 3px; }
+  @media (max-width: 600px) { .dt-split { grid-template-columns: 1fr; } .dt-list { border-right: 0; } }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 6 de 12 · Performance e Otimização para a Web</div>
+  <h1>Minificação de HTML e CSS</h1>
+  <p class="lead">Hoje cuidamos das fichas G4 e G5: tirar dos arquivos de texto tudo o que só serve a humanos. É obrigatório no enunciado, é rápido, e vai ensinar uma lição importante: <strong>medir o ganho real</strong>, que é bem menor do que parece quando o servidor já usa gzip.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#conceito">1. Minificar × comprimir</a>
+    <a href="#css">2. O CSS do Tailwind</a>
+    <a href="#html">3. O HTML</a>
+    <a href="#espacos">4. conservativeCollapse</a>
+    <a href="#demo">5. Antes × depois</a>
+    <a href="#numeros">6. Números honestos</a>
+    <a href="#gzip">7. Conferir o gzip</a>
+    <a href="#tarefa">8. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="conceito">
+  <h2>1. Minificar não é comprimir</h2>
+  <p>As duas técnicas reduzem bytes de texto, mas em momentos e de jeitos diferentes. E elas <strong>se sobrepõem</strong>, o que explica os números da seção 6.</p>
+  <div class="vs">
+    <div><h4>✂️ Minificação</h4><div class="when">no build, uma vez</div>Reescreve o arquivo removendo o que o navegador não precisa: indentação, quebras de linha, comentários, aspas e atributos redundantes. O resultado <strong>continua sendo HTML/CSS válido</strong>, só que ilegível.</div>
+    <div><h4>🗜️ Compressão (gzip, Brotli)</h4><div class="when">no servidor, a cada resposta</div>Codifica os bytes para a viagem e o navegador decodifica na chegada. Funciona muito bem em texto repetitivo, e espaço em branco e nomes de classe repetidos são <strong>exatamente</strong> isso.</div>
+  </div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  subgraph build["⚙️ npm run build (na sua máquina)"]
+    I["src/input.css"] -->|"tailwindcss --minify"| O["src/output.css<br/>minificado"]
+    S["src/index.html<br/>fonte legível"] -->|"html-minifier-terser"| H["index.html<br/>minificado"]
+  end
+  subgraph rede["🌐 a cada visita"]
+    O --> G["serve<br/>gzip"]
+    H --> G
+    G --> B["📱 navegador<br/>descomprime"]
+  end
+  style H fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style O fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+  <div class="callout"><strong>Neste projeto não há JavaScript</strong>, então a minificação de JS (Terser, esbuild) não se aplica. Diga isso no README, como fizemos na fase 4: “não se aplica” também é um resultado.</div>
+</section>
+
+<!-- 2 -->
+<section id="css">
+  <h2>2. O CSS: <code>--minify</code> e o escopo da varredura</h2>
+  <p>O CSS do Tailwind é <strong>gerado</strong>: a CLI lê seus arquivos, encontra os nomes de classe e escreve só as regras usadas. Minificar é uma flag. O <code>package.json</code> ficou assim:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>package.json (scripts)</span></div>
+<pre><span class="s">"build:css"</span>: <span class="s">"tailwindcss -i ./src/input.css -o ./src/output.css <span class="hl">--minify</span>"</span>,
+<span class="s">"build:html"</span>: <span class="s">"node scripts/build-html.mjs"</span>,
+<span class="s">"build"</span>: <span class="s">"npm run build:css &amp;&amp; npm run build:html"</span></pre></div>
+
+  <h3>A armadilha anunciada na fase 4</h3>
+  <p>O Tailwind v4 tem <strong>detecção automática</strong> de fontes: sem configuração, ele varre a pasta do projeto inteira (respeitando o <code>.gitignore</code>) atrás de qualquer texto que pareça classe. Só que agora o projeto tem <code>docs/aulas/</code>, com HTMLs cheios de palavras como <code>card</code>, <code>grid</code>, <code>flex</code>, <code>hidden</code>…</p>
+  <p>Fiz o experimento: gerei o CSS minificado com a detecção automática ligada, com a pasta <code>docs/</code> do jeito que ela está hoje.</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Versão do <code>output.css</code></th><th class="n">Bruto</th><th class="n">gzip</th></tr></thead>
+      <tbody>
+        <tr><td>Antes (sem minificar, tag <code>antes</code>)</td><td class="n">16,9 KB</td><td class="n">3,8 KB</td></tr>
+        <tr><td>Minificado, <strong>varrendo o projeto todo</strong> (inclui <code>docs/</code>)</td><td class="n" style="color:var(--bad)">18,0 KB</td><td class="n" style="color:var(--bad)">4,4 KB</td></tr>
+        <tr><td>Minificado, varrendo <strong>só o <code>index.html</code></strong></td><td class="n good">13,5 KB</td><td class="n good">3,5 KB</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Leia de novo a linha do meio: <strong>minificado e maior</strong> que o original sem minificar. As classes das aulas viraram regras de CSS que a landing page nunca usa. Os números do meio variam conforme o conteúdo de <code>docs/</code> cresce.</div>
+  </div>
+  <p>A correção fica no <code>src/input.css</code>:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/input.css</span></div>
+<pre><span class="del">- @import "tailwindcss";</span>
+<span class="hl">+ @import "tailwindcss" source(none);</span>
+
+  <span class="c">/* Só o HTML da página gera classes. Sem isso, a detecção automática do Tailwind v4
+     varreria a pasta inteira (inclusive docs/aulas) e colocaria classes extras no CSS. */</span>
+<span class="hl">+ @source "./index.html";</span></pre></div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Peça</th><th>O que faz</th></tr></thead>
+      <tbody>
+        <tr><td><code>source(none)</code></td><td>Desliga a detecção automática. Sem nenhuma fonte, o Tailwind não geraria utilitário nenhum.</td></tr>
+        <tr><td><code>@source "./index.html"</code></td><td>Lista explicitamente a única fonte. O caminho é <strong>relativo ao <code>input.css</code></strong>: aponta para <code>src/index.html</code>, a fonte legível (seção 3).</td></tr>
+        <tr><td>Alternativa</td><td>Manter a detecção e excluir só a pasta: <code>@source not "../docs";</code>. Funciona, mas é uma lista de exclusões que cresce. A lista de inclusões (“só isto”) é mais previsível.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><strong>Verifique antes de afirmar (de novo):</strong> depois de regerar, comparei as classes do HTML com as regras do CSS. Todas as classes usadas continuam lá. E as duas variáveis sem uso que a fase 4 encontrou, <code>--color-amber-600</code> e <code>--color-blue-300</code>, <strong>sumiram</strong>: elas vinham de algum arquivo fora da página que a detecção automática tinha lido. O “código morto” da G4 era, na verdade, um problema de escopo da varredura.</div>
+</section>
+
+<!-- 3 -->
+<section id="html">
+  <h2>3. O HTML: fonte legível e arquivo gerado</h2>
+  <p>Com o CSS, o arquivo gerado já era separado da fonte. Com o HTML, não: o <code>index.html</code> era, ao mesmo tempo, o arquivo que você edita e o que o navegador baixa. Minificar ele no lugar deixaria o projeto impossível de manter. A solução é a mesma do CSS: <strong>separar fonte e saída</strong>.</p>
+  <div class="tree">projeto/
+├── <span class="gen">index.html</span>               <span class="note"># GERADO por npm run build: não edite</span>
+├── src/
+│   ├── <span class="new">index.html</span>           <span class="note"># fonte legível: é aqui que você edita</span>
+│   ├── input.css
+│   └── <span class="gen">output.css</span>           <span class="note"># GERADO pela CLI do Tailwind</span>
+└── scripts/
+    ├── images.mjs           <span class="note"># fase 5</span>
+    └── <span class="new">build-html.mjs</span>       <span class="note"># minifica src/index.html → index.html</span></div>
+  <p class="caption">O <code>index.html</code> continua na raiz porque é ele que o <code>serve</code> (e o GitHub Pages) entrega em <code>/</code>. Os caminhos dentro de <code>src/index.html</code> (<code>src/output.css</code>, <code>assets/…</code>) são escritos pensando na raiz, onde o arquivo final mora. A fonte abre com um comentário avisando isso, e o próprio minificador remove esse comentário da saída.</p>
+
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>scripts/build-html.mjs (versão da fase 6)</span></div>
+<pre><span class="k">import</span> { readFileSync, statSync, writeFileSync } <span class="k">from</span> <span class="s">'node:fs'</span>;
+<span class="k">import</span> { gzipSync } <span class="k">from</span> <span class="s">'node:zlib'</span>;
+<span class="k">import</span> { minify } <span class="k">from</span> <span class="s">'html-minifier-terser'</span>;
+
+<span class="k">const</span> fonte = readFileSync(<span class="s">'src/index.html'</span>, <span class="s">'utf8'</span>);
+
+<span class="k">const</span> html = <span class="k">await</span> minify(fonte, {
+  collapseWhitespace: <span class="k">true</span>,
+  <span class="hl">conservativeCollapse: <span class="k">true</span>,</span> <span class="c">// mantém um espaço entre elementos inline (ex.: logo + "Pet&amp;Style")</span>
+  removeComments: <span class="k">true</span>,
+  removeRedundantAttributes: <span class="k">true</span>,
+  removeScriptTypeAttributes: <span class="k">true</span>,
+  removeStyleLinkTypeAttributes: <span class="k">true</span>,
+  useShortDoctype: <span class="k">true</span>,
+  minifyCSS: <span class="k">true</span>,
+});
+
+writeFileSync(<span class="s">'index.html'</span>, html);
+
+<span class="c">// imprime bruto e gzip, para você registrar no README</span>
+<span class="k">const</span> kb = (bytes) =&gt; `${(bytes / 1024).toFixed(1)} KB`;
+<span class="k">const</span> tamanho = (texto) =&gt; `${kb(Buffer.byteLength(texto))} (gzip ${kb(gzipSync(texto).length)})`;
+console.log(`src/index.html  ${tamanho(fonte)}`);
+console.log(`index.html      ${tamanho(html)}`);</pre></div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Opção</th><th>O que remove</th></tr></thead>
+      <tbody>
+        <tr><td><code>collapseWhitespace</code></td><td>Indentação e quebras de linha entre tags. É de onde vem quase todo o ganho.</td></tr>
+        <tr><td><code>conservativeCollapse</code></td><td>Modera a opção acima: reduz espaços a <strong>um</strong>, nunca a zero. Seção 4.</td></tr>
+        <tr><td><code>removeComments</code></td><td><code>&lt;!-- … --&gt;</code>, como o aviso no topo da fonte.</td></tr>
+        <tr><td><code>removeRedundantAttributes</code></td><td>Atributos com o valor padrão (ex.: <code>type="text"</code> em <code>&lt;input&gt;</code>).</td></tr>
+        <tr><td><code>removeScriptTypeAttributes</code> / <code>removeStyleLinkTypeAttributes</code></td><td><code>type="text/javascript"</code> e <code>type="text/css"</code>, que já são o padrão.</td></tr>
+        <tr><td><code>useShortDoctype</code></td><td>Garante o <code>&lt;!doctype html&gt;</code> curto.</td></tr>
+        <tr><td><code>minifyCSS</code></td><td>CSS dentro de <code>&lt;style&gt;</code> e de atributos <code>style</code>. Hoje não há nenhum; na fase 9 vai haver (spoiler no fim da seção 6).</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Ficou de fora, de propósito: <code>removeAttributeQuotes</code> e <code>removeOptionalTags</code>. Economizam poucos bytes a mais, que o gzip já comprime quase de graça, e tornam o HTML gerado mais frágil e mais difícil de depurar.</div>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npm run build
+<span class="c">≈ tailwindcss v4.3.3   Done in 120ms</span>
+<span class="c">src/index.html  12.6 KB (gzip 2.7 KB)</span>
+<span class="c">index.html      9.6 KB (gzip 2.3 KB)</span>
+<span class="c">src/output.css  13.5 KB</span></pre></div>
+  <div class="callout warn"><strong>Novo hábito:</strong> toda mudança no HTML agora é em <code>src/index.html</code>, seguida de <code>npm run build</code>. Se você editar o <code>index.html</code> da raiz, a próxima build apaga a sua mudança sem aviso. E faça commit dos dois: a fonte e o arquivo gerado (é o gerado que o GitHub Pages publica).</div>
+</section>
+
+<!-- 4 -->
+<section id="espacos">
+  <h2>4. Por que <code>conservativeCollapse</code>?</h2>
+  <p>Espaço em branco entre tags <strong>às vezes importa</strong>. Entre dois elementos que ficam lado a lado na mesma linha, o espaço do código vira um espaço na tela. O minificador decide o que é seguro remover olhando o <strong>nome das tags</strong>, mas ele não lê o seu CSS: não sabe que uma tag virou <code>inline-block</code>. Quando ele erra, dois elementos ficam colados.</p>
+  <div class="card">
+    <div class="demo-ctrl">
+      <label><input type="checkbox" id="ws-cons" checked> <code>conservativeCollapse</code></label>
+    </div>
+    <div class="ws-demo">
+      <div><h4>Fonte</h4><div class="render" id="ws-src"></div><div class="out" id="ws-src-code"></div></div>
+      <div><h4>Minificado</h4><div class="render" id="ws-min"></div><div class="out" id="ws-min-code"></div></div>
+    </div>
+    <div class="caption">Simulação: com a opção desligada, o espaço entre as tags é removido por completo. Com ela ligada, sobra <strong>um</strong> espaço: custa um byte e não muda nada na tela.</div>
+  </div>
+  <p>No Pet&amp;Style, o <code>&lt;a&gt;</code> do logo é <code>flex</code> com <code>gap-2</code>, então o espaço entre o <code>&lt;img&gt;</code> e o texto “Pet&amp;Style” nem chega a aparecer. A opção está ali como <strong>seguro</strong>: se alguém trocar o <code>flex</code> amanhã, o layout não quebra só na versão minificada. Bug que só aparece no arquivo gerado é dos mais difíceis de achar.</p>
+</section>
+
+<!-- 5 -->
+<section id="demo">
+  <h2>5. Antes × depois, ao vivo</h2>
+  <p>À esquerda, um trecho real de <code>src/index.html</code> (acrescentei só o comentário da primeira linha, para você ver o <code>removeComments</code> agindo). Edite à vontade: a direita mostra uma minificação simplificada (comentários fora, espaços reduzidos), e as barras mostram o tamanho bruto e com gzip, calculados no seu navegador.</p>
+  <div class="card">
+    <div class="ab">
+      <div><h4>Fonte <b id="mn-src-b">—</b></h4><textarea id="mn-src" spellcheck="false" aria-label="HTML de origem"></textarea></div>
+      <div><h4>Minificado <b id="mn-out-b">—</b></h4><pre id="mn-out" aria-label="HTML minificado"></pre></div>
+    </div>
+    <div class="demo-ctrl">
+      <button type="button" class="btn" id="mn-reset">Restaurar o trecho original</button>
+    </div>
+    <div class="legend"><span><i style="background:#8d8676"></i>bruto</span><span><i style="background:var(--accent)"></i>gzip</span></div>
+    <div class="sizes" id="mn-bars"></div>
+    <div class="caption" id="mn-note"></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="numeros">
+  <h2>6. Números honestos</h2>
+  <p>O que entra no README é o que o visitante <strong>transfere</strong>, ou seja, a coluna do gzip.</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Arquivo</th><th class="n">Bruto antes</th><th class="n">Bruto depois</th><th class="n">gzip antes</th><th class="n">gzip depois</th><th class="n">Economia real</th></tr></thead>
+      <tbody>
+        <tr><td><code>output.css</code></td><td class="n">16,9 KB</td><td class="n">13,5 KB</td><td class="n">3,8 KB</td><td class="n">3,5 KB</td><td class="n good">~0,3 KB</td></tr>
+        <tr><td><code>index.html</code></td><td class="n">12,6 KB</td><td class="n">9,6 KB</td><td class="n">2,7 KB</td><td class="n">2,3 KB</td><td class="n good">~0,4 KB</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">“HTML antes” é a fonte <strong>depois da fase 5</strong>: os <code>&lt;picture&gt;</code> com <code>srcset</code> fizeram o HTML crescer de 9,9 KB (a medição da fase 3) para 12,6 KB. Minificado, ele termina em 9,6 KB: menor que o original, mesmo carregando muito mais informação.</div>
+  </div>
+  <div class="card sizes" id="real-bars"></div>
+
+  <h3>Por que o ganho com gzip é tão pequeno?</h3>
+  <p>O gzip funciona trocando trechos <strong>repetidos</strong> por uma referência curta (“repita os 16 caracteres de 40 posições atrás”). Uma indentação de 16 espaços que aparece em cada linha é a coisa mais repetitiva que existe: depois da primeira vez, cada repetição custa poucos bits. A minificação remove, antes, justamente o que o gzip já comprimia bem. As duas técnicas atacam o <strong>mesmo</strong> desperdício.</p>
+  <div class="callout"><strong>Compare com a fase 5:</strong> o hero sozinho caiu de 160,4 KB para 18,0 KB, uma economia de ~142 KB. A minificação inteira economizou ~0,7 KB transferido: <strong>cerca de 200 vezes menos</strong>. Por isso a ordem de prioridade da fase 4 (imagens primeiro, texto “de brinde”) estava certa. Escreva isso no README com os números: avaliação honesta vale mais que porcentagem bonita.</div>
+  <div class="callout warn"><strong>Então para que minificar?</strong> Custa zero em tempo de execução, nem todo servidor comprime (um bucket mal configurado entrega texto cru), o navegador lê menos bytes para analisar, e o enunciado pede. E o maior ganho de CSS desta fase nem veio da minificação: veio de <strong>não gerar</strong> regras desnecessárias (o escopo da varredura, seção 2).</div>
+  <p class="caption">🔭 <strong>Gancho para a fase 9:</strong> o CSS inteiro tem só ~3,5 KB com gzip, mas é uma requisição separada que bloqueia a primeira pintura. Na fase 9, o <code>build-html.mjs</code> vai passar a colocar esse CSS <strong>dentro</strong> do HTML, num <code>&lt;style&gt;</code>, e é aí que a opção <code>minifyCSS</code> começa a trabalhar.</p>
+</section>
+
+<!-- 7 -->
+<section id="gzip">
+  <h2>7. Conferir a compressão no servidor</h2>
+  <p>Os números de gzip acima foram calculados pelo script. Falta provar que o <strong>servidor</strong> realmente comprime. O <code>serve</code> faz isso por padrão:</p>
+  <ol>
+    <li><code>npx serve .</code>, janela anônima, DevTools → <strong>Network</strong> com <strong>Disable cache</strong>.</li>
+    <li>Recarregue. Ative ⚙️ → <strong>Big request rows</strong>: a coluna <em>Size</em> passa a mostrar duas linhas, a de cima é o transferido e a de baixo é o tamanho real.</li>
+    <li>Clique no documento (<code>localhost</code>) e depois no <code>output.css</code> → aba <strong>Headers</strong>.</li>
+    <li>Em <em>Request Headers</em>, o navegador anuncia o que aceita (<code>accept-encoding</code>). Em <em>Response Headers</em>, o servidor diz o que usou (<code>content-encoding</code>).</li>
+  </ol>
+  <div class="dt" role="img" aria-label="Network com output.css selecionado; Size mostra 3,6 kB transferidos e 13,5 kB reais; Response Headers com content-encoding gzip">
+    <div class="dt-tabs"><span>Name</span><span class="on">Headers</span><span>Preview</span><span>Response</span><span>Timing</span></div>
+    <div class="dt-split">
+      <div class="dt-list">
+        <div>localhost<small>2.6 kB / 9.6 kB</small></div>
+        <div class="sel">output.css<small>3.6 kB / 13.5 kB</small></div>
+        <div>hero-800.avif<small>18.2 kB / 18.0 kB</small></div>
+      </div>
+      <div class="dt-hdr">
+        <h5>▾ Response Headers</h5>
+        <div><span class="k">content-encoding:</span> <span class="mark">gzip</span></div>
+        <div><span class="k">content-type:</span> text/css; charset=utf-8</div>
+        <div><span class="k">vary:</span> Accept-Encoding</div>
+        <h5>▾ Request Headers</h5>
+        <div><span class="k">accept-encoding:</span> gzip, deflate, br, zstd</div>
+      </div>
+    </div>
+  </div>
+  <p class="caption">Ilustração. O transferido fica um pouco acima do gzip calculado por causa dos cabeçalhos HTTP. Repare na imagem: <strong>transferido ≥ real</strong>. AVIF já é comprimido e o <code>serve</code> nem tenta comprimir de novo, assim como acontecia com o JPG na fase 3.</p>
+  <div class="callout">O navegador aceita <code>br</code> (Brotli), que comprime texto um pouco melhor que o gzip, mas o <code>serve</code> responde com gzip. O GitHub Pages e a maioria das CDNs já entregam Brotli. Se você publicar lá (bônus), confira esse header de novo. <strong>Se já estiver no código da fase 9</strong>, não haverá requisição do <code>output.css</code>: o CSS estará dentro do documento; confira o <code>content-encoding</code> do próprio <code>localhost</code>.</div>
+</section>
+
+<!-- 8 -->
+<section id="tarefa">
+  <h2>8. ✍️ Tarefa da fase 6</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="src"><span><code>src/input.css</code> com <code>source(none)</code> + <code>@source "./index.html"</code></span></label></li>
+      <li><label><input type="checkbox" data-k="css"><span>CSS regerado com <code>--minify</code>; classes da página conferidas</span></label></li>
+      <li><label><input type="checkbox" data-k="move"><span><code>index.html</code> movido para <code>src/index.html</code> (fonte legível)</span></label></li>
+      <li><label><input type="checkbox" data-k="html"><span><code>scripts/build-html.mjs</code> gerando o <code>index.html</code> minificado</span></label></li>
+      <li><label><input type="checkbox" data-k="build"><span><code>npm run build</code> funcionando e a página igual à de antes</span></label></li>
+      <li><label><input type="checkbox" data-k="nums"><span>Tamanhos bruto e gzip, antes e depois, registrados</span></label></li>
+      <li><label><input type="checkbox" data-k="hdr"><span>Network: <code>content-encoding: gzip</code> conferido</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A saída do <code>npm run build</code> e a tabela da seção 6 com os <strong>seus</strong> números.</li>
+    <li>Um print dos <em>Response Headers</em> do CSS (ou do documento) mostrando o <code>content-encoding</code>.</li>
+    <li>Um print da página servida a partir do <code>index.html</code> minificado, provando que nada quebrou (espaços, logo, botões).</li>
+    <li><strong>Pergunta conceitual 1:</strong> por que o <code>output.css</code> encolheu 3,4 KB no bruto, mas só ~0,3 KB no transferido?</li>
+    <li><strong>Pergunta conceitual 2:</strong> o que aconteceria com o <code>output.css</code> se você criasse uma nova aula em <code>docs/</code> e regerasse o CSS <em>sem</em> o <code>source(none)</code>?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://tailwindcss.com/docs/detecting-classes-in-source-files">Tailwind — Detecting classes in source files</a> ·
+  <a href="https://github.com/terser/html-minifier-terser">html-minifier-terser</a> ·
+  <a href="https://web.dev/articles/reduce-network-payloads-using-text-compression">web.dev — Text compression</a> ·
+  <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers/Content-Encoding">MDN — Content-Encoding</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  // Botão "copiar" dos terminais: só as linhas de comando
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var text = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n');
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+      }, function () {});
+    });
+  });
+
+  function fmt(n, d) { return n.toFixed(d === undefined ? 1 : d).replace('.', ','); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function bar(label, sub, val, max, color, unit) {
+    var pct = Math.max(val / max * 100, 1.5);
+    return '<div class="sizes-row"><span><strong>' + label + '</strong>' + (sub ? '<br><span class="caption" style="margin:0">' + sub + '</span>' : '') + '</span>' +
+      '<div class="track"><div class="b" style="width:' + pct + '%;background:' + color + '">' + unit(val) + '</div></div></div>';
+  }
+
+  // conservativeCollapse
+  (function () {
+    var SRC = '<p>\n    Pet&amp;Style\n    <span class="badge">novo</span>\n    <span class="badge">frete grátis</span>\n</p>';
+    var cb = document.getElementById('ws-cons');
+    function render() {
+      var min = cb.checked
+        ? SRC.replace(/\s+/g, ' ')
+        : SRC.replace(/\s*(<[^>]+>)\s*/g, '$1').replace(/\s+/g, ' ');
+      var len = function (s) { return new TextEncoder().encode(s).length; };
+      document.getElementById('ws-src').innerHTML = SRC;
+      document.getElementById('ws-min').innerHTML = min;
+      document.getElementById('ws-src-code').textContent = len(SRC) + ' bytes';
+      document.getElementById('ws-min-code').innerHTML = esc(min) + '<br>' + len(min) + ' bytes';
+    }
+    cb.addEventListener('change', render);
+    render();
+  })();
+
+  // Barras com os números reais do projeto
+  (function () {
+    var max = 16.9, kb = function (v) { return fmt(v) + ' KB'; };
+    var html = '<h4>output.css</h4>' +
+      bar('antes', 'bruto', 16.9, max, '#8d8676', kb) +
+      bar('antes', 'gzip', 3.8, max, 'var(--accent)', kb) +
+      bar('depois', 'bruto', 13.5, max, '#8d8676', kb) +
+      bar('depois', 'gzip', 3.5, max, 'var(--good)', kb) +
+      '<h4>index.html</h4>' +
+      bar('fonte', 'bruto', 12.6, max, '#8d8676', kb) +
+      bar('fonte', 'gzip', 2.7, max, 'var(--accent)', kb) +
+      bar('minificado', 'bruto', 9.6, max, '#8d8676', kb) +
+      bar('minificado', 'gzip', 2.3, max, 'var(--good)', kb) +
+      '<div class="caption">Mesma escala nas oito barras. A distância entre “antes gzip” e “depois gzip” é o ganho que o visitante sente.</div>';
+    document.getElementById('real-bars').innerHTML = html;
+  })();
+
+  // Demo de minificação ao vivo
+  (function () {
+    var ORIGINAL = [
+      '<!-- Hero -->',
+      '<section id="inicio" class="bg-orange-50">',
+      '    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 px-4 py-16 md:py-24">',
+      '        <div class="flex-1 text-center md:text-left">',
+      '            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-slate-900">',
+      '                Estilo e conforto para o seu <span class="text-orange-700">melhor amigo</span>',
+      '            </h1>',
+      '            <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-md mx-auto md:mx-0">',
+      '                Camas, brinquedos e acessórios pensados para deixar o seu pet ainda mais feliz e estiloso.',
+      '            </p>',
+      '            <a href="#produtos" class="inline-block mt-8 rounded-full bg-orange-700 px-8 py-3 font-semibold text-white hover:bg-orange-800 transition-colors">',
+      '                Ver produtos',
+      '            </a>',
+      '        </div>',
+      '    </div>',
+      '</section>'
+    ].join('\n');
+    var src = document.getElementById('mn-src'), out = document.getElementById('mn-out');
+    var bars = document.getElementById('mn-bars'), note = document.getElementById('mn-note');
+    var canGzip = typeof CompressionStream !== 'undefined';
+    var enc = new TextEncoder(), seq = 0;
+
+    function minify(s) {
+      return s.replace(/<!--[\s\S]*?-->/g, '')   // removeComments
+              .replace(/\s+/g, ' ')              // collapseWhitespace + conservativeCollapse
+              .trim();
+    }
+    function gzipSize(text) {
+      if (!canGzip) return Promise.resolve(null);
+      var stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+      return new Response(stream).arrayBuffer().then(function (b) { return b.byteLength; });
+    }
+    function bytes(v) { return v + ' B'; }
+
+    function update() {
+      var my = ++seq, a = src.value, b = minify(a);
+      out.textContent = b;
+      var ra = enc.encode(a).length, rb = enc.encode(b).length;
+      document.getElementById('mn-src-b').textContent = ra + ' bytes';
+      document.getElementById('mn-out-b').textContent = rb + ' bytes';
+      Promise.all([gzipSize(a), gzipSize(b)]).then(function (g) {
+        if (my !== seq) return;
+        var max = Math.max(ra, 1), h = '';
+        h += bar('fonte', 'bruto', ra, max, '#8d8676', bytes);
+        if (g[0] !== null) h += bar('fonte', 'gzip', g[0], max, 'var(--accent)', bytes);
+        h += bar('minificado', 'bruto', rb, max, '#8d8676', bytes);
+        if (g[1] !== null) h += bar('minificado', 'gzip', g[1], max, 'var(--good)', bytes);
+        bars.innerHTML = h;
+        if (g[0] === null) {
+          note.textContent = 'Este navegador não oferece CompressionStream, então só o tamanho bruto aparece.';
+        } else {
+          note.innerHTML = 'Bruto: <strong>−' + Math.round((1 - rb / ra) * 100) + '%</strong> (' + (ra - rb) + ' bytes). ' +
+            'Com gzip: <strong>' + (g[0] - g[1]) + ' bytes</strong> de diferença. Em trechos pequenos o gzip quase não comprime (ele tem um custo fixo de cabeçalho), mas a lição é a mesma do arquivo inteiro: depois do gzip, o que a minificação economiza encolhe muito.';
+        }
+      });
+    }
+    src.addEventListener('input', update);
+    document.getElementById('mn-reset').addEventListener('click', function () { src.value = ORIGINAL; update(); });
+    src.value = ORIGINAL;
+    update();
+  })();
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase6-petstyle', state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    });
+  })();
+</script>
+</body>
+</html>

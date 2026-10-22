@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 11 — Documentação (README)</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* terminal / trecho de arquivo */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; font-size: 13px; }
+  .term .c { color: var(--term-muted); }
+  .term .hl { color: #febc2e; }
+  .term .add { color: #7ee2a8; }
+
+  /* compare boxes */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs > div { border-radius: 12px; padding: 14px; font-size: 14px; border: 2px solid; }
+  .vs .no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+  .vs .yes { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .vs h4 { margin: 0 0 6px; font: 700 14px var(--mono); }
+  .vs ul { margin: 0; padding-left: 18px; }
+  @media (max-width: 640px) { .vs { grid-template-columns: 1fr; } }
+
+  /* anatomia do README */
+  .anat { display: grid; gap: 14px; }
+  .sec { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; overflow: hidden; }
+  .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+  .sec-head h3 { margin: 0; font-size: 16px; flex: 1; min-width: 200px; }
+  .sec-head .q { font: 600 12px var(--mono); color: var(--accent); }
+  .sec-body { padding: 12px 16px; font-size: 14px; }
+  .sec-body .term { margin: 8px 0; }
+  .sec-body p { margin: 6px 0; }
+
+  /* fio da evidência */
+  .thread { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .thread > div { border-radius: 12px; padding: 14px; font-size: 14px; border-top: 4px solid; background: var(--surface); border-left: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .thread small { display: block; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+  .thread .t1 { border-top-color: var(--bad); }
+  .thread .t2 { border-top-color: var(--accent); }
+  .thread .t3 { border-top-color: var(--good); }
+  @media (max-width: 640px) { .thread { grid-template-columns: 1fr; } }
+
+  /* montador */
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+  .presets button { font: 12px var(--mono); border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 4px 10px; border-radius: 99px; cursor: pointer; }
+  .presets button:hover { border-color: var(--accent); }
+  .mt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 720px) { .mt { grid-template-columns: 1fr; } }
+  .mt fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px 12px; margin: 0; display: grid; gap: 8px; align-content: start; }
+  .mt legend { font: 700 12px var(--mono); padding: 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .mt .f1 { border-top: 4px solid var(--bad); }
+  .mt .f2 { border-top: 4px solid var(--accent); }
+  .mt .f3 { border-top: 4px solid var(--good); }
+  .mt label { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+  .mt input, .mt select { font: 13px var(--mono); padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); width: 100%; }
+  .mt .pair { display: grid; grid-template-columns: 1fr 1fr 80px; gap: 6px; }
+  .out { position: relative; margin-top: 14px; }
+  .out pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .out button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .lint { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; font-size: 14px; }
+  .lint li::before { margin-right: 6px; font-weight: 700; }
+  .lint .ok::before { content: "✓"; color: var(--good); }
+  .lint .no::before { content: "✗"; color: var(--bad); }
+  .meter { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+  .meter b { display: block; height: 100%; background: var(--good); transition: width .3s; }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .check small { display: block; color: var(--muted); font-size: 13px; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 11 de 12 · Performance e Otimização para a Web</div>
+  <h1>README: contar a otimização com evidências</h1>
+  <p class="lead">O avaliador não vai rodar o Lighthouse por você. Ele vai ler o <code>README.md</code>. Nesta fase você aprende a escrever um README em que <strong>cada afirmação aponta para uma medição</strong>, e em que alguém de fora entende o que foi feito e por quê.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#leitor">1. Para quem</a>
+    <a href="#espinha">2. A espinha</a>
+    <a href="#secoes">3. Seção por seção</a>
+    <a href="#fio">4. O fio da evidência</a>
+    <a href="#links">5. Links relativos</a>
+    <a href="#evitar">6. O que evitar</a>
+    <a href="#montador">7. Montador</a>
+    <a href="#revisao">8. Revisão</a>
+    <a href="#tarefa">9. Tarefa</a>
+    <a href="#gabarito">10. Gabarito</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="leitor">
+  <h2>1. Para quem você está escrevendo</h2>
+  <p>Três leitores, com pressas diferentes:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Leitor</th><th>Tempo que dá ao README</th><th>O que precisa encontrar</th></tr></thead>
+      <tbody>
+        <tr><td>👩‍🏫 Avaliador da EBAC</td><td>poucos minutos</td><td>Os critérios do enunciado: gargalos, melhorias, comparação, conclusão. E se os números são confiáveis.</td></tr>
+        <tr><td>🧑‍💻 Recrutador ou colega</td><td>30 segundos</td><td>O resultado principal, logo no topo, e sinais de método (não só “ficou 100”).</td></tr>
+        <tr><td>🫵 Você daqui a 6 meses</td><td>o necessário para refazer</td><td>Como medir de novo, de onde vieram as imagens, por que o preload <em>não</em> foi usado.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Por isso o README do projeto começa com uma tabela de 4 linhas, <strong>antes do sumário</strong>. Quem só tem 30 segundos lê isso e já sabe o resultado:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real, topo)</span></div>
+<pre>| | Antes | Depois |
+|---|---|---|
+| **Performance (Mobile)** | 90 | **100** |
+| **LCP (Mobile)** | 3,66 s | **1,21 s** (−67%) |
+| **Peso da página (Mobile)** | 462,4 KB | **98,8 KB** (−79%) |
+| **Acessibilidade / Boas práticas / SEO** | 94 / 96 / 91 | **100 / 100 / 100** |</pre></div>
+  <p class="caption">Repare na escolha: o score (que todo mundo conhece), a métrica que mais melhorou (LCP) com a variação em %, o peso (fácil de entender por qualquer pessoa) e as outras três categorias numa linha só. O resto está nas seções.</p>
+</section>
+
+<!-- 2 -->
+<section id="espinha">
+  <h2>2. A espinha: gargalo → ação → resultado</h2>
+  <p>Um README de otimização não é um diário (“primeiro fiz isso, depois aquilo”). É um <strong>argumento</strong>: havia um problema medido, foi feita uma mudança específica, e a mesma medição mostra o efeito. Cada gargalo ganha um código (<strong>G1…G7</strong>) que aparece nas três partes, para o leitor seguir o fio.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  MET["📏 Metodologia<br/>como medi"] --> G["🩺 Gargalos<br/>G1 a G7 com evidência"]
+  G --> A["🛠️ Melhorias<br/>o quê, onde, commit"]
+  A --> R["📊 Comparativo<br/>mesma métrica, antes e depois"]
+  R --> C["🎯 Conclusão<br/>o que mais pesou"]
+  MET -.->|"dá validade a"| R
+  style G fill:#d93025,color:#fff,stroke:#d93025
+  style A fill:#5b4bdb,color:#fff,stroke:#5b4bdb
+  style R fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+  <p>A estrutura sugerida no plano do projeto e as seções do README real:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Plano (fase 11)</th><th>Seção no README</th><th>Pergunta que responde</th></tr></thead>
+      <tbody>
+        <tr><td>Descrição do projeto e stack</td><td>1. Projeto e stack</td><td>O que é isso e onde está cada coisa?</td></tr>
+        <tr><td>Metodologia de medição</td><td>2. Metodologia de medição</td><td>Posso confiar nos números?</td></tr>
+        <tr><td>Gargalos identificados (com evidências)</td><td>3. Gargalos identificados</td><td>O que estava ruim, e como você sabe?</td></tr>
+        <tr><td>Melhorias aplicadas (o quê, por quê, onde)</td><td>4. Melhorias aplicadas</td><td>O que você mudou, e em qual commit?</td></tr>
+        <tr><td>Comparativo antes × depois (tabela + prints)</td><td>5. Comparativo antes × depois</td><td>Funcionou? Quanto? Por causa de quê?</td></tr>
+        <tr><td>Conclusão: maiores impactos e próximos passos</td><td>6. Conclusão</td><td>O que você aprendeu e o que faria a seguir?</td></tr>
+        <tr><td>(extra)</td><td>7. Como rodar</td><td>Como eu reproduzo isso?</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="secoes">
+  <h2>3. Seção por seção, com trechos reais</h2>
+  <div class="anat">
+
+    <article class="sec">
+      <div class="sec-head"><h3>1. Projeto e stack</h3><span class="q">o que é? onde está?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>- HTML estático + **Tailwind CSS v4.3** (CLI), sem JavaScript e com fontes do sistema.
+- O estado original está congelado na tag [`antes`](../../tree/antes).
+
+├── index.html            ← GERADO por npm run build (minificado, com o CSS embutido)
+├── src/
+│   ├── index.html        ← fonte legível da página (edite aqui)</pre></div>
+        <p><strong>Por que existe:</strong> “sem JavaScript” já antecipa por que não houve troca de bibliotecas. A árvore com <code>← GERADO</code> evita o erro mais comum de quem chega: editar o <code>index.html</code> da raiz e perder a mudança no próximo build. E a tag <code>antes</code> permite a qualquer um ver o código original.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>2. Metodologia de medição</h3><span class="q">posso confiar?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>| Ferramenta | Lighthouse 13.5.0 (CLI), categorias Performance, Acessibilidade, Boas práticas e SEO |
+| Servidor | `serve` com gzip ligado, em `localhost`. Nunca `file://` nem Live Server, que injeta um script de recarga |
+| Execuções | **3× Mobile** (Moto G Power emulado, 4G e CPU 4× mais lenta, simulados) + **3× Desktop**; reporto a **mediana** de cada métrica |
+| Condições | "Antes" e "depois" medidos na **mesma sessão** e com o mesmo script ([`scripts/medir.mjs`](scripts/medir.mjs)). ... |</pre></div>
+        <p><strong>Por que existe:</strong> sem esta seção, todo número do README é “confia em mim”. Ela responde às três perguntas da fase 10 (mesmo jeito? mesma sessão? não é sorte?) e linka o script que gerou tudo. A nota sobre os relatórios do Live Server mostra que você sabe por que <em>descartou</em> uma medição.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>3. Gargalos identificados</h3><span class="q">o que estava ruim?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>| # | Onde | Gargalo (evidência) | Métricas afetadas | Impacto | Esforço |
+|---|---|---|---|---|---|
+| G1 | `assets/produtos/hero.jpg` | Imagem do LCP em JPG **1200×1800 (160 KB)**, exibida com no máximo 540×384 px. Sem `width`/`height` nem `fetchpriority` | LCP, Speed Index, peso | **Alto** | Baixo |</pre></div>
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>**O que não se aplica (com evidência):** a página não carrega **nenhum JavaScript**, **nenhuma
+biblioteca externa** e **nenhuma fonte web**. ... Por isso a etapa "substituir bibliotecas
+pesadas" não teve o que trocar.</pre></div>
+        <p><strong>Por que existe:</strong> é a ponta “gargalo” da espinha. Cada linha tem <strong>onde</strong> (arquivo), <strong>evidência com número</strong> e a <strong>métrica</strong> que deveria melhorar, que é o que a seção 5 vai conferir. O parágrafo “o que não se aplica” responde à pergunta que o avaliador faria ao ver o enunciado pedir “bibliotecas pesadas”.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>4. Melhorias aplicadas</h3><span class="q">o que mudou? onde?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>### 4.1 Imagens (G1, G2, G3) — commit `3a1813f`
+...
+- **Hero:** ... Tem `width`/`height` e `fetchpriority="high"`, e **não** usa `loading="lazy"`, porque é o LCP.
+...
+- **Preload do LCP não foi usado:** o `&lt;img&gt;` do hero já está no HTML inicial com `fetchpriority="high"`.
+  No relatório final, o *resource load delay* do LCP é de 9 ms, então não há o que antecipar.</pre></div>
+        <p><strong>Por que existe:</strong> o título já diz <strong>quais gargalos</strong> resolve e <strong>qual commit</strong> conferir. Cada decisão tem o <strong>porquê</strong> junto (“não usa lazy, porque é o LCP”). E uma otimização <strong>não feita</strong> também é documentada, com o número que justifica a decisão.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>5. Comparativo antes × depois</h3><span class="q">funcionou? por causa de quê?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>| Etapa | Score | FCP | LCP | Peso |
+|---|---|---|---|---|
+| Antes | 90 | 1,11 s | 3,66 s | 462,4 KB |
+| + Imagens | 100 | 1,01 s | **1,32 s** | **98,8 KB** |
+...
+As variações de score e TBT entre 98 e 100 nas etapas intermediárias ficam dentro do ruído
+entre execuções. O TBT oscilou de 27 a 170 ms sem relação com as mudanças. O que se move
+de forma consistente é o LCP e o peso.</pre></div>
+        <p><strong>Por que existe:</strong> é a ponta “resultado”. As tabelas Mobile e Desktop dão o <em>quanto</em>; a tabela por etapa dá o <em>por causa de quê</em>. O parágrafo de ruído é o que separa um README de iniciante de um profissional: ele diz <strong>quais números não significam nada</strong>.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>6. Conclusão</h3><span class="q">o que aprendi?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>- **O que mais pesou foram as imagens.** Sozinhas, elas levaram o LCP Mobile de 3,66 s para 1,32 s ...
+- **A minificação teve ganho real, mas pequeno.** Como o servidor já comprimia com gzip,
+  minificar economizou menos de 1 KB na rede.
+
+**Próximos passos:**
+- publicar no GitHub Pages e conferir os dados de campo no PageSpeed Insights;</pre></div>
+        <p><strong>Por que existe:</strong> transforma tabelas em <strong>aprendizado</strong>, em ordem de impacto. Note a honestidade sobre o ganho pequeno, e que o que <strong>não foi medido</strong> (dados de campo) aparece em “próximos passos”, não como resultado.</p>
+      </div>
+    </article>
+
+    <article class="sec">
+      <div class="sec-head"><h3>7. Como rodar</h3><span class="q">consigo reproduzir?</span></div>
+      <div class="sec-body">
+        <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>README.md (trecho real)</span></div>
+<pre>npm install
+npm run build        # gera src/output.css (minificado) e o index.html da raiz
+npm start            # serve a pasta em http://localhost:3000
+...
+node scripts/medir.mjs . docs/relatorios/depois depois</pre></div>
+        <p><strong>Por que existe:</strong> uma medição que outra pessoa consegue repetir vale muito mais do que uma que só você consegue. É a última peça da credibilidade.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="fio">
+  <h2>4. O fio da evidência: seguindo o G1 pelo README</h2>
+  <p>Teste de qualidade: escolha um gargalo e procure-o nas três seções. Se o fio arrebentar em algum ponto (o gargalo some, ou o resultado mede outra coisa), o argumento tem um buraco.</p>
+  <div class="thread">
+    <div class="t1"><small>seção 3 · gargalo</small><strong>G1</strong>: <code>hero.jpg</code> 1200×1800, 160 KB, exibido em 540×384 no máximo. Afeta <strong>LCP</strong>, Speed Index e peso.</div>
+    <div class="t2"><small>seção 4.1 · ação</small>Recorte 3:2, AVIF/WebP 480/800/1080 com <code>srcset</code>, <code>fetchpriority="high"</code>. Commit <code>3a1813f</code>. Tabela: hero 160,6 KB → <strong>18,3 KB</strong>.</div>
+    <div class="t3"><small>seção 5 · resultado</small>Linha “+ Imagens”: <strong>LCP 3,66 → 1,32 s</strong> e peso 462,4 → 98,8 KB, no commit que contém a ação.</div>
+  </div>
+  <div class="callout good">A métrica prometida no gargalo (LCP) é a mesma conferida no resultado, e a variação aparece <strong>na etapa certa</strong>. Faça o mesmo exercício com G6 (favicon e meta → Boas práticas e SEO 100 na etapa do bônus) e G7 (contraste → Acessibilidade 100 só no final).</div>
+</section>
+
+<!-- 5 -->
+<section id="links">
+  <h2>5. Links relativos para os relatórios</h2>
+  <p>Evidência que o leitor não consegue abrir não é evidência. Todo número do README aponta para o arquivo de onde saiu, com <strong>link relativo</strong> ao próprio <code>README.md</code>. Assim os links funcionam no GitHub, num fork, num repositório renomeado e no clone de qualquer pessoa.</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>No README</th><th>No GitHub, abre</th></tr></thead>
+      <tbody>
+        <tr><td><code>[resumo](docs/relatorios/antes/resumo.md)</code></td><td><code>github.com/USUARIO/REPO/blob/main/docs/relatorios/antes/resumo.md</code> (renderizado)</td></tr>
+        <tr><td><code>[antes/](docs/relatorios/antes/)</code></td><td>a listagem da pasta (<code>…/tree/main/docs/relatorios/antes</code>)</td></tr>
+        <tr><td><code>[scripts/medir.mjs](scripts/medir.mjs)</code></td><td>o código do script</td></tr>
+        <tr><td><code>[antes](../../tree/antes)</code></td><td><code>github.com/USUARIO/REPO/tree/antes</code>: o repositório inteiro na tag</td></tr>
+        <tr><td><code>[Metodologia](#2-metodologia-de-medição)</code></td><td>a âncora do título na mesma página</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Três detalhes que pegam muita gente</h3>
+  <ul>
+    <li><strong><code>../../tree/antes</code>:</strong> o GitHub exibe o README como se estivesse em <code>/USUARIO/REPO/blob/main/README.md</code>. Subir dois níveis (<code>../../</code>) sai de <code>blob/main</code> e chega em <code>/USUARIO/REPO/</code>; dali, <code>tree/antes</code> é a rota do GitHub para a tag. Funciona no GitHub, mas não na prévia do VS Code, onde não existe essa rota.</li>
+    <li><strong>Âncoras:</strong> o GitHub gera o id do título em minúsculas, troca espaços por <code>-</code> e remove pontuação, mas mantém os acentos. “5. Comparativo antes × depois” vira <code>#5-comparativo-antes--depois</code>: o <code>×</code> some e sobram dois hífens. Na dúvida, passe o mouse no título renderizado e copie o link do ícone 🔗.</li>
+    <li><strong>Relatórios <code>.html</code>:</strong> no GitHub, um <code>.report.html</code> abre como <strong>código</strong>, não como página. Para ver renderizado, baixe o arquivo ou abra pelo GitHub Pages (fase 9): <code>https://USUARIO.github.io/REPO/docs/relatorios/depois/depois-mobile-2.report.html</code>. Por isso o README linka as <strong>pastas</strong> e o <code>resumo.md</code>, que o GitHub renderiza.</li>
+  </ul>
+  <div class="vs">
+    <div class="no"><h4>❌ Não funciona para mais ninguém</h4><ul>
+      <li><code>C:\Users\voce\Projetos\...\resumo.md</code></li>
+      <li><code>http://localhost:3000/docs/...</code></li>
+      <li><code>file:///...</code></li>
+    </ul></div>
+    <div class="yes"><h4>✅ Funciona em qualquer lugar</h4><ul>
+      <li><code>docs/relatorios/depois/resumo.md</code></li>
+      <li><code>scripts/medir.mjs</code></li>
+      <li><code>#5-comparativo-antes--depois</code></li>
+    </ul></div>
+  </div>
+  <p class="caption">Links absolutos para <code>https://github.com/…/blob/main/…</code> funcionam, mas quebram se o repositório for renomeado ou copiado. Prefira os relativos.</p>
+</section>
+
+<!-- 6 -->
+<section id="evitar">
+  <h2>6. O que evitar</h2>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Evite</th><th>Por que engana</th><th>Escreva assim</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Print sem contexto:</strong> um círculo verde “100” colado no README.</td><td>Mobile ou Desktop? Qual execução? Antes ou depois do quê? Um print de 100 no Desktop não diz nada: o “antes” já era 100 lá.</td><td>Tabela com medianas e link para os relatórios. Se usar print, legenda completa: “Lighthouse 13.5.0, Mobile, execução mediana (<code>depois-mobile-2</code>), 21/10”. O print mais útil costuma ser o da Network mostrando a prioridade, que a tabela não mostra.</td></tr>
+        <tr><td><strong>Número sem método:</strong> “o LCP caiu para 1,2 s”.</td><td>Medido onde? Uma vez só? Com o mesmo throttling do antes?</td><td>“Medianas de 3 execuções … ‘Antes’ e ‘depois’ medidos na mesma sessão e com o mesmo script.” (seção 2 do README)</td></tr>
+        <tr><td><strong>Prometer o que não mediu:</strong> “o site ficou 3× mais rápido para os usuários”.</td><td>Você mediu laboratório, com celular simulado. Não há dados de campo de um site recém-publicado.</td><td>“LCP Mobile (Lighthouse, simulado) 3,66 → 1,21 s.” Os dados de campo vão para os próximos passos, como no README.</td></tr>
+        <tr><td><strong>Adjetivo no lugar de número:</strong> “a minificação deixou o site muito mais leve”.</td><td>“Muito” não pode ser conferido, e aqui nem é verdade.</td><td>“Como o servidor já comprimia com gzip, minificar economizou menos de 1 KB na rede.”</td></tr>
+        <tr><td><strong>Creditar o ruído:</strong> “o CSS inline zerou o TBT”.</td><td>O TBT oscilou de 27 a 170 ms sem relação com as mudanças.</td><td>“O que se move de forma consistente é o LCP e o peso.”</td></tr>
+        <tr><td><strong>Diário em vez de argumento:</strong> “depois tentei X, não deu, aí fiz Y…”.</td><td>O leitor precisa reconstruir a lógica sozinho.</td><td>Gargalo (G1) → ação (commit) → resultado (mesma métrica). Tentativas que ensinaram algo viram uma frase com o motivo (“preload não foi usado: load delay de 9 ms”).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="montador">
+  <h2>7. Demo: montador de gargalo → ação → resultado</h2>
+  <p>Preencha as três partes (ou escolha um exemplo) e veja a linha pronta para o README. A lista abaixo aponta o que um leitor de fora sentiria falta.</p>
+  <div class="card">
+    <div class="presets" id="mt-presets">
+      <button type="button" data-p="g1">G1 · hero</button>
+      <button type="button" data-p="g4">G4 · CSS (ganho pequeno)</button>
+      <button type="button" data-p="g6">G6 · favicon e meta</button>
+      <button type="button" data-p="ruim">exemplo ruim</button>
+      <button type="button" data-p="limpar">limpar</button>
+    </div>
+    <div class="mt">
+      <fieldset class="f1"><legend>Gargalo</legend>
+        <label>Código<input id="m-id" placeholder="G1"></label>
+        <label>O que é<input id="m-gar" placeholder="Imagem do LCP superdimensionada"></label>
+        <label>Evidência (com número)<input id="m-ev" placeholder="hero.jpg 1200×1800, 160 KB"></label>
+        <label>Onde (arquivo)<input id="m-onde" placeholder="src/index.html"></label>
+      </fieldset>
+      <fieldset class="f2"><legend>Ação</legend>
+        <label>O que foi feito<input id="m-acao" placeholder="AVIF/WebP com srcset"></label>
+        <label>Commit<input id="m-commit" placeholder="3a1813f"></label>
+      </fieldset>
+      <fieldset class="f3"><legend>Resultado</legend>
+        <label>Métrica<input id="m-met" placeholder="LCP Mobile"></label>
+        <div class="pair">
+          <label>Antes<input id="m-a" inputmode="decimal" placeholder="3,66"></label>
+          <label>Depois<input id="m-d" inputmode="decimal" placeholder="1,32"></label>
+          <label>Unid.<select id="m-u">
+            <option value="s">s</option><option value="ms">ms</option><option value="KB">KB</option><option value="pts">pts</option>
+          </select></label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="out">
+      <button type="button" id="m-copy">copiar</button>
+      <pre id="m-out"></pre>
+    </div>
+    <div class="meter" aria-hidden="true"><b id="m-bar" style="width:0"></b></div>
+    <ul class="lint" id="m-lint" aria-live="polite"></ul>
+    <p class="caption" id="m-note"></p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="revisao">
+  <h2>8. Revisão: alguém de fora entende?</h2>
+  <p>Releia o README fingindo que nunca viu o projeto. Melhor ainda: peça para alguém que não fez o curso ler e anote cada pergunta que essa pessoa fizer. Cada pergunta é um buraco no texto.</p>
+  <div class="card">
+    <ul class="check" id="revisao-list">
+      <li><label><input type="checkbox" data-k="topo"><span>Nas primeiras 10 linhas dá para saber o que é o projeto e qual foi o resultado principal.<small>Teste dos 30 segundos.</small></span></label></li>
+      <li><label><input type="checkbox" data-k="metodo"><span>Todo número tem método: ferramenta e versão, Mobile ou Desktop, mediana de quantas execuções.</span></label></li>
+      <li><label><input type="checkbox" data-k="fonte"><span>Todo número tem fonte: um link relativo para o relatório ou o <code>resumo.md</code>.</span></label></li>
+      <li><label><input type="checkbox" data-k="gargalo"><span>Cada gargalo tem arquivo, evidência medida e a métrica que deveria melhorar.</span></label></li>
+      <li><label><input type="checkbox" data-k="fio"><span>Cada melhoria cita o gargalo (G1…) e o commit; cada resultado volta à mesma métrica.</span></label></li>
+      <li><label><input type="checkbox" data-k="nao"><span>Diz o que <strong>não</strong> foi feito e por quê (bibliotecas, preload), com evidência.</span></label></li>
+      <li><label><input type="checkbox" data-k="honesto"><span>Ganhos pequenos são chamados de pequenos, e o ruído está identificado.</span></label></li>
+      <li><label><input type="checkbox" data-k="campo"><span>Nada prometido que não foi medido (dados de campo, “usuários reais”) aparece como resultado.</span></label></li>
+      <li><label><input type="checkbox" data-k="links"><span>Todos os links abrem no GitHub (clique em cada um depois do push).</span></label></li>
+      <li><label><input type="checkbox" data-k="rodar"><span>“Como rodar” funciona num clone limpo: <code>npm install</code>, <code>npm run build</code>, <code>npm start</code>.</span></label></li>
+    </ul>
+    <div class="meter" aria-hidden="true"><b id="rev-bar" style="width:0"></b></div>
+    <p class="caption" id="rev-count"></p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="tarefa">
+  <h2>9. ✍️ Tarefa da fase 11</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="secoes"><span>Escrever as 7 seções (projeto, metodologia, gargalos, melhorias, comparativo, conclusão, como rodar)</span></label></li>
+      <li><label><input type="checkbox" data-k="topo"><span>Tabela-resumo no topo, antes do sumário</span></label></li>
+      <li><label><input type="checkbox" data-k="ids"><span>Gargalos com códigos (G1…) usados nas seções 3, 4 e 5</span></label></li>
+      <li><label><input type="checkbox" data-k="links"><span>Linkar <code>docs/relatorios/antes/</code>, <code>depois/</code>, <code>etapas/</code> e os <code>ambiente.txt</code></span></label></li>
+      <li><label><input type="checkbox" data-k="revisao"><span>Passar pela revisão da seção 8 (os 10 itens)</span></label></li>
+      <li><label><input type="checkbox" data-k="leitor"><span>Pedir para alguém de fora ler e corrigir o que gerou dúvida</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>O link do <code>README.md</code> no GitHub (ou o arquivo, se ainda não fez o push).</li>
+    <li>Quais itens da revisão não passaram de primeira e o que você mudou.</li>
+    <li>Que pergunta o leitor de fora fez, e onde a resposta entrou no README.</li>
+    <li><strong>Pergunta conceitual:</strong> reescreva no formato gargalo → ação → resultado: “Otimizei as imagens e o site ficou muito mais rápido.”</li>
+    <li><strong>Pergunta conceitual:</strong> o plano pedia “tabela + prints” no comparativo, e o README do projeto não tem prints. Isso é um problema? Em que caso um print acrescentaria algo que a tabela não mostra?</li>
+  </ol>
+</section>
+
+<!-- 10 -->
+<section id="gabarito">
+  <h2>10. Gabarito</h2>
+  <div class="callout warn"><strong>Tente responder antes de abrir.</strong> O seu README não precisa ser igual ao do projeto, mas precisa passar na revisão da seção 8.</div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600">Mostrar o gabarito</summary>
+    <h3>4. A frase reescrita</h3>
+    <div class="tpl"><pre>**G1 — imagem do LCP superdimensionada.** O hero era um JPG 1200×1800 (160 KB) exibido
+em no máximo 540×384 px (`assets/produtos/hero.jpg`). Gerei AVIF/WebP de 480, 800 e 1080 px
+com `srcset`/`sizes` e `fetchpriority="high"` (commit `3a1813f`). Resultado: LCP Mobile
+3,66 s → 1,32 s nessa etapa (mediana de 3 execuções, Lighthouse 13.5.0), hero baixado
+160,6 KB → 18,3 KB.</pre></div>
+    <p>Repare no que entrou: <strong>qual</strong> imagem, <strong>quanto</strong> ela pesava e por que era demais, <strong>onde</strong> e <strong>em que commit</strong> foi corrigida, e a <strong>mesma métrica</strong> antes e depois, com o método. “Muito mais rápido” sumiu: o número fala sozinho.</p>
+    <h3>5. Prints</h3>
+    <p>Não é um problema: o README linka os relatórios completos, que contêm muito mais que um print, e as tabelas trazem os números exatos. O que conta é a evidência, não o formato. Um print acrescenta algo quando mostra o que a tabela não mostra: por exemplo, a aba Network antes e depois, com a coluna <em>Priority</em> (produtos em <em>High</em> → <em>Low</em>) e o waterfall do hero terminando antes dos produtos. Se usar, salve em <code>docs/relatorios/</code> e escreva a legenda completa (ferramenta, Mobile ou Desktop, execução, data).</p>
+  </details>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://docs.github.com/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax">GitHub — sintaxe de Markdown (links relativos e âncoras)</a> ·
+  <a href="https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes">GitHub — About READMEs</a> ·
+  <a href="https://www.makeareadme.com/">Make a README</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+  function copyText(btn, text) {
+    var label = btn.textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = label; }, 1500);
+    }, function () {});
+  }
+  function bindChecklist(listId, key, onChange) {
+    var state = store(key);
+    var boxes = document.querySelectorAll('#' + listId + ' input');
+    boxes.forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked; store(key, state);
+        if (onChange) onChange(boxes);
+      });
+    });
+    if (onChange) onChange(boxes);
+  }
+
+  // Checklist da tarefa
+  bindChecklist('checklist', 'ebac-perf-fase11-petstyle');
+
+  // Revisão "alguém de fora entende?"
+  bindChecklist('revisao-list', 'ebac-perf-fase11-revisao', function (boxes) {
+    var n = 0;
+    boxes.forEach(function (b) { if (b.checked) n++; });
+    document.getElementById('rev-bar').style.width = (n / boxes.length * 100) + '%';
+    document.getElementById('rev-count').textContent = n === boxes.length
+      ? 'Todos os ' + n + ' itens conferidos. Agora peça para alguém de fora ler.'
+      : n + ' de ' + boxes.length + ' itens conferidos.';
+  });
+
+  // Montador gargalo -> ação -> resultado
+  (function () {
+    var F = ['id', 'gar', 'ev', 'onde', 'acao', 'commit', 'met', 'a', 'd', 'u'];
+    var el = {};
+    F.forEach(function (k) { el[k] = document.getElementById('m-' + k); });
+    var PRESETS = {
+      g1: { id: 'G1', gar: 'Imagem do LCP superdimensionada', ev: 'hero.jpg 1200×1800 (160 KB), exibido em no máximo 540×384 px', onde: 'src/index.html, assets/produtos/',
+            acao: 'AVIF/WebP 480/800/1080 com srcset/sizes e fetchpriority="high"', commit: '3a1813f', met: 'LCP Mobile (etapa das imagens)', a: '3,66', d: '1,32', u: 's',
+            note: 'O “depois” é o da etapa (1,32 s), não o final (1,21 s): assim o ganho fica atribuído ao commit certo.' },
+      g4: { id: 'G4', gar: 'CSS sem minificação', ev: 'output.css 16,9 KB (3,8 KB com gzip), 2 variáveis sem uso', onde: 'src/output.css, src/input.css',
+            acao: 'tailwindcss --minify e source(none) + @source "./index.html"', commit: 'da893d7', met: 'output.css no disco', a: '16,9', d: '13,5', u: 'KB',
+            note: 'Ganho pequeno, contado como pequeno: na rede, com gzip, foi 3,8 → 3,5 KB. Vale dizer isso junto.' },
+      g6: { id: 'G6', gar: 'Sem favicon e sem meta description', ev: '/favicon.ico com 404 e erro no console; SEO 91; Boas práticas 96', onde: 'src/index.html (head), scripts/images.mjs',
+            acao: 'favicon PNG 32×32 (1,5 KB) e meta description', commit: '9f2c305', met: 'SEO Mobile', a: '91', d: '100', u: 'pts',
+            note: 'Score em pontos, não em %. Boas práticas (96 → 100) poderia ser uma segunda linha de resultado.' },
+      ruim: { id: '', gar: 'Imagens pesadas', ev: 'o site estava lento', onde: '', acao: 'otimizei as imagens e ficou muito mais rápido', commit: '', met: 'velocidade', a: '', d: '', u: 's',
+            note: 'Compare com o G1: mesma otimização, mas aqui nada pode ser conferido.' },
+      limpar: { id: '', gar: '', ev: '', onde: '', acao: '', commit: '', met: '', a: '', d: '', u: 's', note: '' }
+    };
+    var VAGO = /\b(muito|muita|bastante|significativ\w*|drastic\w*|enorme\w*|incr[ií]ve\w*|bem mais|lent[oa]s?|super)\b/i;
+    var note = '';
+    function num(s) {
+      s = String(s).trim();
+      if (s.indexOf(',') !== -1) s = s.replace(/\./g, '').replace(',', '.');
+      return s === '' ? NaN : parseFloat(s);
+    }
+    function br(n, dec) { return n.toFixed(dec).replace('.', ','); }
+    function v(k) { return el[k].value.trim(); }
+    function render() {
+      var a = num(v('a')), d = num(v('d')), u = v('u'), hasNums = !isNaN(a) && !isNaN(d);
+      var res = '';
+      if (hasNums) {
+        var suf = u === 'pts' ? '' : ' ' + u;
+        var change;
+        if (u === 'pts') change = (d - a > 0 ? '+' : d - a < 0 ? '−' : '') + Math.abs(d - a) + ' pontos';
+        else if (a !== 0) { var p = (d - a) / a * 100; change = (p > 0 ? '+' : p < 0 ? '−' : '') + br(Math.abs(p), 0) + '%'; }
+        else change = 'antes = 0';
+        res = (v('met') || '(métrica)') + ': ' + v('a') + suf + ' → ' + v('d') + suf + ' (' + change + ')';
+      } else {
+        res = (v('met') || '(métrica)') + (v('a') || v('d') ? ': ' + (v('a') || '?') + ' → ' + (v('d') || '?') : ': (sem números)');
+      }
+      var ev = v('ev') ? ': ' + v('ev') : '';
+      var onde = v('onde') ? '`' + v('onde') + '`' : '';
+      var commit = v('commit') ? 'commit `' + v('commit') + '`' : '';
+      var acaoExtra = [onde, commit].filter(Boolean).join(', ');
+      var row = '| ' + (v('id') || '—') + ' | ' + (v('gar') || '(gargalo)') + ev + ' | ' + (v('acao') || '(ação)') +
+        (acaoExtra ? ' (' + acaoExtra + ')' : '') + ' | ' + res + ' |';
+      var head = '| # | Gargalo (evidência) | Ação (onde, commit) | Resultado (mediana de 3) |\n|---|---|---|---|\n';
+      document.getElementById('m-out').textContent = head + row;
+
+      var all = F.map(function (k) { return k === 'u' ? '' : v(k); }).join(' ');
+      var checks = [
+        [/\d/.test(v('ev')), 'Evidência com número (tamanho, KB, score, ms)'],
+        [!!v('onde'), 'Diz onde está o problema (arquivo)'],
+        [!!v('commit'), 'Ação com commit, para o leitor conferir o diff'],
+        [hasNums, 'Resultado com antes e depois numéricos'],
+        [!!v('met') && !VAGO.test(v('met')) && !/^velocidade$/i.test(v('met')), 'Métrica nomeada (LCP, peso, SEO…), não “velocidade”'],
+        [!!v('id'), 'Código do gargalo (G1…) para seguir o fio entre as seções'],
+        [!VAGO.test(all), 'Sem adjetivos vagos (“muito”, “bastante”, “lento”…)'],
+        [!(u === 'pts' && hasNums && (d > 100 || a > 100)), 'Scores entre 0 e 100']
+      ];
+      var ok = checks.filter(function (c) { return c[0]; }).length;
+      document.getElementById('m-lint').innerHTML = checks.map(function (c) {
+        return '<li class="' + (c[0] ? 'ok' : 'no') + '">' + c[1] + '</li>';
+      }).join('');
+      document.getElementById('m-bar').style.width = (ok / checks.length * 100) + '%';
+      document.getElementById('m-note').textContent = ok + ' de ' + checks.length + ' critérios atendidos.' + (note ? ' ' + note : '');
+    }
+    F.forEach(function (k) {
+      el[k].addEventListener(k === 'u' ? 'change' : 'input', function () { note = ''; render(); });
+    });
+    document.getElementById('mt-presets').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-p]'); if (!b) return;
+      var p = PRESETS[b.dataset.p];
+      F.forEach(function (k) { el[k].value = p[k]; });
+      note = p.note; render();
+    });
+    document.getElementById('m-copy').addEventListener('click', function () {
+      copyText(this, document.getElementById('m-out').textContent);
+    });
+    document.querySelector('[data-p="g1"]').click();
+  })();
+</script>
+</body>
+</html>

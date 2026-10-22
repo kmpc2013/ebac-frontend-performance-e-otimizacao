@@ -4,9 +4,19 @@
   "projeto": {
     "nome": "Pet&Style — landing page de produtos para pets",
     "origem": "Copiado de ../ebac-frontend-introducao-ao-tailwind-css",
-    "stack": "HTML estático + Tailwind CSS v4.3 (CSS gerado pela CLI em src/output.css), sem JavaScript, fontes do sistema",
-    "arquivos": ["index.html", "src/input.css", "src/output.css", "assets/logo.png", "assets/produtos/*.jpg"],
-    "historico": "O projeto base foi trocado em 2026-10-20. O commit inicial e a tag 'antes' já enviados ao GitHub apontam para o projeto Next.js anterior; a tag precisa ser movida para o commit do Pet&Style (ver aula 2)."
+    "stack": "HTML estático + Tailwind CSS v4.3 (CLI). Fonte legível em src/index.html; o index.html da raiz é gerado por 'npm run build' (CSS minificado e embutido + HTML minificado). Sem JavaScript, fontes do sistema.",
+    "arquivos": [
+      "src/index.html",
+      "src/input.css",
+      "src/output.css",
+      "index.html (gerado)",
+      "assets/produtos/*.{avif,webp}",
+      "assets/logo-72.webp",
+      "assets/favicon.png",
+      "scripts/*.mjs",
+      "README.md"
+    ],
+    "historico": "O projeto base foi trocado em 2026-10-20. A tag anotada 'antes' (objeto 6b4598d) aponta para o commit e852300 do Pet&Style, tanto no local quanto no GitHub."
   },
   "criterios_de_avaliacao": [
     "Melhoria mensurável entre o relatório inicial e o final (o que mais pesa)",
@@ -14,139 +24,367 @@
     "Clareza do README ligando cada gargalo -> ação -> resultado",
     "Organização do projeto e da estrutura de pastas"
   ],
-  "legenda_status": ["pendente", "em_andamento", "concluido"],
+  "legenda_status": [
+    "pendente",
+    "em_andamento",
+    "concluido"
+  ],
   "fases": [
     {
       "id": 1,
       "nome": "Fundamentos — entender o que vamos medir",
-      "status": "em_andamento",
+      "status": "concluido",
       "aula": "docs/aulas/fase-01-fundamentos.html",
       "objetivos": [
         "Entender por que performance é requisito de negócio (conversão, SEO, retenção)",
         "Conhecer as Core Web Vitals e métricas do Lighthouse"
       ],
       "conteudo": [
-        { "topico": "FCP — First Contentful Paint", "meta": "< 1,8 s", "status": "pendente" },
-        { "topico": "LCP — Largest Contentful Paint", "meta": "< 2,5 s", "status": "pendente" },
-        { "topico": "TBT — Total Blocking Time (proxy do INP em laboratório)", "meta": "< 200 ms", "status": "pendente" },
-        { "topico": "CLS — Cumulative Layout Shift", "meta": "< 0,1", "status": "pendente" },
-        { "topico": "Speed Index", "meta": "< 3,4 s", "status": "pendente" },
-        { "topico": "Diferença entre dados de laboratório (Lighthouse) e de campo (CrUX/PageSpeed)", "status": "pendente" }
+        {
+          "topico": "FCP — First Contentful Paint",
+          "meta": "< 1,8 s",
+          "status": "concluido"
+        },
+        {
+          "topico": "LCP — Largest Contentful Paint",
+          "meta": "< 2,5 s",
+          "status": "concluido"
+        },
+        {
+          "topico": "TBT — Total Blocking Time (proxy do INP em laboratório)",
+          "meta": "< 200 ms",
+          "status": "concluido"
+        },
+        {
+          "topico": "CLS — Cumulative Layout Shift",
+          "meta": "< 0,1",
+          "status": "concluido"
+        },
+        {
+          "topico": "Speed Index",
+          "meta": "< 3,4 s",
+          "status": "concluido"
+        },
+        {
+          "topico": "Diferença entre dados de laboratório (Lighthouse) e de campo (CrUX/PageSpeed)",
+          "status": "concluido"
+        }
       ],
-      "exercicio": "Responder as 6 perguntas da seção 8 da aula.",
-      "referencias": ["https://web.dev/articles/vitals", "https://developer.chrome.com/docs/lighthouse/performance/performance-scoring"]
+      "exercicio": "Responder as 6 perguntas da seção 8 da aula. Gabarito na seção 9 da aula (fechado).",
+      "referencias": [
+        "https://web.dev/articles/vitals",
+        "https://developer.chrome.com/docs/lighthouse/performance/performance-scoring"
+      ]
     },
     {
       "id": 2,
       "nome": "Projeto base e repositório",
-      "status": "em_andamento",
+      "status": "concluido",
       "aula": "docs/aulas/fase-02-projeto-base.html",
-      "objetivos": ["Congelar o estado original do Pet&Style no git com a tag 'antes'"],
+      "objetivos": [
+        "Congelar o estado original do Pet&Style no git com a tag 'antes'"
+      ],
       "observacao": "Projeto com margem real de melhoria: ~457 KB de JPGs superdimensionados (o hero tem 1200x1800 e aparece com no máximo ~540x384), nenhuma imagem com lazy loading, CSS e HTML sem minificação. O score do Lighthouse deve subir de forma visível.",
       "checklist": [
-        { "item": "Escolher o projeto base (Pet&Style)", "status": "concluido" },
-        { "item": "Commit da troca de projeto (remoção do Next.js + arquivos do Pet&Style + docs/)", "status": "pendente" },
-        { "item": "Mover a tag 'antes' para esse commit (local e remoto)", "status": "pendente" },
-        { "item": "Conferir no GitHub que a tag 'antes' mostra o Pet&Style", "status": "pendente" }
+        {
+          "item": "Escolher o projeto base (Pet&Style)",
+          "status": "concluido"
+        },
+        {
+          "item": "Commit da troca de projeto (remoção do Next.js + arquivos do Pet&Style + docs/)",
+          "status": "concluido"
+        },
+        {
+          "item": "Tag 'antes' apontando para esse commit (já era uma tag anotada correta no local e no GitHub; nada a mover)",
+          "status": "concluido"
+        },
+        {
+          "item": "Conferir no GitHub que a tag 'antes' mostra o Pet&Style",
+          "status": "concluido"
+        }
       ]
     },
     {
       "id": 3,
       "nome": "Medição inicial (baseline)",
-      "status": "em_andamento",
+      "status": "concluido",
       "aula": "docs/aulas/fase-03-medicao-inicial.html",
-      "objetivos": ["Gerar um relatório 'antes' confiável e reproduzível"],
-      "servidor": "npx serve . (http://localhost:3000) — nunca file:// nem Live Server (injeta script de recarga)",
-      "paginas_medidas": ["http://localhost:3000/ — Mobile (principal)", "http://localhost:3000/ — Desktop (complementar)"],
-      "checklist": [
-        { "item": "Pré-requisito: código na tag 'antes' (fase 2)", "status": "pendente" },
-        { "item": "Servir com 'npx serve .'", "status": "pendente" },
-        { "item": "Anotar ambiente (máquina, versão do Chrome, data) em docs/relatorios/antes/ambiente.txt", "status": "pendente" },
-        { "item": "Janela anônima, notebook na tomada, outros programas fechados", "status": "pendente" },
-        { "item": "Lighthouse Mobile: 3 execuções, 4 categorias, salvar HTML", "status": "pendente" },
-        { "item": "Lighthouse Desktop: 3 execuções, salvar HTML", "status": "pendente" },
-        { "item": "Anotar o elemento LCP (insight 'LCP breakdown') e as fases do LCP", "status": "pendente" },
-        { "item": "Network (Disable cache): requisições, transferred, resources e peso por imagem", "status": "pendente" },
-        { "item": "Calcular as medianas na calculadora da aula e guardar a tabela Markdown", "status": "pendente" },
-        { "item": "Opcional: publicar no GitHub Pages e rodar o PageSpeed Insights", "status": "pendente" }
+      "objetivos": [
+        "Gerar um relatório 'antes' confiável e reproduzível"
       ],
-      "entregavel": "docs/relatorios/antes/ com relatórios, prints e tabela de medianas"
+      "servidor": "serve via scripts/medir.mjs (PORTA=3010; a 3000 estava ocupada) — nunca file:// nem Live Server",
+      "paginas_medidas": [
+        "http://localhost:3000/ — Mobile (principal)",
+        "http://localhost:3000/ — Desktop (complementar)"
+      ],
+      "checklist": [
+        {
+          "item": "Pré-requisito: código na tag 'antes' (fase 2)",
+          "status": "concluido"
+        },
+        {
+          "item": "Servir com 'npx serve .'",
+          "status": "concluido"
+        },
+        {
+          "item": "Anotar ambiente (máquina, versão do Chrome, data) em docs/relatorios/antes/ambiente.txt",
+          "status": "concluido"
+        },
+        {
+          "item": "Janela anônima, notebook na tomada, outros programas fechados",
+          "status": "concluido"
+        },
+        {
+          "item": "Lighthouse Mobile: 3 execuções, 4 categorias, salvar HTML",
+          "status": "concluido"
+        },
+        {
+          "item": "Lighthouse Desktop: 3 execuções, salvar HTML",
+          "status": "concluido"
+        },
+        {
+          "item": "Anotar o elemento LCP (insight 'LCP breakdown') e as fases do LCP",
+          "status": "concluido"
+        },
+        {
+          "item": "Network (Disable cache): requisições, transferred, resources e peso por imagem",
+          "status": "concluido"
+        },
+        {
+          "item": "Calcular as medianas na calculadora da aula e guardar a tabela Markdown",
+          "status": "concluido"
+        },
+        {
+          "item": "Opcional: publicar no GitHub Pages e rodar o PageSpeed Insights",
+          "status": "pendente"
+        }
+      ],
+      "entregavel": "docs/relatorios/antes/ com relatórios, prints e tabela de medianas",
+      "observacao": "Medição automatizada com Lighthouse 13.5.0 CLI (Edge 155 headless) por scripts/medir.mjs; rede/LCP lidos do JSON embutido nos relatórios. Gabarito na aula."
     },
     {
       "id": 4,
       "nome": "Diagnóstico dos gargalos",
-      "status": "em_andamento",
+      "status": "concluido",
       "aula": "docs/aulas/fase-04-diagnostico.html",
-      "objetivos": ["Transformar o relatório em uma lista priorizada de problemas, cada um ligado a uma linha de código"],
+      "objetivos": [
+        "Transformar o relatório em uma lista priorizada de problemas, cada um ligado a uma linha de código"
+      ],
       "checklist": [
-        { "item": "Ler os Insights (antigo Opportunities) e Diagnostics do Lighthouse", "status": "pendente" },
-        { "item": "Waterfall da Network: quando o hero termina × LCP; disputa de banda com os produtos", "status": "pendente" },
-        { "item": "Para cada imagem: tamanho natural × tamanho exibido (DevTools > Elements, passar o mouse no src)", "status": "pendente" },
-        { "item": "Coverage do output.css", "status": "pendente" },
-        { "item": "Console: erros (ex.: favicon 404)", "status": "pendente" },
-        { "item": "Preencher a tabela 'Gargalos identificados' e a matriz impacto × esforço", "status": "pendente" },
-        { "item": "Listar o que NÃO se aplica com evidência (JS, bibliotecas, fontes web)", "status": "pendente" }
+        {
+          "item": "Ler os Insights (antigo Opportunities) e Diagnostics do Lighthouse",
+          "status": "concluido"
+        },
+        {
+          "item": "Waterfall da Network: quando o hero termina × LCP; disputa de banda com os produtos",
+          "status": "concluido"
+        },
+        {
+          "item": "Para cada imagem: tamanho natural × tamanho exibido (DevTools > Elements, passar o mouse no src)",
+          "status": "concluido"
+        },
+        {
+          "item": "Coverage do output.css",
+          "status": "concluido"
+        },
+        {
+          "item": "Console: erros (ex.: favicon 404)",
+          "status": "concluido"
+        },
+        {
+          "item": "Preencher a tabela 'Gargalos identificados' e a matriz impacto × esforço",
+          "status": "concluido"
+        },
+        {
+          "item": "Listar o que NÃO se aplica com evidência (JS, bibliotecas, fontes web)",
+          "status": "concluido"
+        }
       ],
       "alvos_neste_projeto": [
-        { "id": "G1", "arquivo": "assets/produtos/hero.jpg", "gargalo": "Imagem do LCP em JPG 1200x1800 (160 KB) exibida com no máximo ~540x384; sem fetchpriority", "metricas": ["LCP", "Speed Index", "peso"] },
-        { "id": "G2", "arquivo": "assets/produtos/{caminha,brinquedo,coleira,roupinha}.jpg", "gargalo": "4 JPGs (~290 KB) de até 800x1200 exibidos em cards de 192 px de altura, sem loading='lazy', disputando banda com o hero", "metricas": ["LCP", "peso"] },
-        { "id": "G3", "arquivo": "assets/logo.png", "gargalo": "PNG 447x447 exibido em 36x36 (6 KB — ganho pequeno, mas didático)", "metricas": ["peso"] },
-        { "id": "G4", "arquivo": "src/output.css", "gargalo": "CSS bloqueante sem minificação (16,9 KB; 3,8 KB com gzip) e 2 variáveis de tema sem uso (--color-amber-600, --color-blue-300)", "metricas": ["FCP", "peso"] },
-        { "id": "G5", "arquivo": "index.html", "gargalo": "HTML sem minificação (9,9 KB; 2,2 KB com gzip)", "metricas": ["FCP", "peso"] },
-        { "id": "G6", "arquivo": "index.html (head)", "gargalo": "Sem favicon (requisição 404 e erro no console) e sem meta description", "metricas": ["Boas práticas", "SEO"] }
+        {
+          "id": "G1",
+          "arquivo": "assets/produtos/hero.jpg",
+          "gargalo": "Imagem do LCP em JPG 1200x1800 (160 KB) exibida com no máximo ~540x384; sem fetchpriority",
+          "metricas": [
+            "LCP",
+            "Speed Index",
+            "peso"
+          ]
+        },
+        {
+          "id": "G2",
+          "arquivo": "assets/produtos/{caminha,brinquedo,coleira,roupinha}.jpg",
+          "gargalo": "4 JPGs (~290 KB) de até 800x1200 exibidos em cards de 192 px de altura, sem loading='lazy', disputando banda com o hero",
+          "metricas": [
+            "LCP",
+            "peso"
+          ]
+        },
+        {
+          "id": "G3",
+          "arquivo": "assets/logo.png",
+          "gargalo": "PNG 447x447 exibido em 36x36 (6 KB — ganho pequeno, mas didático)",
+          "metricas": [
+            "peso"
+          ]
+        },
+        {
+          "id": "G4",
+          "arquivo": "src/output.css",
+          "gargalo": "CSS bloqueante sem minificação (16,9 KB; 3,8 KB com gzip) e 2 variáveis de tema sem uso (--color-amber-600, --color-blue-300)",
+          "metricas": [
+            "FCP",
+            "peso"
+          ]
+        },
+        {
+          "id": "G5",
+          "arquivo": "index.html",
+          "gargalo": "HTML sem minificação (9,9 KB; 2,2 KB com gzip)",
+          "metricas": [
+            "FCP",
+            "peso"
+          ]
+        },
+        {
+          "id": "G6",
+          "arquivo": "index.html (head)",
+          "gargalo": "Sem favicon (requisição 404 e erro no console) e sem meta description",
+          "metricas": [
+            "Boas práticas",
+            "SEO"
+          ]
+        },
+        {
+          "id": "G7",
+          "arquivo": "index.html (text/bg-orange-500)",
+          "gargalo": "Contraste 2,88:1 (mínimo 4,5:1) reprova color-contrast",
+          "metricas": [
+            "Acessibilidade"
+          ]
+        }
       ],
-      "entregavel": "Tabela 'Gargalos identificados' para o README"
+      "entregavel": "Tabela 'Gargalos identificados' para o README — feita no README (seção 3)."
     },
     {
       "id": 5,
       "nome": "Otimização de imagens",
-      "status": "pendente",
-      "objetivos": ["Reduzir o peso das imagens e melhorar o LCP"],
+      "status": "concluido",
+      "objetivos": [
+        "Reduzir o peso das imagens e melhorar o LCP"
+      ],
       "neste_projeto": "É a fase de maior impacto: imagens são ~94% dos bytes da página.",
       "checklist": [
-        { "item": "hero.jpg: recortar para paisagem, gerar versões em larguras diferentes, converter para AVIF/WebP", "status": "pendente" },
-        { "item": "hero: <picture> ou srcset/sizes + width/height + fetchpriority='high' (NUNCA lazy)", "status": "pendente" },
-        { "item": "Produtos: redimensionar para o tamanho exibido (considerando DPR), converter para WebP/AVIF", "status": "pendente" },
-        { "item": "Produtos: loading='lazy' + decoding='async' + width/height", "status": "pendente" },
-        { "item": "Logo: gerar versão 72x72 (2x) em WebP ou PNG otimizado", "status": "pendente" },
-        { "item": "Registrar tamanho antes/depois de cada imagem", "status": "pendente" }
+        {
+          "item": "hero.jpg: recortar para paisagem, gerar versões em larguras diferentes, converter para AVIF/WebP",
+          "status": "concluido"
+        },
+        {
+          "item": "hero: <picture> ou srcset/sizes + width/height + fetchpriority='high' (NUNCA lazy)",
+          "status": "concluido"
+        },
+        {
+          "item": "Produtos: redimensionar para o tamanho exibido (considerando DPR), converter para WebP/AVIF",
+          "status": "concluido"
+        },
+        {
+          "item": "Produtos: loading='lazy' + decoding='async' + width/height",
+          "status": "concluido"
+        },
+        {
+          "item": "Logo: gerar versão 72x72 (2x) em WebP ou PNG otimizado",
+          "status": "concluido"
+        },
+        {
+          "item": "Registrar tamanho antes/depois de cada imagem",
+          "status": "concluido"
+        }
       ],
-      "ferramentas": ["Squoosh (squoosh.app)", "sharp-cli", "cwebp / avifenc"],
-      "metricas_afetadas": ["LCP", "Speed Index", "peso total"]
+      "ferramentas": [
+        "Squoosh (squoosh.app)",
+        "sharp-cli",
+        "cwebp / avifenc"
+      ],
+      "metricas_afetadas": [
+        "LCP",
+        "Speed Index",
+        "peso total"
+      ],
+      "aula": "docs/aulas/fase-05-imagens.html",
+      "commit": "3a1813f",
+      "resultado": "Imagens 455 KB -> 91 KB no Mobile; LCP Mobile 3,66 s -> 1,32 s só com esta etapa"
     },
     {
       "id": 6,
       "nome": "Minificação de HTML e CSS",
-      "status": "pendente",
-      "objetivos": ["Reduzir bytes de texto e o tempo do CSS bloqueante"],
+      "status": "concluido",
+      "objetivos": [
+        "Reduzir bytes de texto e o tempo do CSS bloqueante"
+      ],
       "neste_projeto": "CSS: 'npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --minify'. HTML: html-minifier-terser (manter um index.html legível como fonte e gerar o minificado). Não há JS.",
       "atencao": "A detecção automática de fontes do Tailwind v4 varre a pasta do projeto: os HTMLs de docs/aulas podem gerar classes extras no output.css. Excluir com '@source not \"../docs\";' no input.css (ou usar source(none) + '@source \"../index.html\";').",
       "checklist": [
-        { "item": "Regerar o CSS com --minify e excluir docs/ da varredura do Tailwind", "status": "pendente" },
-        { "item": "Minificar o HTML", "status": "pendente" },
-        { "item": "Comparar tamanho bruto e com gzip antes/depois", "status": "pendente" },
-        { "item": "Confirmar compressão no servidor (header content-encoding na Network)", "status": "pendente" }
+        {
+          "item": "Regerar o CSS com --minify e excluir docs/ da varredura do Tailwind",
+          "status": "concluido"
+        },
+        {
+          "item": "Minificar o HTML",
+          "status": "concluido"
+        },
+        {
+          "item": "Comparar tamanho bruto e com gzip antes/depois",
+          "status": "concluido"
+        },
+        {
+          "item": "Confirmar compressão no servidor (header content-encoding na Network)",
+          "status": "concluido"
+        }
       ],
-      "metricas_afetadas": ["FCP", "peso total"]
+      "metricas_afetadas": [
+        "FCP",
+        "peso total"
+      ],
+      "aula": "docs/aulas/fase-06-minificacao.html",
+      "commit": "da893d7",
+      "resultado": "output.css 16,9 -> 13,5 KB (gzip 3,8 -> 3,5); HTML gerado a partir de src/index.html"
     },
     {
       "id": 7,
       "nome": "Remoção de código morto",
-      "status": "pendente",
-      "objetivos": ["Eliminar estilos e arquivos não utilizados"],
+      "status": "concluido",
+      "objetivos": [
+        "Eliminar estilos e arquivos não utilizados"
+      ],
       "neste_projeto": "Os utilitários do output.css batem 1:1 com as classes do index.html (verificado). Sobram 2 variáveis de tema sem uso (--color-amber-600, --color-blue-300), provável resquício de uma versão anterior do HTML; regerar o CSS deve removê-las. Imagens originais substituídas também devem sair do repositório.",
       "checklist": [
-        { "item": "Coverage do output.css antes e depois", "status": "pendente" },
-        { "item": "Confirmar que as variáveis sem uso sumiram ao regerar o CSS", "status": "pendente" },
-        { "item": "Remover JPGs/PNG originais que não são mais referenciados", "status": "pendente" }
+        {
+          "item": "Coverage do output.css antes e depois",
+          "status": "concluido"
+        },
+        {
+          "item": "Confirmar que as variáveis sem uso sumiram ao regerar o CSS",
+          "status": "concluido"
+        },
+        {
+          "item": "Remover JPGs/PNG originais que não são mais referenciados",
+          "status": "concluido"
+        }
       ],
-      "metricas_afetadas": ["peso total"]
+      "metricas_afetadas": [
+        "peso total"
+      ],
+      "aula": "docs/aulas/fase-07-codigo-morto.html",
+      "commit": "da893d7, 5c53e6c, 40c13bf",
+      "resultado": "Variáveis sem uso removidas; originais removidos (lidos da tag 'antes'); classe morta .inline (vinda de um comentário) removida"
     },
     {
       "id": 8,
       "nome": "Substituição de bibliotecas pesadas",
-      "status": "pendente",
-      "objetivos": ["Trocar dependências grandes por alternativas enxutas ou nativas"],
+      "status": "em_andamento",
+      "objetivos": [
+        "Trocar dependências grandes por alternativas enxutas ou nativas"
+      ],
       "neste_projeto": "Não se aplica: a página não carrega nenhum JavaScript nem biblioteca externa, e usa fontes do sistema (zero requisições de fonte). Justificar no README com a evidência da Network.",
       "exemplos": [
         "jQuery -> JavaScript nativo (querySelector, fetch, classList)",
@@ -155,37 +393,81 @@
         "Font Awesome completo -> SVGs dos ícones usados"
       ],
       "checklist": [
-        { "item": "Registrar no README que não há JS/bibliotecas, com print da Network filtrada por JS (vazia)", "status": "pendente" }
-      ]
+        {
+          "item": "Registrar no README que não há JS/bibliotecas, com print da Network filtrada por JS (vazia)",
+          "status": "em_andamento",
+          "observacao": "README registra a ausência de JS/libs/fontes com a lista network-requests do Lighthouse; falta o print da Network filtrada por JS (manual)."
+        }
+      ],
+      "aula": "docs/aulas/fase-08-bibliotecas.html"
     },
     {
       "id": 9,
       "nome": "Otimizações bônus (opcional, mas valorizadas)",
-      "status": "pendente",
+      "status": "em_andamento",
       "checklist": [
-        { "item": "Favicon e meta description", "status": "pendente" },
-        { "item": "Preload da imagem do LCP (<link rel='preload' as='image' imagesrcset=...>), se o LCP ainda estiver alto", "status": "pendente" },
-        { "item": "CSS crítico inline (o CSS inteiro tem ~3,8 KB com gzip)", "status": "pendente" },
-        { "item": "Publicar no GitHub Pages e rodar o PageSpeed Insights", "status": "pendente" }
-      ]
+        {
+          "item": "Favicon e meta description",
+          "status": "concluido"
+        },
+        {
+          "item": "Preload da imagem do LCP (<link rel='preload' as='image' imagesrcset=...>), se o LCP ainda estiver alto",
+          "status": "concluido",
+          "observacao": "Avaliado e descartado: resource load delay do LCP é 9 ms (img já está no HTML com fetchpriority=high)."
+        },
+        {
+          "item": "CSS crítico inline (o CSS inteiro tem ~3,8 KB com gzip)",
+          "status": "concluido"
+        },
+        {
+          "item": "Publicar no GitHub Pages e rodar o PageSpeed Insights",
+          "status": "pendente",
+          "observacao": "Ação externa: fazer pelo GitHub (passo a passo na aula 9)."
+        },
+        {
+          "item": "Contraste do laranja (orange-500 -> orange-700) — Acessibilidade 94 -> 100",
+          "status": "concluido"
+        }
+      ],
+      "aula": "docs/aulas/fase-09-bonus.html",
+      "commit": "9f2c305, 86429b4"
     },
     {
       "id": 10,
       "nome": "Medição final e comparação",
-      "status": "pendente",
-      "objetivos": ["Provar a melhoria com números nas mesmas condições do baseline"],
+      "status": "concluido",
+      "objetivos": [
+        "Provar a melhoria com números nas mesmas condições do baseline"
+      ],
       "checklist": [
-        { "item": "Repetir exatamente o protocolo da fase 3 (npx serve, anônimo, Mobile e Desktop, 3 execuções)", "status": "pendente" },
-        { "item": "Medir 'antes' e 'depois' na mesma sessão (git switch --detach antes)", "status": "pendente" },
-        { "item": "Salvar relatórios e prints em docs/relatorios/depois/", "status": "pendente" },
-        { "item": "Montar tabela antes x depois: Score, FCP, LCP, TBT, CLS, Speed Index, peso, requisições", "status": "pendente" },
-        { "item": "Identificar quais mudanças tiveram maior impacto (medir entre cada commit perf)", "status": "pendente" }
-      ]
+        {
+          "item": "Repetir exatamente o protocolo da fase 3 (npx serve, anônimo, Mobile e Desktop, 3 execuções)",
+          "status": "concluido"
+        },
+        {
+          "item": "Medir 'antes' e 'depois' na mesma sessão (git switch --detach antes)",
+          "status": "concluido"
+        },
+        {
+          "item": "Salvar relatórios e prints em docs/relatorios/depois/",
+          "status": "concluido"
+        },
+        {
+          "item": "Montar tabela antes x depois: Score, FCP, LCP, TBT, CLS, Speed Index, peso, requisições",
+          "status": "concluido"
+        },
+        {
+          "item": "Identificar quais mudanças tiveram maior impacto (medir entre cada commit perf)",
+          "status": "concluido"
+        }
+      ],
+      "aula": "docs/aulas/fase-10-medicao-final.html",
+      "observacao": "Medianas por etapa em docs/relatorios/etapas/. Primeira rodada descartada: porta 3000 ocupada servia a pasta errada."
     },
     {
       "id": 11,
       "nome": "Documentação (README.md)",
-      "status": "pendente",
+      "status": "concluido",
       "estrutura_sugerida": [
         "Descrição do projeto e stack",
         "Metodologia de medição",
@@ -195,21 +477,46 @@
         "Conclusão: maiores impactos e próximos passos"
       ],
       "checklist": [
-        { "item": "Escrever cada seção", "status": "pendente" },
-        { "item": "Linkar os relatórios de docs/relatorios/", "status": "pendente" },
-        { "item": "Revisar clareza: alguém de fora entende o que foi feito e por quê?", "status": "pendente" }
-      ]
+        {
+          "item": "Escrever cada seção",
+          "status": "concluido"
+        },
+        {
+          "item": "Linkar os relatórios de docs/relatorios/",
+          "status": "concluido"
+        },
+        {
+          "item": "Revisar clareza: alguém de fora entende o que foi feito e por quê?",
+          "status": "concluido"
+        }
+      ],
+      "aula": "docs/aulas/fase-11-readme.html"
     },
     {
       "id": 12,
       "nome": "Entrega",
-      "status": "pendente",
+      "status": "em_andamento",
       "checklist": [
-        { "item": "Repositório público no GitHub com código otimizado", "status": "pendente" },
-        { "item": "Relatórios 'antes' e 'depois' (PDF ou imagens) no repositório", "status": "pendente" },
-        { "item": "README.md com comparativo documentado", "status": "pendente" },
-        { "item": "Enviar o link na plataforma EBAC", "status": "pendente" }
-      ]
+        {
+          "item": "Repositório público no GitHub com código otimizado",
+          "status": "pendente",
+          "observacao": "Repositório já é público; falta 'git push origin main' (commits locais)."
+        },
+        {
+          "item": "Relatórios 'antes' e 'depois' (PDF ou imagens) no repositório",
+          "status": "concluido",
+          "observacao": "PDF e PNG da execução mediana (Mobile e Desktop) em docs/relatorios/antes e depois, linkados no README."
+        },
+        {
+          "item": "README.md com comparativo documentado",
+          "status": "concluido"
+        },
+        {
+          "item": "Enviar o link na plataforma EBAC",
+          "status": "pendente"
+        }
+      ],
+      "aula": "docs/aulas/fase-12-entrega.html"
     }
   ],
   "estrutura_de_pastas_sugerida": {
@@ -223,5 +530,21 @@
     "Usar loading='lazy' na imagem principal (piora o LCP)",
     "Confiar em uma única execução do Lighthouse",
     "Regerar o CSS do Tailwind sem excluir docs/ da varredura"
-  ]
+  ],
+  "resultado": {
+    "data": "2026-10-21",
+    "mobile": {
+      "performance": "90 -> 100",
+      "lcp": "3,66 s -> 1,21 s",
+      "fcp": "1,11 s -> 0,68 s",
+      "peso": "462,4 KB -> 98,8 KB",
+      "a11y_bp_seo": "94/96/91 -> 100/100/100"
+    },
+    "desktop": {
+      "performance": "100 -> 100",
+      "lcp": "0,72 s -> 0,27 s",
+      "peso": "462,4 KB -> 53,9 KB"
+    },
+    "detalhes": "README.md e docs/relatorios/"
+  }
 }

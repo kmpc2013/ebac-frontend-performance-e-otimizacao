@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 5 — Otimização de imagens</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+  table.grid tr.tot td { font-weight: 700; border-top: 2px solid var(--border); }
+  .good { color: var(--good); }
+
+  /* terminal / código */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 13px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .k { color: #c3a6ff; }
+  .term .s { color: #ffd580; }
+  .term .hl { background: rgba(126,226,168,.16); border-radius: 3px; }
+
+  /* três alavancas */
+  .levers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .lever { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .lever b.big { display: block; font-size: 26px; margin-bottom: 2px; }
+  .lever h4 { margin: 0 0 4px; font-size: 15px; }
+  .lever p { font-size: 14px; margin: 0; }
+
+  /* recorte */
+  .crop { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-end; justify-content: center; padding: 8px 0; }
+  .crop figure { margin: 0; display: grid; gap: 8px; justify-items: center; text-align: center; font-size: 13px; color: var(--muted); }
+  .crop figure b { color: var(--text); font-family: var(--mono); }
+  .photo { background: linear-gradient(135deg, #f7b267, #f4845f 50%, #b56576); border-radius: 4px; position: relative; }
+  .photo.tall { width: 120px; height: 180px; }
+  .photo.tall::before { content: ""; position: absolute; left: 0; right: 0; top: 50px; height: 80px; border: 2px dashed #fff; box-shadow: 0 0 0 999px rgba(0,0,0,.35); }
+  .photo.wide { width: 180px; height: 120px; border: 2px solid var(--good); }
+
+  /* layout diagram */
+  .lay { font: 12px var(--mono); }
+  .lay-vp { border: 2px solid var(--muted); border-radius: 8px; padding: 10px 0; position: relative; }
+  .lay-row { display: flex; gap: 0; margin: 0 16px; border: 1px dashed var(--accent); }
+  .lay-pad { width: 16px; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--ok) 30%, transparent) 0 4px, transparent 4px 8px); }
+  .lay-col { flex: 1; padding: 10px 6px; text-align: center; background: var(--accent-soft); color: var(--text); }
+  .lay-col.img { background: color-mix(in srgb, var(--good) 18%, transparent); }
+  .lay-gap { width: 34px; display: grid; place-items: center; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--bad) 22%, transparent) 0 4px, transparent 4px 8px); writing-mode: vertical-rl; font-size: 10px; }
+  .lay-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .lay-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; }
+
+  /* demos */
+  .demo-ctrl { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .demo-ctrl label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .demo-ctrl select, .demo-ctrl input[type=number] { font: 14px var(--mono); padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); }
+  .demo-ctrl input[type=range] { accent-color: var(--accent); width: 100%; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .presets button { font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 4px 10px; border-radius: 99px; cursor: pointer; }
+  .presets button:hover, .presets button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .steps div { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--muted); }
+  .steps b { display: block; font: 700 18px var(--mono); color: var(--text); }
+  .steps div.win { background: color-mix(in srgb, var(--good) 16%, transparent); }
+  .steps div.win b { color: var(--good); }
+  .cands { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .cand { font: 600 13px var(--mono); border: 2px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--muted); }
+  .cand.on { border-color: var(--good); color: var(--text); background: color-mix(in srgb, var(--good) 10%, transparent); }
+  .why { font-size: 14px; margin-top: 12px; }
+
+  /* barras de peso */
+  .sizes { display: grid; gap: 8px; }
+  .sizes-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: center; font-size: 14px; }
+  .sizes-row .track { background: var(--surface-2); border-radius: 4px; }
+  .sizes-row .b { height: 24px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; color: #fff; font: 600 12px var(--mono); white-space: nowrap; transition: width .35s ease; min-width: 2px; }
+  @media (max-width: 560px) { .sizes-row { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* devtools mock */
+  .dt { background: var(--dt-bg); color: var(--dt-text); border: 1px solid var(--dt-border); border-radius: 10px; overflow: hidden; font: 13px/1.5 system-ui, sans-serif; }
+  .dt-tabs { display: flex; gap: 2px; background: var(--dt-bar); border-bottom: 1px solid var(--dt-border); padding: 0 8px; overflow-x: auto; }
+  .dt-tabs span { padding: 7px 10px; color: var(--dt-muted); white-space: nowrap; }
+  .dt-tabs span.on { color: var(--dt-text); box-shadow: inset 0 -2px 0 var(--dt-blue); }
+  .netrows { font: 12px var(--mono); min-width: 560px; }
+  .netrows div { display: grid; grid-template-columns: 1.6fr .6fr .6fr .7fr 1.4fr; gap: 8px; padding: 4px 10px; border-bottom: 1px solid var(--dt-border); align-items: center; }
+  .netrows div:first-child { color: var(--dt-muted); }
+  .netrows .wf { height: 8px; position: relative; }
+  .netrows .wf i { position: absolute; top: 0; height: 8px; border-radius: 2px; background: var(--dt-blue); }
+  .netrows .hi { color: var(--good); font-weight: 700; }
+  .netrows .lo { color: var(--dt-muted); }
+  .netrows .pend { color: var(--dt-muted); font-style: italic; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 5 de 12 · Performance e Otimização para a Web</div>
+  <h1>Otimização de imagens: o maior ganho do projeto</h1>
+  <p class="lead">Imagens eram <strong>~94% dos bytes</strong> do Pet&amp;Style. Hoje atacamos as fichas G1, G2 e G3 da fase 4: menos pixels, formatos modernos, o tamanho certo para cada tela e a prioridade certa para cada imagem.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#alavancas">1. Três alavancas</a>
+    <a href="#script">2. O script</a>
+    <a href="#formatos">3. JPG × WebP × AVIF</a>
+    <a href="#picture">4. &lt;picture&gt;</a>
+    <a href="#sizes">5. srcset e sizes</a>
+    <a href="#calc">6. Calculadora</a>
+    <a href="#prioridade">7. Prioridade e lazy</a>
+    <a href="#resultado">8. Antes × depois</a>
+    <a href="#conferir">9. Conferir no DevTools</a>
+    <a href="#tarefa">10. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="alavancas">
+  <h2>1. As três alavancas de uma imagem</h2>
+  <p>Na fase 4 você viu que o <code>hero.jpg</code> tinha três problemas somados. Cada um é uma alavanca diferente, e elas se <strong>multiplicam</strong>:</p>
+  <div class="levers">
+    <div class="lever"><b class="big">📐</b><h4>Dimensão</h4><p>Não baixar mais pixels do que a tela vai mostrar (considerando o DPR). 1200×1800 para exibir 380×256 é desperdício puro.</p></div>
+    <div class="lever"><b class="big">🧪</b><h4>Formato</h4><p>AVIF e WebP comprimem bem mais que JPG com a mesma qualidade visual. Mesmos pixels, menos bytes.</p></div>
+    <div class="lever"><b class="big">✂️</b><h4>Proporção</h4><p>A foto era <strong>retrato</strong> num espaço <strong>paisagem</strong>. O <code>object-cover</code> jogava fora mais da metade da altura. Recortar antes evita baixar o que vai ser cortado.</p></div>
+  </div>
+  <div class="card">
+    <div class="crop">
+      <figure>
+        <div class="photo tall" role="img" aria-label="Foto original em retrato; só a faixa do meio é aproveitada"></div>
+        <figcaption><b>antes: 2:3 (retrato)</b><br>1200 × 1800</figcaption>
+      </figure>
+      <figure>
+        <div class="photo wide" role="img" aria-label="Foto recortada em paisagem 3 por 2"></div>
+        <figcaption><b>depois: 3:2 (paisagem)</b><br>480, 800 e 1080 de largura</figcaption>
+      </figure>
+    </div>
+    <div class="caption">Por que <strong>3:2</strong>? No celular do Lighthouse, o hero aparece com 380×256 px CSS: 380 ÷ 256 ≈ 1,48, praticamente 3:2 (1,5). Os cards de produto (h-48) são ainda mais largos que altos, e o <code>object-cover</code> continua cuidando do ajuste fino.</div>
+  </div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  T["🏷️ tag antes<br/>JPG e PNG originais"] -->|git show| S["⚙️ scripts/images.mjs<br/>sharp"]
+  S --> R["✂️ recorte 3:2<br/>e redimensiona"]
+  R --> A["AVIF<br/>quality 50"]
+  R --> W["WebP<br/>quality 75"]
+  A --> P["🖼️ picture + srcset<br/>no src/index.html"]
+  W --> P
+  P --> N["📱 navegador escolhe<br/>formato e largura"]
+  style N fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="script">
+  <h2>2. O script que gera as imagens</h2>
+  <p>Dá para fazer tudo à mão no <a href="https://squoosh.app">Squoosh</a>: são 6 imagens. Mas aqui são <strong>23 arquivos</strong> (5 imagens × larguras × 2 formatos, mais o logo). À mão, isso vira erro de digitação. Com um script, qualquer pessoa regera tudo com um comando e chega ao mesmo resultado.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>scripts/images.mjs (trecho)</span></div>
+<pre><span class="k">const</span> TAG = <span class="s">'antes'</span>;
+<span class="k">const</span> PROPORCAO = 3 / 2; <span class="c">// recorte paisagem</span>
+
+<span class="k">const</span> IMAGENS = [
+  { origem: <span class="s">'assets/produtos/hero.jpg'</span>,    destino: <span class="s">'assets/produtos/hero'</span>,    larguras: [480, 800, 1080] },
+  { origem: <span class="s">'assets/produtos/caminha.jpg'</span>, destino: <span class="s">'assets/produtos/caminha'</span>, larguras: [400, 800] },
+  <span class="c">// ... brinquedo, coleira, roupinha</span>
+];
+
+<span class="hl"><span class="k">const</span> lerOriginal = (caminho) =&gt; execFileSync(<span class="s">'git'</span>, [<span class="s">'show'</span>, `${TAG}:${caminho}`], { maxBuffer: 1 &lt;&lt; 26 });</span>
+
+<span class="k">for</span> (<span class="k">const</span> { origem, destino, larguras } <span class="k">of</span> IMAGENS) {
+  <span class="k">const</span> original = lerOriginal(origem);
+  <span class="k">for</span> (<span class="k">const</span> largura <span class="k">of</span> larguras) {
+    <span class="k">const</span> altura = Math.round(largura / PROPORCAO);
+    <span class="k">const</span> base = sharp(original).resize(largura, altura, { fit: <span class="s">'cover'</span>, position: <span class="s">'centre'</span> });
+    <span class="k">await</span> base.clone().avif({ quality: 50, effort: 6 }).toFile(`${destino}-${largura}.avif`);
+    <span class="k">await</span> base.clone().webp({ quality: 75, effort: 6 }).toFile(`${destino}-${largura}.webp`);
+  }
+}
+
+<span class="c">// Logo: exibido em 36x36, então 72x72 cobre telas 2x.</span>
+<span class="k">await</span> sharp(lerOriginal(<span class="s">'assets/logo.png'</span>)).resize(72, 72).webp({ quality: 85 }).toFile(<span class="s">'assets/logo-72.webp'</span>);</pre></div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Decisão</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td><code>git show antes:…</code></td><td>Os originais saíram do repositório (commit <code>5c53e6c</code>), mas continuam guardados na tag <code>antes</code>. O script lê de lá: <strong>sempre parte do original</strong>, nunca de uma cópia já comprimida. Recomprimir uma imagem já comprimida acumula perda.</td></tr>
+        <tr><td><code>fit: 'cover'</code></td><td>Faz o recorte 3:2 pelo centro, igual ao que o <code>object-cover</code> fazia na tela.</td></tr>
+        <tr><td><code>avif quality 50</code> / <code>webp quality 75</code></td><td>As escalas de qualidade <strong>não são comparáveis</strong> entre formatos. AVIF 50 e WebP 75 dão qualidade visual parecida. Sempre confira o resultado com os próprios olhos, lado a lado (o Squoosh é ótimo para isso).</td></tr>
+        <tr><td><code>effort: 6</code></td><td>Mais tempo de CPU na hora de gerar, arquivo menor. Custa segundos no build, e o ganho vale para todo visitante.</td></tr>
+        <tr><td>Larguras 480/800/1080 e 400/800</td><td>Vêm do layout (seção 5): o hero chega a 540 px CSS, então 1080 cobre telas 2×. Os cards chegam a ~380 px no celular, e 800 cobre DPR até ~2.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npm run images
+<span class="c">assets/produtos/hero.jpg (160.4 KB)</span>
+<span class="c">  assets/produtos/hero-480.avif            480x320   9.1 KB</span>
+<span class="c">  assets/produtos/hero-480.webp            480x320   12.6 KB</span>
+<span class="c">  assets/produtos/hero-800.avif            800x533   18.0 KB</span>
+<span class="c">  assets/produtos/hero-800.webp            800x533   25.1 KB</span>
+<span class="c">  assets/produtos/hero-1080.avif           1080x720  27.0 KB</span>
+<span class="c">  assets/produtos/hero-1080.webp           1080x720  37.0 KB</span>
+<span class="c">  ...</span></pre></div>
+  <p class="caption">O <code>sharp</code> é uma dependência de desenvolvimento (<code>package.json</code>): só roda na sua máquina, nunca chega ao visitante.</p>
+</section>
+
+<!-- 3 -->
+<section id="formatos">
+  <h2>3. JPG × WebP × AVIF: o comparador</h2>
+  <p>Escolha uma imagem e veja quanto cada combinação de formato e largura pesa. Os números são os arquivos reais do projeto.</p>
+  <div class="card" id="cmp">
+    <div class="demo-ctrl">
+      <label>Imagem
+        <select id="cmp-img">
+          <option value="hero">hero (LCP)</option>
+          <option value="caminha">caminha</option>
+          <option value="brinquedo">brinquedo</option>
+          <option value="coleira">coleira</option>
+          <option value="roupinha">roupinha</option>
+          <option value="logo">logo</option>
+        </select>
+      </label>
+    </div>
+    <div class="sizes" id="cmp-bars"></div>
+    <div class="why" id="cmp-why"></div>
+  </div>
+  <div class="callout"><strong>Repare no brinquedo:</strong> o original já tinha 800×533, a mesma proporção e quase a mesma largura do arquivo novo. Ali só mudou o <strong>formato</strong>, e o ganho foi de ~2,4×. Na caminha, mudaram <strong>dimensão, proporção e formato</strong>, e o ganho passou de 6×. As alavancas se multiplicam.</div>
+</section>
+
+<!-- 4 -->
+<section id="picture">
+  <h2>4. <code>&lt;picture&gt;</code>: oferecer formatos, deixar o navegador escolher</h2>
+  <p>Nem todo navegador entende AVIF. O <code>&lt;picture&gt;</code> resolve isso sem JavaScript: o navegador lê os <code>&lt;source&gt;</code> <strong>em ordem</strong> e usa o primeiro cujo <code>type</code> ele suporta. Se nenhum servir, usa o <code>&lt;img&gt;</code>.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/index.html: o hero</span></div>
+<pre>&lt;<span class="k">picture</span>&gt;
+  &lt;<span class="k">source</span> type=<span class="s">"image/avif"</span>
+          srcset=<span class="s">"assets/produtos/hero-480.avif 480w, assets/produtos/hero-800.avif 800w, assets/produtos/hero-1080.avif 1080w"</span>
+          sizes=<span class="s">"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)"</span>&gt;
+  &lt;<span class="k">img</span> src=<span class="s">"assets/produtos/hero-800.webp"</span>
+       srcset=<span class="s">"assets/produtos/hero-480.webp 480w, assets/produtos/hero-800.webp 800w, assets/produtos/hero-1080.webp 1080w"</span>
+       sizes=<span class="s">"(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)"</span>
+       <span class="hl">width=<span class="s">"1080"</span> height=<span class="s">"720"</span> fetchpriority=<span class="s">"high"</span></span>
+       alt=<span class="s">"Cães estilosos usando acessórios Pet&amp;Style"</span>
+       class=<span class="s">"w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl shadow-lg"</span>&gt;
+&lt;/<span class="k">picture</span>&gt;</pre></div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  P["picture"] --> A{"Suporta<br/>image/avif?"}
+  A -- "sim" --> AV["usa o srcset AVIF"]
+  A -- "não" --> I["usa o img<br/>srcset WebP"]
+  AV --> S["escolhe a largura<br/>com sizes × DPR"]
+  I --> S
+  S --> R["o img exibe<br/>com as classes, alt e atributos dele"]
+  style AV fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+    <div class="caption">Mesmo quando o AVIF é escolhido, quem aparece na tela é o <code>&lt;img&gt;</code>. Por isso <code>alt</code>, <code>class</code>, <code>width</code>/<code>height</code>, <code>loading</code> e <code>fetchpriority</code> ficam <strong>só no <code>&lt;img&gt;</code></strong>. O <code>&lt;source&gt;</code> só troca o arquivo.</div>
+  </div>
+  <div class="callout warn"><strong>Decisão consciente:</strong> o fallback é WebP, não JPG. O WebP funciona em todos os navegadores atuais; um JPG extra só serviria a navegadores muito antigos e dobraria os arquivos a manter. Se o seu público tiver navegadores antigos (sistemas legados, por exemplo), acrescente um JPG no <code>&lt;img&gt;</code> e mova o WebP para um segundo <code>&lt;source&gt;</code>.</div>
+</section>
+
+<!-- 5 -->
+<section id="sizes">
+  <h2>5. <code>srcset</code> e <code>sizes</code>: a conta que ninguém explica</h2>
+  <p>O <code>srcset</code> com <code>w</code> diz ao navegador <strong>quais arquivos existem</strong> e a largura real de cada um. Mas o navegador escolhe o arquivo <strong>antes</strong> de calcular o layout: ele ainda não sabe que o hero vai ocupar meia tela. O <code>sizes</code> é a resposta que você dá a ele: “nesta largura de tela, a imagem vai ocupar tantos pixels CSS”.</p>
+  <p>O <code>sizes</code> não é chute: ele sai das classes do layout. O container do hero é:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/index.html: o container do hero</span></div>
+<pre>&lt;<span class="k">div</span> class=<span class="s">"<span class="hl">max-w-6xl</span> mx-auto flex flex-col <span class="hl">md:flex-row</span> items-center justify-center <span class="hl">gap-10 px-4</span> py-16 md:py-24"</span>&gt;
+  &lt;<span class="k">div</span> class=<span class="s">"<span class="hl">flex-1</span> text-center md:text-left"</span>&gt; ...texto... &lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> class=<span class="s">"<span class="hl">flex-1</span> w-full"</span>&gt; ...picture... &lt;/<span class="k">div</span>&gt;
+&lt;/<span class="k">div</span>&gt;</pre></div>
+  <div class="card lay" role="img" aria-label="Diagrama: container de 1152 px com 16 px de padding de cada lado, duas colunas de 540 px separadas por um vão de 40 px">
+    <div class="lay-vp">
+      <div class="lay-row">
+        <div class="lay-pad"></div>
+        <div class="lay-col">texto<br>540</div>
+        <div class="lay-gap">40</div>
+        <div class="lay-col img">hero<br>540</div>
+        <div class="lay-pad"></div>
+      </div>
+    </div>
+    <div class="lay-legend">
+      <span><i style="background:var(--muted)"></i>max-w-6xl = 1152 px</span>
+      <span><i style="background:color-mix(in srgb, var(--ok) 50%, transparent)"></i>px-4 = 16 px de cada lado</span>
+      <span><i style="background:color-mix(in srgb, var(--bad) 40%, transparent)"></i>gap-10 = 40 px</span>
+      <span><i style="background:color-mix(in srgb, var(--good) 40%, transparent)"></i>flex-1: as duas colunas dividem o resto</span>
+    </div>
+  </div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Largura da tela</th><th>Layout</th><th>Conta</th><th>Pedaço do <code>sizes</code></th></tr></thead>
+      <tbody>
+        <tr><td>≥ 1152 px</td><td>container no máximo, 2 colunas</td><td><code>(1152 − 16 − 16 − 40) ÷ 2 = 540</code></td><td><code>(min-width: 1152px) 540px</code></td></tr>
+        <tr><td>768 a 1151 px</td><td><code>md:flex-row</code>: 2 colunas, container = tela</td><td><code>(100vw − 32 − 40) ÷ 2 = 50vw − 36</code></td><td><code>(min-width: 768px) calc(50vw - 36px)</code></td></tr>
+        <tr><td>&lt; 768 px</td><td><code>flex-col</code>: hero ocupa a largura toda</td><td><code>100vw − 16 − 16</code></td><td><code>calc(100vw - 32px)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="caption">O navegador lê as condições do <code>sizes</code> <strong>da esquerda para a direita</strong> e para na primeira verdadeira. Por isso a maior <code>min-width</code> vem primeiro, e o último valor (sem condição) é o padrão.</div>
+  </div>
+
+  <h3>E os cards de produto?</h3>
+  <p>Mesmo raciocínio, com o grid <code>grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6</code> (24 px de vão) dentro de um container <code>max-w-6xl</code> com <code>px-4</code>:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Largura da tela</th><th>Colunas</th><th>Conta</th><th>Pedaço do <code>sizes</code></th></tr></thead>
+      <tbody>
+        <tr><td>≥ 1024 px (<code>lg</code>)</td><td>4</td><td><code>(1152 − 32 − 3 × 24) ÷ 4 = 262</code></td><td><code>(min-width: 1024px) 262px</code></td></tr>
+        <tr><td>640 a 1023 px (<code>sm</code>)</td><td>2</td><td><code>(100vw − 32 − 24) ÷ 2 = 50vw − 28</code></td><td><code>(min-width: 640px) calc(50vw - 28px)</code></td></tr>
+        <tr><td>&lt; 640 px</td><td>1</td><td><code>100vw − 32</code></td><td><code>calc(100vw - 32px)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Simplificação honesta: entre 1024 e 1151 px, o card é um pouco <em>menor</em> que 262 px (o container ainda não chegou ao máximo). Dizer 262 superestima um pouco, então o navegador nunca escolhe uma imagem pequena demais. Errar <strong>para cima</strong> é o lado seguro.</div>
+  </div>
+  <div class="callout"><strong>DPR de novo:</strong> o navegador multiplica o valor do <code>sizes</code> pelo DPR da tela e procura no <code>srcset</code> um arquivo com pelo menos essa largura. O Lighthouse Mobile emula um Moto G Power: tela de <strong>412 px</strong> e <strong>DPR 1,75</strong>. O hero fica com 412 − 32 = <strong>380 px CSS</strong>; 380 × 1,75 = <strong>665 px reais</strong>. O menor candidato com pelo menos 665 px é o <strong>800w</strong>. Teste na calculadora abaixo.</div>
+</section>
+
+<!-- 6 -->
+<section id="calc">
+  <h2>6. Calculadora de srcset</h2>
+  <p>Mude a largura da tela e o DPR. A calculadora aplica o <code>sizes</code> real do projeto e mostra qual arquivo o navegador baixaria.</p>
+  <div class="card">
+    <div class="presets" id="presets">
+      <button type="button" data-vw="412" data-dpr="1.75">📱 Lighthouse Mobile (412, 1,75)</button>
+      <button type="button" data-vw="1350" data-dpr="1">🖥️ Lighthouse Desktop (1350, 1)</button>
+      <button type="button" data-vw="393" data-dpr="3">📱 iPhone recente (393, 3)</button>
+      <button type="button" data-vw="1440" data-dpr="2">💻 Notebook retina (1440, 2)</button>
+      <button type="button" data-vw="820" data-dpr="2">📲 Tablet (820, 2)</button>
+    </div>
+    <div class="demo-ctrl">
+      <label>Imagem
+        <select id="c-img">
+          <option value="hero">hero (480/800/1080w)</option>
+          <option value="card">card de produto (400/800w)</option>
+        </select>
+      </label>
+      <label>Largura da tela: <strong id="c-vw-out">412 px</strong>
+        <input type="range" id="c-vw" min="320" max="1920" step="1" value="412">
+      </label>
+      <label>DPR
+        <select id="c-dpr">
+          <option value="1">1</option>
+          <option value="1.5">1,5</option>
+          <option value="1.75" selected>1,75</option>
+          <option value="2">2</option>
+          <option value="2.625">2,625</option>
+          <option value="3">3</option>
+        </select>
+      </label>
+    </div>
+    <div class="steps">
+      <div>regra do <code>sizes</code> usada<b id="c-rule">—</b></div>
+      <div>largura exibida (CSS)<b id="c-css">—</b></div>
+      <div>× DPR = pixels necessários<b id="c-need">—</b></div>
+      <div class="win">arquivo escolhido<b id="c-pick">—</b></div>
+    </div>
+    <div class="cands" id="c-cands"></div>
+    <div class="why" id="c-why"></div>
+    <div class="caption">Regra simplificada: “o menor candidato com largura ≥ pixels necessários; se nenhum alcançar, o maior”. A especificação deixa a decisão final ao navegador, que pode levar em conta o cache, o modo de economia de dados ou, no Chrome, ficar com o candidato menor quando o necessário está bem perto dele. Confirme sempre no DevTools (seção 9).</div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="prioridade">
+  <h2>7. Prioridade e lazy loading: quem baixa primeiro</h2>
+  <p>Arquivo menor resolve a <em>load duration</em> do LCP. Mas na fase 4 vimos outro problema: o hero <strong>disputava banda</strong> com as 4 fotos de produto. Três atributos resolvem isso:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Atributo</th><th>Onde</th><th>O que faz</th></tr></thead>
+      <tbody>
+        <tr><td><code>fetchpriority="high"</code></td><td>só no hero</td><td>Avisa o navegador, já na leitura do HTML, que esta imagem é a mais importante. Sem ele, imagens costumam começar com prioridade baixa e só sobem depois que o layout mostra que estão visíveis. Ataca o <em>load delay</em> do LCP.</td></tr>
+        <tr><td><code>loading="lazy"</code></td><td>só nos produtos</td><td>Adia o download até a imagem se aproximar da área visível. No celular, os produtos estão abaixo da dobra: deixam de disputar banda com o hero.</td></tr>
+        <tr><td><code>decoding="async"</code></td><td>só nos produtos</td><td>Permite decodificar a imagem fora do caminho da pintura. Ganho pequeno, custo zero.</td></tr>
+        <tr><td><code>width</code> + <code>height</code></td><td>todas</td><td>O navegador calcula a proporção (<code>aspect-ratio</code>) e reserva o espaço antes de a imagem chegar: evita CLS. Aqui as classes <code>h-64</code>/<code>h-48</code> já fixavam a altura, mas os atributos protegem contra mudanças futuras no CSS. Use a proporção do arquivo (1080×720, 800×533), não o tamanho exibido.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout bad"><strong>Nunca coloque <code>loading="lazy"</code> no LCP.</strong> Imagem lazy só começa a baixar depois que o navegador calcula o layout e descobre que ela está na tela. No hero, isso aumenta o <em>load delay</em> e piora o LCP: é o erro mais comum desta fase. O logo também está no topo: sem lazy.</div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/index.html: um card de produto</span></div>
+<pre>&lt;<span class="k">picture</span>&gt;
+  &lt;<span class="k">source</span> type=<span class="s">"image/avif"</span> srcset=<span class="s">"assets/produtos/caminha-400.avif 400w, assets/produtos/caminha-800.avif 800w"</span>
+          sizes=<span class="s">"(min-width: 1024px) 262px, (min-width: 640px) calc(50vw - 28px), calc(100vw - 32px)"</span>&gt;
+  &lt;<span class="k">img</span> src=<span class="s">"assets/produtos/caminha-400.webp"</span> srcset=<span class="s">"... 400w, ... 800w"</span> sizes=<span class="s">"..."</span>
+       width=<span class="s">"800"</span> height=<span class="s">"533"</span> <span class="hl">loading=<span class="s">"lazy"</span> decoding=<span class="s">"async"</span></span>
+       alt=<span class="s">"Caminha acolchoada para pets"</span> class=<span class="s">"w-full h-48 object-cover"</span>&gt;
+&lt;/<span class="k">picture</span>&gt;</pre></div>
+
+  <h3>O que deve mudar na aba Network</h3>
+  <div class="dt scroll-x" role="img" aria-label="Network filtrado por imagens depois da otimização: hero em AVIF com prioridade alta começa cedo; produtos lazy começam depois">
+    <div class="dt-tabs"><span>All</span><span>Doc</span><span>CSS</span><span>JS</span><span>Font</span><span class="on">Img</span></div>
+    <div class="netrows">
+      <div><span>Name</span><span>Type</span><span>Priority</span><span>Size</span><span>Waterfall</span></div>
+      <div><span>logo-72.webp</span><span>webp</span><span class="lo">Low</span><span>1.3 kB</span><span class="wf"><i style="left:8%;width:6%"></i></span></div>
+      <div><span>hero-800.avif</span><span>avif</span><span class="hi">High</span><span>18.0 kB</span><span class="wf"><i style="left:8%;width:22%"></i></span></div>
+      <div><span>caminha-800.avif</span><span>avif</span><span class="lo">Low</span><span>13.6 kB</span><span class="wf"><i style="left:46%;width:16%;opacity:.6"></i></span></div>
+      <div><span>brinquedo-800.avif</span><span>avif</span><span class="lo">Low</span><span>31.3 kB</span><span class="wf"><i style="left:48%;width:30%;opacity:.6"></i></span></div>
+      <div><span class="pend">coleira, roupinha…</span><span></span><span></span><span class="pend">ao rolar</span><span></span></div>
+    </div>
+  </div>
+  <p class="caption">Ilustração do padrão esperado no Mobile. O Chrome começa a baixar imagens lazy um pouco <em>antes</em> de elas entrarem na tela (ele usa uma margem de segurança), então é normal que um ou dois produtos apareçam no carregamento inicial. O que importa: eles começam <strong>depois</strong> e com prioridade menor que o hero.</p>
+</section>
+
+<!-- 8 -->
+<section id="resultado">
+  <h2>8. Antes × depois, imagem por imagem</h2>
+  <p>Esta tabela é o item “registrar tamanho antes/depois de cada imagem” do checklist. A coluna “depois” mostra o arquivo que o Lighthouse Mobile baixa (AVIF, 800w).</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Imagem</th><th>Antes</th><th class="n">KB</th><th>Depois (mobile)</th><th class="n">KB</th><th class="n">Redução</th></tr></thead>
+      <tbody>
+        <tr><td>hero</td><td>JPG 1200×1800</td><td class="n">160,4</td><td>AVIF 800×533</td><td class="n">18,0</td><td class="n good">−89%</td></tr>
+        <tr><td>caminha</td><td>JPG 800×1200</td><td class="n">91,1</td><td>AVIF 800×533</td><td class="n">13,6</td><td class="n good">−85%</td></tr>
+        <tr><td>brinquedo</td><td>JPG 800×533</td><td class="n">73,8</td><td>AVIF 800×533</td><td class="n">31,3</td><td class="n good">−58%</td></tr>
+        <tr><td>coleira</td><td>JPG 800×533</td><td class="n">43,9</td><td>AVIF 800×533</td><td class="n">16,1</td><td class="n good">−63%</td></tr>
+        <tr><td>roupinha</td><td>JPG 800×1200</td><td class="n">77,6</td><td>AVIF 800×533</td><td class="n">9,1</td><td class="n good">−88%</td></tr>
+        <tr><td>logo</td><td>PNG 447×447</td><td class="n">6,3</td><td>WebP 72×72</td><td class="n">1,3</td><td class="n good">−79%</td></tr>
+        <tr class="tot"><td>Total</td><td></td><td class="n">453,1</td><td></td><td class="n">89,4</td><td class="n good">−80%</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">E no Desktop (DPR 1)? Os cards têm 262 px e o navegador fica com os arquivos de 400w: o total cai para ~45 KB. E, por causa do lazy, no carregamento inicial do Mobile só o hero e o logo (~19 KB) são obrigatórios. Os números acima são de arquivo; o efeito em <strong>LCP</strong> você mede na fase 10.</div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="conferir">
+  <h2>9. Conferir no DevTools</h2>
+  <ol>
+    <li>Rode <code>npx serve .</code> e abra em janela anônima, com o DevTools em <strong>modo dispositivo</strong> (<code>Ctrl+Shift+M</code>) simulando 412 px e DPR 1,75 (em <em>Dimensions: Responsive</em>, menu ⋮ → <em>Add device pixel ratio</em>).</li>
+    <li><strong>Network → Img</strong>, com <strong>Disable cache</strong>. Recarregue. Confira a coluna <strong>Type</strong> (<code>avif</code>), a <strong>Priority</strong> do hero (<code>High</code>) e quais produtos vieram.</li>
+    <li><strong>Console:</strong> digite <code>$$('img').map(i =&gt; i.currentSrc)</code>. O <code>currentSrc</code> mostra o arquivo que o navegador <em>de fato</em> escolheu, e não o <code>src</code> escrito no HTML.</li>
+    <li>Mude a largura e o DPR, desative o cache e recarregue. Os arquivos escolhidos batem com a calculadora?</li>
+  </ol>
+  <div class="callout warn"><strong>Pegadinha:</strong> se você aumenta a tela sem recarregar, o navegador pode trocar para um arquivo maior; se diminui, ele costuma <strong>manter</strong> o maior que já tem em cache. Para testar a escolha, sempre recarregue com o cache desativado.</div>
+</section>
+
+<!-- 10 -->
+<section id="tarefa">
+  <h2>10. ✍️ Tarefa da fase 5</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="hero"><span>Hero: recortado em 3:2, em 3 larguras, AVIF + WebP</span></label></li>
+      <li><label><input type="checkbox" data-k="hero-html"><span>Hero: <code>&lt;picture&gt;</code> + <code>srcset</code>/<code>sizes</code> + <code>width</code>/<code>height</code> + <code>fetchpriority="high"</code> (sem lazy!)</span></label></li>
+      <li><label><input type="checkbox" data-k="prod"><span>Produtos: 400 e 800 px, AVIF + WebP</span></label></li>
+      <li><label><input type="checkbox" data-k="prod-html"><span>Produtos: <code>loading="lazy"</code> + <code>decoding="async"</code> + <code>width</code>/<code>height</code></span></label></li>
+      <li><label><input type="checkbox" data-k="logo"><span>Logo 72×72 em WebP</span></label></li>
+      <li><label><input type="checkbox" data-k="calc"><span>Calculadora: entendi por que o Mobile baixa o 800w</span></label></li>
+      <li><label><input type="checkbox" data-k="dt"><span>DevTools: <code>currentSrc</code>, Type <code>avif</code> e Priority <code>High</code> conferidos</span></label></li>
+      <li><label><input type="checkbox" data-k="tab"><span>Tabela antes × depois de cada imagem registrada</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A tabela antes × depois de cada imagem, com os <strong>seus</strong> números.</li>
+    <li>O resultado de <code>$$('img').map(i =&gt; i.currentSrc)</code> no modo Mobile (412 px, DPR 1,75) e no Desktop.</li>
+    <li>Um print da aba Network → Img mostrando Type e Priority.</li>
+    <li><strong>Pergunta conceitual 1:</strong> se você trocasse o <code>sizes</code> do hero por <code>100vw</code>, que arquivo o Desktop (1350 px, DPR 1) baixaria? Por que isso seria desperdício?</li>
+    <li><strong>Pergunta conceitual 2:</strong> por que <code>loading="lazy"</code> no hero pioraria o LCP, mesmo com um arquivo menor?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://web.dev/articles/serve-responsive-images">web.dev — Serve responsive images</a> ·
+  <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTML/Guides/Responsive_images">MDN — Imagens responsivas</a> ·
+  <a href="https://web.dev/articles/fetch-priority">web.dev — Fetch Priority</a> ·
+  <a href="https://web.dev/articles/browser-level-image-lazy-loading">web.dev — Lazy loading de imagens</a> ·
+  <a href="https://sharp.pixelplumbing.com/">sharp</a> ·
+  <a href="https://squoosh.app">Squoosh</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  // Botão "copiar" dos terminais: só as linhas de comando
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var text = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n');
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+      }, function () {});
+    });
+  });
+
+  function fmt(n, d) { return n.toFixed(d === undefined ? 1 : d).replace('.', ','); }
+
+  // Pesos reais (KB) dos arquivos do projeto
+  var PESOS = {
+    hero:      { orig: ['JPG 1200×1800', 160.4], v: [['WebP 1080w', 37.0], ['AVIF 1080w', 27.0], ['WebP 800w', 25.1], ['AVIF 800w', 18.0], ['WebP 480w', 12.6], ['AVIF 480w', 9.1]] },
+    caminha:   { orig: ['JPG 800×1200', 91.1],   v: [['WebP 800w', 16.8], ['AVIF 800w', 13.6], ['WebP 400w', 6.2], ['AVIF 400w', 4.6]] },
+    brinquedo: { orig: ['JPG 800×533', 73.8],    v: [['WebP 800w', 44.5], ['AVIF 800w', 31.3], ['WebP 400w', 16.4], ['AVIF 400w', 11.0]] },
+    coleira:   { orig: ['JPG 800×533', 43.9],    v: [['WebP 800w', 19.7], ['AVIF 800w', 16.1], ['WebP 400w', 7.6], ['AVIF 400w', 6.1]] },
+    roupinha:  { orig: ['JPG 800×1200', 77.6],   v: [['WebP 800w', 11.5], ['AVIF 800w', 9.1], ['WebP 400w', 4.2], ['AVIF 400w', 3.6]] },
+    logo:      { orig: ['PNG 447×447', 6.3],     v: [['WebP 72×72', 1.3]] }
+  };
+
+  // Comparador de formatos
+  (function () {
+    var sel = document.getElementById('cmp-img'), bars = document.getElementById('cmp-bars'), why = document.getElementById('cmp-why');
+    function color(label) { return /^AVIF/.test(label) ? 'var(--good)' : /^WebP/.test(label) ? 'var(--accent)' : '#8d8676'; }
+    function render() {
+      var d = PESOS[sel.value], max = d.orig[1];
+      var rows = [d.orig].concat(d.v);
+      bars.innerHTML = rows.map(function (r, i) {
+        var pct = Math.max(r[1] / max * 100, 1.5);
+        var tag = i === 0 ? 'original' : '−' + Math.round((1 - r[1] / max) * 100) + '%';
+        return '<div class="sizes-row"><span><strong>' + r[0] + '</strong><br><span class="caption" style="margin:0">' + tag + '</span></span>' +
+          '<div class="track"><div class="b" style="width:' + pct + '%;background:' + color(r[0]) + '">' + fmt(r[1]) + ' KB</div></div></div>';
+      }).join('');
+      var best = d.v.filter(function (r) { return /800w|72/.test(r[0]) && /AVIF|72/.test(r[0]); })[0] || d.v[d.v.length - 1];
+      why.innerHTML = 'O arquivo que o Lighthouse Mobile baixa (<strong>' + best[0] + '</strong>) é <strong>' + fmt(max / best[1]) + '× menor</strong> que o original.';
+    }
+    sel.addEventListener('change', render);
+    render();
+  })();
+
+  // Calculadora de srcset
+  (function () {
+    var IMG = {
+      hero: {
+        cands: [480, 800, 1080],
+        kb: { 480: [9.1, 12.6], 800: [18.0, 25.1], 1080: [27.0, 37.0] },
+        rule: function (vw) {
+          if (vw >= 1152) return ['(min-width: 1152px) 540px', 540];
+          if (vw >= 768) return ['(min-width: 768px) calc(50vw - 36px)', vw / 2 - 36];
+          return ['calc(100vw - 32px)', vw - 32];
+        }
+      },
+      card: {
+        cands: [400, 800],
+        kb: { 400: [4.6, 6.2], 800: [13.6, 16.8] },
+        rule: function (vw) {
+          if (vw >= 1024) return ['(min-width: 1024px) 262px', 262];
+          if (vw >= 640) return ['(min-width: 640px) calc(50vw - 28px)', vw / 2 - 28];
+          return ['calc(100vw - 32px)', vw - 32];
+        }
+      }
+    };
+    var $ = function (id) { return document.getElementById(id); };
+    var img = $('c-img'), vw = $('c-vw'), dpr = $('c-dpr');
+
+    function render() {
+      var d = IMG[img.value], w = +vw.value, r = +dpr.value;
+      var rule = d.rule(w), css = Math.round(rule[1]), need = Math.round(rule[1] * r);
+      var pick = d.cands.filter(function (c) { return c >= need; })[0];
+      var short = pick === undefined;
+      if (short) pick = d.cands[d.cands.length - 1];
+      $('c-vw-out').textContent = w + ' px';
+      $('c-rule').textContent = rule[0];
+      $('c-rule').style.fontSize = '13px';
+      $('c-css').textContent = css + ' px';
+      $('c-need').textContent = css + ' × ' + fmt(r, r % 1 ? (String(r).split('.')[1].length) : 0) + ' = ' + need + ' px';
+      $('c-pick').textContent = pick + 'w';
+      $('c-cands').innerHTML = d.cands.map(function (c) {
+        return '<span class="cand' + (c === pick ? ' on' : '') + '">' + c + 'w · AVIF ' + fmt(d.kb[c][0]) + ' KB · WebP ' + fmt(d.kb[c][1]) + ' KB</span>';
+      }).join('');
+      var msg = short
+        ? 'Nenhum candidato chega a ' + need + ' px, então o navegador usa o maior (' + pick + 'w). A imagem fica levemente menos nítida que o máximo possível, e ninguém percebe a diferença.'
+        : 'O menor arquivo com pelo menos ' + need + ' px é o <strong>' + pick + 'w</strong>: o navegador baixa <strong>' + fmt(d.kb[pick][0]) + ' KB</strong> (AVIF), em vez dos ' + (img.value === 'hero' ? '160,4 KB do JPG original' : '44 a 91 KB dos JPGs originais') + '.';
+      $('c-why').innerHTML = msg;
+    }
+    [img, vw, dpr].forEach(function (el) { el.addEventListener('input', render); el.addEventListener('change', render); });
+    document.querySelectorAll('#presets button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        vw.value = b.dataset.vw; dpr.value = b.dataset.dpr; render();
+      });
+    });
+    render();
+  })();
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase5-petstyle', state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -165,6 +165,7 @@
     <a href="#prioridade">6. Priorizar</a>
     <a href="#readme">7. Para o README</a>
     <a href="#tarefa">8. Tarefa</a>
+    <a href="#gabarito">9. Gabarito</a>
   </nav>
 </header>
 
@@ -418,6 +419,54 @@ CLS (alturas fixas via CSS; CLS = X).</pre>
     <li>Alguma hipótese foi <strong>refutada</strong>? Qual, e o que a evidência mostrou?</li>
     <li><strong>Pergunta conceitual:</strong> por que a imagem do hero precisa de ~665 px de largura no celular simulado, se ela aparece com 380 px? E por que não faz sentido servir 1200 px?</li>
   </ol>
+</section>
+
+<!-- 9 -->
+<section id="gabarito">
+  <h2>9. Gabarito</h2>
+  <div class="callout warn"><strong>Tente responder antes de abrir.</strong> Preencha a sua tabela e posicione os gargalos na sua matriz primeiro. Depois compare: o que importa é cada linha ter <strong>evidência medida</strong> e <strong>causa no código</strong>, não bater número a número com o meu.</div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600">Mostrar o gabarito da tarefa</summary>
+
+    <p>Números da medição oficial da fase 3 (<code>docs/relatorios/antes/</code>, medianas de 3 execuções, Mobile, salvo indicação). Ponto de partida: <strong>Performance Mobile 90</strong>, <strong>LCP 3,66 s</strong>, elemento LCP = <code>hero.jpg</code>; Acessibilidade 94, Boas práticas 96, SEO 91.</p>
+
+    <h3>Gargalos identificados</h3>
+    <div class="scroll-x">
+      <table class="grid">
+        <thead><tr><th>#</th><th>Gargalo</th><th>Evidência (antes)</th><th>Causa no código</th><th>Métrica afetada</th><th>Prioridade</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip">G1</span></td><td>Imagem do LCP superdimensionada</td><td>Elemento LCP = <code>hero.jpg</code> em todas as execuções; <strong>LCP 3,66 s</strong> (Mobile) e 0,72 s (Desktop). 160,6 KB transferidos; 1200×1800 exibido em 380×256. Prioridade <em>High</em>, igual à dos produtos.</td><td><code>&lt;img src="assets/produtos/hero.jpg"&gt;</code> em <code>#inicio</code>, sem <code>fetchpriority</code>, sem <code>width</code>/<code>height</code>, em JPG</td><td>LCP, Speed Index (1,52 s), peso</td><td><strong>Alta</strong></td></tr>
+          <tr><td><span class="chip">G2</span></td><td>Fotos de produto grandes e sem lazy</td><td>4 JPGs = <strong>287,6 KB</strong> (caminha 91,4 · roupinha 77,9 · brinquedo 74,1 · coleira 44,2), todos baixados no carregamento inicial, com prioridade <em>High</em>/<em>Medium</em>. <em>Improve image delivery</em>: ~94 KiB de economia só nelas.</td><td>4 <code>&lt;img&gt;</code> de <code>#produtos</code> sem <code>loading="lazy"</code>, em JPG, até 800×1200</td><td>LCP (disputa de banda), peso</td><td><strong>Alta</strong></td></tr>
+          <tr><td><span class="chip">G3</span></td><td>Logo superdimensionado</td><td>447×447 exibido em 36×36 (63×63 necessários com DPR 1,75); 6,6 KB, economia estimada de ~6 KiB</td><td><code>assets/logo.png</code></td><td>peso</td><td>Baixa</td></tr>
+          <tr><td><span class="chip">G4</span></td><td>CSS bloqueante sem minificar</td><td><em>Render-blocking requests</em> lista o <code>output.css</code> (171 a 198 ms estimados nas 3 execuções). 16,9 KB no disco, 4,1 KB transferidos (gzip). 2 variáveis sem uso.</td><td><code>src/output.css</code> gerado sem <code>--minify</code></td><td>FCP (1,11 s), peso</td><td>Baixa</td></tr>
+          <tr><td><span class="chip">G5</span></td><td>HTML sem minificar</td><td>9,9 KB no disco, 2,5 KB transferidos (gzip)</td><td><code>index.html</code></td><td>FCP, peso</td><td>Baixa</td></tr>
+          <tr><td><span class="chip">G6</span></td><td>Sem favicon e sem meta description</td><td>Reprovados: <em>errors-in-console</em> (<code>/favicon.ico</code> → <strong>404</strong>), puxando Boas práticas para 96; <em>meta-description</em>, puxando SEO para 91. A 9ª requisição é esse 404.</td><td><code>&lt;head&gt;</code> do <code>index.html</code></td><td>Boas práticas, SEO, requisições</td><td>Baixa</td></tr>
+          <tr><td><span class="chip h">extra</span></td><td>Contraste insuficiente do laranja</td><td>Reprovado: <em>color-contrast</em> (Acessibilidade 94). 8 elementos com <code>orange-500</code> (<code>#ff6900</code>): 2,88:1 em fundo branco e 2,71:1 em <code>orange-50</code>; o mínimo é 4,5:1 (3:1 para texto grande).</td><td>Classes <code>text-orange-500</code> e <code>bg-orange-500</code> no <code>index.html</code></td><td>Acessibilidade</td><td>Baixa (mas fácil)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">O contraste não estava nos alvos G1–G6 do plano: é um achado do relatório que não é de performance. Mesmo assim, vale registrar no README: o enunciado pede os gargalos “encontrados”, e uma nota 94 em Acessibilidade sem explicação chama atenção.</p>
+    <p><strong>Não se aplica:</strong> JavaScript e bibliotecas (nenhum script; o TBT oscilou entre 27 e 63 ms sem haver JS, ou seja, é ruído da máquina, não código), fontes web (fontes do sistema, nenhuma requisição de fonte) e CLS (<strong>0,000</strong> em todas as execuções, graças às alturas fixas via CSS).</p>
+
+    <h3>Matriz impacto × esforço</h3>
+    <div class="matrix">
+      <div class="ax y">impacto →</div>
+      <div class="q q1"><b>Fazer primeiro</b><span class="pill">G1 hero</span><span class="pill">G2 produtos + lazy</span></div>
+      <div class="q q2"><b>Planejar</b><span class="pill">G1+ srcset / &lt;picture&gt; AVIF+WebP</span></div>
+      <div class="q q3"><b>Fazer de brinde</b><span class="pill">G3 logo</span><span class="pill">G4 CSS</span><span class="pill">G5 HTML</span><span class="pill">G6 favicon/meta</span><span class="pill">contraste</span></div>
+      <div class="q q4"><b>Evitar (por enquanto)</b><span class="caption" style="margin:0">CSS crítico separado: o CSS inteiro tem 4,1 KB na rede</span></div>
+      <div class="ax x">esforço →</div>
+    </div>
+    <p>A estimativa da seção 6 se confirmou com os números: as imagens são <strong>~98% dos bytes</strong> (≈455 de 462,4 KB) e o Lighthouse estima <strong>152 KiB</strong> de economia nelas. Texto (CSS + HTML) soma ~6,6 KB na rede: mesmo minificando tudo, o ganho máximo é de poucos KB. G1 e G2 são as únicas que mexem no LCP de 3,66 s, que é o que segura o score Mobile em 90 (TBT e CLS já estão no verde).</p>
+
+    <h3>As perguntas do “Para eu corrigir”</h3>
+    <ul>
+      <li><strong>Prioridade:</strong> hero <em>High</em>; caminha, brinquedo e coleira <em>High</em>; roupinha <em>Medium</em>. O hero não se destaca das fotos de produto, e é isso que o <code>fetchpriority="high"</code> resolve.</li>
+      <li><strong>Experimento da G2:</strong> o resultado esperado é o LCP Mobile <strong>cair</strong> com os 4 produtos bloqueados, porque o hero passa a ter a banda simulada só para ele. O valor exato depende da sua execução: compare com os seus 3,66 s, sempre com mais de uma execução.</li>
+      <li><strong>Hipótese refutada:</strong> a das classes CSS mortas (seção 1). Outra boa candidata: “o CSS bloqueante pesa no LCP”. A evidência mostra que ele é pequeno (4,1 KB) e chega antes das imagens; quem domina é o download do hero.</li>
+      <li><strong>Conceitual (665 px):</strong> o celular simulado tem <strong>DPR 1,75</strong>: cada pixel CSS usa 1,75 pixel físico. 380 px CSS × 1,75 ≈ <strong>665 px reais</strong> para a imagem ficar nítida. Servir 1200 px é baixar e decodificar ~7× mais pixels do que a tela consegue mostrar (e mais da metade da altura é cortada pelo <code>object-cover</code>). O caminho certo é oferecer várias larguras com <code>srcset</code>/<code>sizes</code> e deixar o navegador escolher a menor suficiente.</li>
+    </ul>
+  </details>
 </section>
 
 <footer>

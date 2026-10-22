@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 9 — Otimizações bônus</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; font-size: 13px; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .add { color: #7ee2a8; }
+  .term .del { color: #ff8a80; }
+  .term .hl { color: #febc2e; }
+
+  /* bonus menu */
+  .bonus { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .bonus div { border-radius: 12px; padding: 14px; font-size: 14px; border: 2px solid; }
+  .bonus h4 { margin: 0 0 4px; font-size: 15px; }
+  .bonus .done { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .bonus .skip { border-color: var(--muted); background: var(--surface-2); }
+  .bonus .you { border-color: var(--accent); background: var(--accent-soft); }
+  .bonus small { display: block; font: 600 11px var(--mono); color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
+
+  /* compare boxes */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs > div { border-radius: 12px; padding: 14px; font-size: 14px; border: 2px solid; }
+  .vs .no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+  .vs .yes { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .vs h4 { margin: 0 0 6px; font: 700 14px var(--mono); }
+  .vs ul { margin: 0; padding-left: 18px; }
+  @media (max-width: 640px) { .vs { grid-template-columns: 1fr; } }
+
+  /* render timeline demo */
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+  .seg button { font: 13px var(--mono); border: 0; background: var(--surface); color: var(--muted); padding: 6px 14px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .tl { position: relative; display: grid; gap: 6px; font-size: 13px; }
+  .tl-row { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: center; }
+  .tl-row > span { font-family: var(--mono); font-size: 12px; }
+  .tl-track { position: relative; height: 22px; background: var(--surface-2); border-radius: 4px; }
+  .tl-bar { position: absolute; top: 0; bottom: 0; border-radius: 4px; transition: left .4s, width .4s; color: #fff; font: 600 10px/22px var(--mono); padding: 0 6px; white-space: nowrap; overflow: hidden; }
+  .tl-axis { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font: 11px var(--mono); color: var(--muted); }
+  .tl-axis div { display: flex; justify-content: space-between; }
+  .tl-marker { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--good); transition: left .4s; }
+  .tl-marker b { position: absolute; top: -18px; left: -14px; font: 700 11px var(--mono); color: var(--good); white-space: nowrap; }
+  .tl-wrap { position: relative; padding-top: 18px; }
+  .screens { display: flex; gap: 8px; margin-top: 16px; overflow-x: auto; }
+  .screens figure { margin: 0; text-align: center; font: 11px var(--mono); color: var(--muted); flex: 0 0 auto; }
+  .phone { width: 64px; height: 110px; border: 2px solid var(--border); border-radius: 8px; background: var(--surface); position: relative; overflow: hidden; }
+  .phone.txt::before { content: ""; position: absolute; left: 8px; right: 8px; top: 16px; height: 6px; background: var(--muted); border-radius: 3px; box-shadow: 0 10px 0 var(--muted), 0 20px 0 #c2410c; }
+  .phone.img::after { content: ""; position: absolute; left: 8px; right: 8px; top: 52px; height: 40px; border-radius: 4px; background: linear-gradient(135deg, #f7b267, #f4845f 50%, #b56576); }
+  .phone.blank { background: var(--surface-2); }
+
+  /* contrast meter */
+  .cm { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .cm { grid-template-columns: 1fr; } }
+  .cm label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .cm .pick { display: flex; gap: 8px; align-items: center; }
+  .cm input[type="color"] { width: 44px; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 2px; cursor: pointer; }
+  .cm input[type="text"] { font: 14px var(--mono); padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); width: 110px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .presets button { font: 12px var(--mono); border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 4px 10px; border-radius: 99px; cursor: pointer; }
+  .presets button:hover { border-color: var(--accent); }
+  .sample { border-radius: 10px; padding: 18px; border: 1px solid var(--border); }
+  .sample .big { font-size: 24px; font-weight: 700; line-height: 1.2; }
+  .sample .small { font-size: 15px; margin-top: 6px; }
+  .ratio { font: 700 34px var(--mono); margin: 8px 0 4px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badges span { font: 600 12px var(--mono); padding: 4px 10px; border-radius: 99px; }
+  .badges .pass { background: color-mix(in srgb, var(--good) 20%, transparent); }
+  .badges .fail { background: color-mix(in srgb, var(--bad) 20%, transparent); }
+
+  /* steps */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+  .steps li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 13px var(--mono); }
+
+  /* psi mock */
+  .psi { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .psi { grid-template-columns: 1fr; } }
+  .psi > div { border: 1px solid var(--dt-border); background: var(--dt-bg); color: var(--dt-text); border-radius: 10px; padding: 14px; font-size: 14px; }
+  .psi h4 { margin: 0 0 4px; font-size: 14px; }
+  .psi .tag { font: 600 11px var(--mono); padding: 2px 8px; border-radius: 99px; display: inline-block; margin-bottom: 6px; }
+  .psi .field .tag { background: color-mix(in srgb, var(--good) 20%, transparent); }
+  .psi .lab .tag { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 9 de 12 · Performance e Otimização para a Web</div>
+  <h1>Otimizações bônus</h1>
+  <p class="lead">Os gargalos grandes já foram resolvidos. Agora vêm os ajustes finos: tirar o CSS do caminho crítico, zerar erros de console, ganhar pontos de SEO e acessibilidade, e saber dizer <strong>não</strong> a uma otimização que não ajudaria.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#cardapio">1. O cardápio</a>
+    <a href="#inline">2. CSS inline</a>
+    <a href="#linha">3. Linha do tempo</a>
+    <a href="#head">4. Favicon e description</a>
+    <a href="#preload">5. Preload: por que não</a>
+    <a href="#contraste">6. Contraste</a>
+    <a href="#pages">7. GitHub Pages + PSI</a>
+    <a href="#readme">8. Para o README</a>
+    <a href="#tarefa">9. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="cardapio">
+  <h2>1. O cardápio de bônus</h2>
+  <div class="bonus">
+    <div class="done"><small>feito · 9f2c305</small><h4>CSS inteiro inline</h4>Some a única requisição que bloqueava a renderização.</div>
+    <div class="done"><small>feito · 9f2c305</small><h4>Favicon</h4>Elimina o 404 e o erro no console (Boas práticas).</div>
+    <div class="done"><small>feito · 9f2c305</small><h4>Meta description</h4>Resultado de busca com descrição (SEO).</div>
+    <div class="done"><small>feito · 86429b4</small><h4>Contraste do laranja</h4><code>orange-500</code> → <code>orange-700</code> (Acessibilidade).</div>
+    <div class="skip"><small>decidido não fazer</small><h4>Preload do LCP</h4>A imagem já é descoberta cedo e tem <code>fetchpriority="high"</code>.</div>
+    <div class="you"><small>com você · ação externa</small><h4>GitHub Pages + PSI</h4>Publicar e medir com rede real e dados de campo.</div>
+  </div>
+  <p class="caption">Ponto de partida (medianas do “antes”): Acessibilidade <strong>94</strong>, Boas práticas <strong>96</strong>, SEO <strong>91</strong>. Os três pontos que faltavam eram exatamente os itens desta fase. Resultado (medianas do “depois”, em <code>docs/relatorios/depois/resumo.md</code>): <strong>100 / 100 / 100</strong>, em Mobile e Desktop.</p>
+</section>
+
+<!-- 2 -->
+<section id="inline">
+  <h2>2. CSS inteiro inline no <code>&lt;head&gt;</code></h2>
+  <p>Todo <code>&lt;link rel="stylesheet"&gt;</code> no <code>&lt;head&gt;</code> <strong>bloqueia a primeira pintura</strong>: o navegador não pinta nada até baixar e aplicar o CSS. Com o CSS externo, a ordem era: baixa o HTML → descobre o <code>output.css</code> → <strong>nova ida e volta na rede</strong> → pinta. Colocando o CSS dentro do HTML, essa segunda ida e volta deixa de existir.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  subgraph A["Antes: 2 idas e voltas até pintar"]
+    direction LR
+    A1["📄 HTML<br/>2,5 KB"] --> A2["🎨 output.css<br/>4,1 KB, bloqueia"] --> A3["🖌️ FCP"]
+  end
+  subgraph D["Depois: 1 ida e volta"]
+    direction LR
+    D1["📄 HTML com style<br/>5,7 KB"] --> D3["🖌️ FCP"]
+  end
+  style A3 fill:#e8a200,color:#000,stroke:#e8a200
+  style D3 fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+    <div class="caption">Tamanhos transferidos com gzip. Antes: valores do relatório Lighthouse do baseline. Depois: <code>index.html</code> atual comprimido.</div>
+  </div>
+  <h3>Como foi feito: no build, não à mão</h3>
+  <p>O <code>src/index.html</code> (fonte legível) continua com o <code>&lt;link&gt;</code>, o que é ótimo para desenvolver. O script de build troca o link pelo conteúdo do CSS na hora de gerar o <code>index.html</code> publicado:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>scripts/build-html.mjs (trecho real, commit 9f2c305)</span></div>
+<pre>const fonte = readFileSync('src/index.html', 'utf8');
+const css = readFileSync('src/output.css', 'utf8');
+
+<span class="c">// CSS crítico inline: o CSS inteiro tem ~3,5 KB com gzip, então embuti-lo no HTML elimina</span>
+<span class="c">// a única requisição que bloqueava a renderização sem pesar no documento.</span>
+const LINK_CSS = '&lt;link rel="stylesheet" href="src/output.css"&gt;';
+if (!fonte.includes(LINK_CSS)) throw new Error(`src/index.html precisa conter ${LINK_CSS}`);
+const comCssInline = fonte.replace(LINK_CSS, () =&gt; `&lt;style&gt;${css}&lt;/style&gt;`);
+
+const html = await minify(comCssInline, { collapseWhitespace: true, minifyCSS: true, ... });
+writeFileSync('index.html', html);</pre></div>
+  <div class="callout"><strong>Dois detalhes que valem ouro:</strong> o <code>throw</code> faz o build <strong>falhar alto</strong> se alguém mudar o <code>&lt;link&gt;</code> (sem ele, o CSS sumiria em silêncio e a página ficaria sem estilo). E o <code>replace(LINK_CSS, () =&gt; …)</code> usa uma <strong>função</strong> como substituto: com uma string, sequências como <code>$&amp;</code> dentro do CSS seriam interpretadas como padrões especiais do <code>replace</code>.</div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>npm run build (saída)</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>npm run build
+src/index.html  12.9 KB (gzip 2.8 KB)
+index.html      23.3 KB (gzip 5.7 KB)
+src/output.css  13.5 KB (gzip 3.5 KB) (inline no index.html)</pre></div>
+
+  <h3>Quando o CSS inteiro inline faz sentido (e quando não)</h3>
+  <div class="vs">
+    <div class="yes"><h4>✅ Faz sentido</h4><ul>
+      <li>CSS <strong>pequeno</strong> (aqui: 3,5 KB gzip, cabe com folga nos primeiros pacotes da resposta).</li>
+      <li><strong>Página única</strong>: não há outra página para reaproveitar o CSS do cache.</li>
+      <li>Visitas são, em maioria, a <strong>primeira</strong> (landing page de campanha).</li>
+    </ul></div>
+    <div class="no"><h4>❌ Não faz sentido</h4><ul>
+      <li>Site com <strong>muitas páginas</strong>: o CSS externo é baixado uma vez e fica no cache; inline, ele é rebaixado em <strong>todo</strong> HTML.</li>
+      <li>CSS <strong>grande</strong> (dezenas de KB): o HTML incha e atrasa tudo. Aí o certo é <strong>só o CSS crítico</strong> (o da primeira tela) inline e o resto carregado sem bloquear.</li>
+      <li>Política de segurança (CSP) que proíbe <code>&lt;style&gt;</code> inline sem hash/nonce.</li>
+    </ul></div>
+  </div>
+  <p class="caption">O custo honesto: numa revisita, o Pet&amp;Style rebaixa 3,5 KB de CSS junto com o HTML, que antes viria do cache. Para uma landing page de ~5,8 KB, é uma troca que vale.</p>
+  <div class="callout warn"><strong>Seja honesto com o número medido.</strong> No comparativo final, o FCP <strong>melhorou de verdade</strong>: Mobile 1,11 → 0,68 s, Desktop 0,30 → 0,19 s. Mas atribuir esse ganho a cada etapa é arriscado: entre as medições por etapa, o FCP Mobile foi 1,01 → 0,93 → 0,90 s (imagens → minificação → CSS inline) e só caiu para 0,68 s na medição final, cujos commits extras mexeram apenas em contraste e num comentário. Ou seja, parte da diferença é ruído entre execuções. Com o servidor na sua máquina, o CSS de 4 KB já era barato (o Lighthouse estimava 171 a 198 ms de bloqueio no “antes”). O ganho do inline é <strong>estrutural</strong> (uma dependência de rede a menos no caminho crítico) e aparece mais com latência real, como no GitHub Pages. No README, escreva exatamente isso, sem inflar o resultado.</div>
+</section>
+
+<!-- 3 -->
+<section id="linha">
+  <h2>3. Demo: linha do tempo com e sem CSS bloqueante</h2>
+  <p>Simulação no estilo do Lighthouse Mobile (ida e volta de 150 ms, ~1,6 Mbit/s). Alterne e observe o marcador do FCP.</p>
+  <div class="card">
+    <div class="seg" role="group" aria-label="Modo do CSS">
+      <button type="button" aria-pressed="true" data-mode="ext">CSS externo (antes)</button>
+      <button type="button" aria-pressed="false" data-mode="inl">CSS inline (depois)</button>
+    </div>
+    <div class="tl-wrap">
+      <div class="tl" id="tl"></div>
+    </div>
+    <div class="tl-axis" style="margin-top:6px"><span></span><div><span>0</span><span>200</span><span>400</span><span>600</span><span>800 ms</span></div></div>
+    <div class="screens" id="screens"></div>
+    <p class="caption" id="tl-cap"></p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="head">
+  <h2>4. Favicon e meta description</h2>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show 9f2c305 -- src/index.html</span></div>
+<pre> &lt;head&gt;
+     &lt;meta charset="UTF-8"&gt;
+     &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+<span class="add">+    &lt;meta name="description" content="Pet&amp;Style: camas, brinquedos, coleiras e roupinhas que deixam o seu pet mais confortável e estiloso."&gt;</span>
+<span class="add">+    &lt;link rel="icon" href="assets/favicon.png" type="image/png"&gt;</span>
+<span class="add">+    &lt;!-- No build, este link é trocado pelo CSS inteiro inline (ver scripts/build-html.mjs). --&gt;</span>
+     &lt;link rel="stylesheet" href="src/output.css"&gt;</pre></div>
+  <h3>Favicon: por que um 404 derruba “Boas práticas”</h3>
+  <p>Sem nenhuma tag, o navegador pede <code>/favicon.ico</code> por conta própria. No baseline, isso gerava uma requisição <strong>404</strong> e a mensagem <em>Failed to load resource</em> no console. O Lighthouse reprova a auditoria <em>Browser errors were logged to the console</em>, e Boas práticas fica em 96.</p>
+  <p>O ícone é gerado a partir do logo original, no mesmo script das imagens, sem passo manual:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>scripts/images.mjs (trecho real)</span></div>
+<pre>const logo = lerOriginal('assets/logo.png');      <span class="c">// lido da tag antes</span>
+await sharp(logo).resize(72, 72).webp({ quality: 85 }).toFile('assets/logo-72.webp');
+await sharp(logo).resize(32, 32).png({ palette: true }).toFile('assets/favicon.png');  <span class="c">// 1,5 KB</span></pre></div>
+  <p class="caption">PNG 32×32 com paleta: 1,5 KB, suportado por todos os navegadores atuais. <code>.ico</code> só é necessário para navegadores muito antigos.</p>
+  <h3>Meta description: o texto do resultado de busca</h3>
+  <p>Sem ela, o buscador inventa um trecho a partir da página. A auditoria <em>Document does not have a meta description</em> derrubava o SEO para 91. Boa prática: 1 ou 2 frases, até ~155 caracteres, descrevendo a página para um humano (não uma lista de palavras-chave).</p>
+  <div class="callout good"><strong>Como conferir:</strong> Console sem nenhum erro vermelho após <code>Ctrl+Shift+R</code>; Network com <code>favicon.png</code> 200; Lighthouse com Boas práticas e SEO em 100. Anote os números na fase 10.</div>
+</section>
+
+<!-- 5 -->
+<section id="preload">
+  <h2>5. Preload da imagem do LCP: por que <em>não</em> fizemos</h2>
+  <p>O plano dizia: <em>“preload da imagem do LCP, se o LCP ainda estiver alto”</em>. Um <code>&lt;link rel="preload"&gt;</code> serve para avisar o navegador, o mais cedo possível, de um recurso que ele <strong>só descobriria tarde</strong>. A pergunta certa é: <strong>o hero é descoberto tarde?</strong></p>
+  <p>Não. O <code>&lt;img&gt;</code> do hero está escrito no HTML inicial. O navegador tem um <strong>preload scanner</strong>: enquanto o parser principal trabalha, um leitor secundário varre o HTML que chegou e já dispara o download de imagens, CSS e scripts que encontra. E o hero ainda tem <code>fetchpriority="high"</code>:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>src/index.html (hero, fase 5)</span></div>
+<pre>&lt;picture&gt;
+  &lt;source type="image/avif" srcset="assets/produtos/hero-480.avif 480w, ...800w, ...1080w" sizes="..."&gt;
+  &lt;img src="assets/produtos/hero-800.webp" srcset="..." sizes="..."
+       width="1080" height="720" <span class="hl">fetchpriority="high"</span> alt="..."&gt;
+&lt;/picture&gt;</pre></div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  subgraph CEDO["Imagem no HTML (Pet&Style)"]
+    H1["📄 HTML chega"] --> S1["🔍 preload scanner<br/>acha o img"]
+    S1 --> I1["🖼️ download começa já<br/>prioridade alta"]
+  end
+  subgraph TARDE["Imagem descoberta tarde"]
+    H2["📄 HTML chega"] --> C2["🎨 CSS baixa e é lido<br/>background-image: url(...)"]
+    H2 --> J2["⚙️ JS executa<br/>e cria o img"]
+    C2 --> I2["🖼️ download só agora"]
+    J2 --> I2
+  end
+  P["link rel=preload"] -.->|"ajuda aqui"| I2
+  P -.->|"não muda nada"| I1
+  style I1 fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style I2 fill:#d93025,color:#fff,stroke:#d93025
+    </pre>
+  </div>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Situação</th><th>Preload ajuda?</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Hero como <code>background-image</code> no CSS</td><td>✅ sim</td><td>A URL só é conhecida depois que o CSS é baixado e aplicado.</td></tr>
+        <tr><td>Hero criado por JS (React sem SSR, carrossel)</td><td>✅ sim</td><td>A URL só existe depois que o script roda.</td></tr>
+        <tr><td><code>&lt;img&gt;</code> no HTML, mas com <code>loading="lazy"</code></td><td>⚠️ conserte a causa</td><td>Tire o <code>lazy</code> da imagem do LCP. Preload seria um remendo.</td></tr>
+        <tr><td><code>&lt;img&gt;</code> no HTML inicial + <code>fetchpriority="high"</code> (nosso caso)</td><td>❌ não</td><td>O scanner já acha a imagem no primeiro pedaço do HTML. Com o CSS inline, não há nem outro arquivo competindo antes dela.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>E pode até <strong>atrapalhar</strong>: com <code>&lt;picture&gt;</code> + AVIF/WebP + <code>srcset</code>, o preload teria que repetir a mesma lógica (<code>imagesrcset</code>, <code>imagesizes</code> e <code>type</code>). Qualquer divergência faz o navegador baixar <strong>duas</strong> versões da imagem. Ficaria assim, só para você reconhecer:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>exemplo (NÃO aplicado no projeto)</span></div>
+<pre>&lt;link rel="preload" as="image" type="image/avif"
+      imagesrcset="assets/produtos/hero-480.avif 480w, assets/produtos/hero-800.avif 800w, assets/produtos/hero-1080.avif 1080w"
+      imagesizes="(min-width: 1152px) 540px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 32px)"
+      fetchpriority="high"&gt;</pre></div>
+  <div class="callout warn"><strong>Como confirmar com dados:</strong> no Lighthouse do “depois”, abra o <em>LCP breakdown</em>. Se o <strong>load delay</strong> (tempo entre o HTML e o início do download do hero) for pequeno, preload não tem o que ganhar. Anote esse número: ele é a justificativa da decisão no README.<br>No relatório <code>depois-mobile-2</code> deste repositório (a execução mediana): TTFB 9 ms · <strong>load delay 9 ms</strong> · load duration 5 ms · render delay 145 ms (tempos observados no trace, sem a simulação de rede). O download do hero começa praticamente junto com o HTML; a maior fatia agora é o <em>render delay</em>, que preload nenhum resolveria.</div>
+</section>
+
+<!-- 6 -->
+<section id="contraste">
+  <h2>6. Contraste: o laranja que reprovava</h2>
+  <p>A auditoria <em>Background and foreground colors do not have a sufficient contrast ratio</em> (<code>color-contrast</code>) segurava a Acessibilidade em 94. A WCAG exige razão de contraste mínima de <strong>4,5:1</strong> para texto normal e <strong>3:1</strong> para texto grande (≥ 24 px, ou ≥ 18,66 px em negrito). O <code>orange-500</code> sobre branco dava <strong>2,88:1</strong>.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show 86429b4 -- src/index.html (trechos)</span></div>
+<pre><span class="del">-  &lt;a href="#" class="flex items-center gap-2 font-bold text-2xl text-orange-500"&gt;</span>
+<span class="add">+  &lt;a href="#" class="flex items-center gap-2 font-bold text-2xl text-orange-700"&gt;</span>
+<span class="del">-  &lt;a href="#produtos" class="... bg-orange-500 ... text-white hover:bg-orange-600 ..."&gt;</span>
+<span class="add">+  &lt;a href="#produtos" class="... bg-orange-700 ... text-white hover:bg-orange-800 ..."&gt;</span>
+<span class="del">-  &lt;span class="font-bold text-orange-500"&gt;R$ 149,90&lt;/span&gt;</span>
+<span class="add">+  &lt;span class="font-bold text-orange-700"&gt;R$ 149,90&lt;/span&gt;</span></pre></div>
+  <p class="caption">Uma tonalidade inteira de laranja (12 ocorrências) trocada por consistência, inclusive o botão “Ver produtos” (branco sobre laranja tem a mesma razão que laranja sobre branco). Repare que não é “performance”: o commit é <code>fix(a11y)</code>. Mas o Lighthouse mede as 4 categorias, e o README deve contar.</p>
+
+  <h3>Demo: medidor de contraste WCAG</h3>
+  <div class="card">
+    <div class="presets" id="presets">
+      <button type="button" data-fg="#ff6900" data-bg="#ffffff">orange-500 sobre branco (antes)</button>
+      <button type="button" data-fg="#ca3500" data-bg="#ffffff">orange-700 sobre branco (depois)</button>
+      <button type="button" data-fg="#ffffff" data-bg="#ca3500">branco sobre orange-700 (botão)</button>
+      <button type="button" data-fg="#ffffff" data-bg="#9f2d00">branco sobre orange-800 (hover)</button>
+      <button type="button" data-fg="#45556c" data-bg="#ffffff">slate-600 sobre branco</button>
+    </div>
+    <div class="cm">
+      <div>
+        <label>Texto<span class="pick"><input type="color" id="fg-c" aria-label="Cor do texto"><input type="text" id="fg-t" aria-label="Hex do texto" maxlength="7"></span></label>
+        <label style="margin-top:10px">Fundo<span class="pick"><input type="color" id="bg-c" aria-label="Cor do fundo"><input type="text" id="bg-t" aria-label="Hex do fundo" maxlength="7"></span></label>
+        <div class="ratio" id="ratio" aria-live="polite"></div>
+        <div class="badges" id="badges"></div>
+      </div>
+      <div class="sample" id="sample">
+        <div class="big">Pet&amp;Style</div>
+        <div class="small">R$ 149,90 · Caminha macia e resistente.</div>
+      </div>
+    </div>
+    <p class="caption">As cores do Tailwind v4 são definidas em <code>oklch()</code>; os hex dos atalhos são aproximações (por isso o medidor pode mostrar 2,89 onde o Lighthouse mostrou 2,88). Fórmula: (L<sub>clara</sub> + 0,05) ÷ (L<sub>escura</sub> + 0,05), onde L é a luminância relativa de cada cor.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="pages">
+  <h2>7. Publicar no GitHub Pages e rodar o PageSpeed Insights</h2>
+  <p>Este passo é <strong>seu</strong>: ele depende da sua conta no GitHub e é uma ação externa (publica o site na internet). O código já está pronto para isso: o <code>index.html</code> gerado fica na <strong>raiz</strong> e todos os caminhos são relativos (<code>assets/…</code>).</p>
+  <ol class="steps">
+    <li><div>Confirme que o <code>index.html</code> da raiz está atualizado: rode <code>npm run build</code> e veja se o <code>git status</code> fica limpo. O GitHub Pages publica <strong>arquivos</strong>, não roda o seu build.</div></li>
+    <li><div>Faça o push da branch <code>main</code> para um repositório <strong>público</strong> (a entrega da fase 12 já exige isso).</div></li>
+    <li><div>No repositório: <strong>Settings → Pages</strong>. Em <em>Build and deployment</em> → <em>Source</em>: <strong>Deploy from a branch</strong>. Branch: <strong><code>main</code></strong>, pasta: <strong><code>/ (root)</code></strong> → <strong>Save</strong>.</div></li>
+    <li><div>Aguarde 1 a 2 minutos (a aba <em>Actions</em> mostra o deploy). O endereço aparece no topo da página de Pages: <code>https://&lt;seu-usuario&gt;.github.io/&lt;repositorio&gt;/</code>.</div></li>
+    <li><div>Abra o endereço e confira: imagens carregando, Console sem erros, Network sem 404.</div></li>
+    <li><div>Acesse <a href="https://pagespeed.web.dev/">pagespeed.web.dev</a>, cole o endereço e clique em <strong>Analisar</strong>. Salve prints das abas <strong>Celular</strong> e <strong>Computador</strong> em <code>docs/relatorios/depois/</code>.</div></li>
+  </ol>
+  <div class="callout warn"><strong>Detalhe do Jekyll:</strong> o GitHub Pages processa o repositório com Jekyll, que ignora arquivos e pastas que começam com <code>_</code>. Não é o caso aqui, mas se algo “sumir” na publicação, um arquivo vazio chamado <code>.nojekyll</code> na raiz desliga esse processamento.</div>
+
+  <h3>Como ler o PageSpeed Insights: campo × laboratório</h3>
+  <div class="psi">
+    <div class="field"><span class="tag">dados de campo (CrUX)</span><h4>“Descubra o que seus usuários reais estão experimentando”</h4>Métricas de <strong>usuários reais do Chrome</strong> nos últimos 28 dias (LCP, INP, CLS no percentil 75). Só aparece com tráfego suficiente. Para um site recém-publicado, o esperado é <strong>“sem dados”</strong>. Isso não é erro: diga no README.</div>
+    <div class="lab"><span class="tag">dados de laboratório (Lighthouse)</span><h4>“Diagnosticar problemas de desempenho”</h4>Um Lighthouse rodando <strong>nos servidores do Google</strong>, com celular e rede simulados. Mesmo tipo de número do seu DevTools, mas com rede real até o GitHub (HTTPS, CDN, compressão). É a parte comparável com as suas medições.</div>
+  </div>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  U["👥 Usuários reais<br/>Chrome"] --> CR[("CrUX<br/>28 dias")] --> F["Campo<br/>LCP, INP, CLS p75"]
+  G["🤖 Servidor do Google"] --> LH["Lighthouse<br/>simulado"] --> L["Laboratório<br/>score, FCP, LCP, TBT..."]
+  F --> R["📝 README"]
+  L --> R
+  style F fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style L fill:#5b4bdb,color:#fff,stroke:#5b4bdb
+    </pre>
+  </div>
+  <div class="callout"><strong>Não misture as fontes no comparativo.</strong> A tabela “antes × depois” do README deve usar as medições <strong>locais</strong> (mesmo protocolo da fase 3). O PSI entra como um bloco à parte: “validação em ambiente publicado”. O servidor, a rede e a máquina são diferentes, então os números não são comparáveis com os locais.</div>
+</section>
+
+<!-- 8 -->
+<section id="readme">
+  <h2>8. Para o README</h2>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">### Otimizações bônus
+
+| Otimização | Onde | Efeito esperado | Resultado |
+|---|---|---|---|
+| CSS inteiro inline (13,5 KB; 3,5 KB gzip) | scripts/build-html.mjs | 1 requisição bloqueante a menos; FCP | FCP X s → Y s |
+| Favicon 32×32 (1,5 KB) | src/index.html, scripts/images.mjs | sem 404 e sem erro no console | Boas práticas 96 → X |
+| Meta description | src/index.html | descrição no resultado de busca | SEO 91 → X |
+| Contraste: orange-500 → orange-700 (2,88:1 → ~5,2:1) | src/index.html | passa em color-contrast | Acessibilidade 94 → X |
+
+**Não aplicado — preload da imagem do LCP:** o `&lt;img&gt;` do hero já está no HTML inicial,
+com `fetchpriority="high"`; o preload scanner o encontra no primeiro pedaço do documento.
+LCP breakdown (depois): load delay = X ms. Preload só ajudaria se a imagem fosse descoberta
+tarde (background-image no CSS ou criada por JS).
+
+**Trade-off do CSS inline:** o CSS não fica em cache separado. Para uma página única com
+CSS de 3,5 KB, vale a pena; num site com várias páginas, seria melhor inline só o CSS crítico.
+
+**PageSpeed Insights** (https://SEU-USUARIO.github.io/REPO/):
+Celular X · Computador X. Dados de campo: sem dados suficientes (site novo).</pre>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="tarefa">
+  <h2>9. ✍️ Tarefa da fase 9</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="inline"><span>Ver o <code>&lt;style&gt;</code> no <code>index.html</code> gerado e a Network sem <code>output.css</code></span></label></li>
+      <li><label><input type="checkbox" data-k="console"><span>Console sem erros e <code>favicon.png</code> 200 na Network</span></label></li>
+      <li><label><input type="checkbox" data-k="scores"><span>Lighthouse: Acessibilidade, Boas práticas e SEO depois (anotar)</span></label></li>
+      <li><label><input type="checkbox" data-k="delay"><span>LCP breakdown do depois: anotar o <em>load delay</em> (justificativa do “sem preload”)</span></label></li>
+      <li><label><input type="checkbox" data-k="contrast"><span>Conferir no medidor os pares de cor do site</span></label></li>
+      <li><label><input type="checkbox" data-k="pages"><span>Publicar no GitHub Pages</span></label></li>
+      <li><label><input type="checkbox" data-k="psi"><span>PageSpeed Insights: prints de Celular e Computador</span></label></li>
+      <li><label><input type="checkbox" data-k="tpl"><span>Seção “Otimizações bônus” do README preenchida</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>Os scores de Acessibilidade, Boas práticas e SEO do “depois”.</li>
+    <li>O <em>load delay</em> do LCP breakdown e a sua conclusão sobre o preload.</li>
+    <li>O link do GitHub Pages e os números do PSI (e o que apareceu em “dados de campo”).</li>
+    <li><strong>Pergunta conceitual:</strong> um colega tem um blog com 40 páginas e 60 KB de CSS (gzip). Ele deve copiar a nossa solução de CSS inline? O que você recomendaria?</li>
+    <li><strong>Pergunta conceitual:</strong> em que situação o preload do hero teria ajudado o Pet&amp;Style? Descreva uma mudança no HTML/CSS que criaria essa situação.</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://web.dev/articles/extract-critical-css">web.dev — Extract critical CSS</a> ·
+  <a href="https://web.dev/articles/preload-scanner">web.dev — Don't fight the preload scanner</a> ·
+  <a href="https://web.dev/articles/fetch-priority">web.dev — Fetch Priority</a> ·
+  <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum">WCAG — Contrast (Minimum)</a> ·
+  <a href="https://docs.github.com/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">GitHub Pages — publishing source</a> ·
+  <a href="https://developers.google.com/speed/docs/insights/v5/about">Sobre o PageSpeed Insights</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+  function copyText(btn, text) {
+    var label = btn.textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = label; }, 1500);
+    }, function () {});
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      copyText(btn, pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n'));
+    });
+  });
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    copyText(this, document.getElementById('tpl').innerText);
+  });
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase9-petstyle';
+    var state = store(KEY);
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () { state[cb.dataset.k] = cb.checked; store(KEY, state); });
+    });
+  })();
+
+  // Linha do tempo (ilustrativa: RTT 150 ms, ~200 KB/s)
+  (function () {
+    var MAX = 800;
+    var MODES = {
+      ext: {
+        rows: [
+          ['HTML 2,5 KB', 0, 165, '#5b4bdb', 'HTML'],
+          ['output.css 4,1 KB', 175, 345, '#d93025', 'CSS bloqueia'],
+          ['hero (AVIF)', 175, 560, '#e8a200', 'hero'],
+          ['pintura', 345, 370, '#0f9d58', '']
+        ],
+        fcp: 370,
+        shots: [['blank', 100], ['blank', 300], ['txt', 400], ['txt img', 600]],
+        cap: 'Com CSS externo, o navegador termina o HTML e precisa de mais uma ida e volta para o output.css. Até ele chegar, a tela fica em branco, mesmo com o HTML pronto.'
+      },
+      inl: {
+        rows: [
+          ['HTML 5,8 KB', 0, 180, '#5b4bdb', 'HTML + CSS'],
+          ['output.css', 0, 0, 'transparent', ''],
+          ['hero (AVIF)', 185, 560, '#e8a200', 'hero'],
+          ['pintura', 185, 210, '#0f9d58', '']
+        ],
+        fcp: 210,
+        shots: [['blank', 100], ['txt', 300], ['txt', 400], ['txt img', 600]],
+        cap: 'Com CSS inline, o estilo chega junto com o HTML: a primeira pintura acontece logo depois que o documento é lido. O hero continua dependendo do próprio download, por isso o ganho principal é no FCP, não no LCP.'
+      }
+    };
+    var tl = document.getElementById('tl'), sc = document.getElementById('screens'), cap = document.getElementById('tl-cap');
+    tl.innerHTML = MODES.ext.rows.map(function (r, i) {
+      return '<div class="tl-row"><span id="tl-l' + i + '"></span><div class="tl-track"><div class="tl-bar" id="tl-b' + i + '"></div></div></div>';
+    }).join('') + '<div class="tl-marker" id="tl-m"><b>FCP</b></div>';
+    function pct(ms) { return ms / MAX * 100; }
+    function render(k) {
+      var m = MODES[k];
+      m.rows.forEach(function (r, i) {
+        document.getElementById('tl-l' + i).textContent = k === 'inl' && i === 1 ? 'output.css (não existe)' : r[0];
+        var b = document.getElementById('tl-b' + i);
+        b.style.left = pct(r[1]) + '%';
+        b.style.width = pct(r[2] - r[1]) + '%';
+        b.style.background = r[3];
+        b.textContent = r[4];
+      });
+      // posiciona o marcador sobre a área das barras (coluna 2)
+      var track = tl.querySelector('.tl-track');
+      var mk = document.getElementById('tl-m');
+      mk.style.left = (track.offsetLeft + track.offsetWidth * pct(m.fcp) / 100) + 'px';
+      mk.querySelector('b').textContent = 'FCP ~' + m.fcp + ' ms';
+      sc.innerHTML = m.shots.map(function (s) {
+        return '<figure><div class="phone ' + s[0] + '"></div>' + s[1] + ' ms</figure>';
+      }).join('');
+      cap.textContent = m.cap + ' (Tempos ilustrativos; os seus números vêm do Lighthouse na fase 10.)';
+    }
+    var current = 'ext';
+    document.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('[data-mode]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        current = b.dataset.mode; render(current);
+      });
+    });
+    window.addEventListener('resize', function () { render(current); });
+    render(current);
+  })();
+
+  // Medidor de contraste WCAG
+  (function () {
+    var fgC = document.getElementById('fg-c'), fgT = document.getElementById('fg-t');
+    var bgC = document.getElementById('bg-c'), bgT = document.getElementById('bg-t');
+    var sample = document.getElementById('sample'), ratioEl = document.getElementById('ratio'), badges = document.getElementById('badges');
+    function norm(h) {
+      h = String(h).trim().replace(/^#?/, '#');
+      if (/^#[0-9a-f]{3}$/i.test(h)) h = '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+      return /^#[0-9a-f]{6}$/i.test(h) ? h.toLowerCase() : null;
+    }
+    function lum(h) {
+      var c = [1, 3, 5].map(function (i) {
+        var v = parseInt(h.substr(i, 2), 16) / 255;
+        return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    }
+    function ratio(a, b) {
+      var x = lum(a), y = lum(b);
+      return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+    }
+    function set(fg, bg) {
+      fgC.value = fgT.value = fg; bgC.value = bgT.value = bg; update();
+    }
+    function update() {
+      var fg = norm(fgT.value), bg = norm(bgT.value);
+      if (!fg || !bg) return;
+      sample.style.color = fg; sample.style.background = bg;
+      var r = ratio(fg, bg);
+      ratioEl.textContent = r.toFixed(2).replace('.', ',') + ' : 1';
+      var tests = [['AA texto normal', 4.5], ['AA texto grande', 3], ['AAA texto normal', 7]];
+      badges.innerHTML = tests.map(function (t) {
+        var ok = r >= t[1];
+        return '<span class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? '✓ ' : '✗ ') + t[0] + ' (' + String(t[1]).replace('.', ',') + ')</span>';
+      }).join('');
+    }
+    fgC.addEventListener('input', function () { fgT.value = fgC.value; update(); });
+    bgC.addEventListener('input', function () { bgT.value = bgC.value; update(); });
+    fgT.addEventListener('input', function () { var v = norm(fgT.value); if (v) fgC.value = v; update(); });
+    bgT.addEventListener('input', function () { var v = norm(bgT.value); if (v) bgC.value = v; update(); });
+    document.getElementById('presets').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-fg]'); if (b) set(b.dataset.fg, b.dataset.bg);
+    });
+    set('#ff6900', '#ffffff');
+  })();
+</script>
+</body>
+</html>

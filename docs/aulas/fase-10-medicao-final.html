@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 10 — Medição final e comparação</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --dt-blue: #1a73e8;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6; --dt-blue: #8ab4f8;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .callout.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .callout.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+  table.grid td.hot { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+  table.grid td.win { background: color-mix(in srgb, var(--good) 14%, transparent); font-weight: 700; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; font-size: 13px; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+  .term .add { color: #7ee2a8; }
+  .term .del { color: #ff8a80; }
+  .term .hl { color: #febc2e; }
+
+  /* compare boxes */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs > div { border-radius: 12px; padding: 14px; font-size: 14px; border: 2px solid; }
+  .vs .no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, transparent); }
+  .vs .yes { border-color: var(--good); background: color-mix(in srgb, var(--good) 7%, transparent); }
+  .vs h4 { margin: 0 0 6px; font: 700 14px var(--mono); }
+  .vs ul { margin: 0; padding-left: 18px; }
+  @media (max-width: 640px) { .vs { grid-template-columns: 1fr; } }
+
+  /* segmented */
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+  .seg button { font: 13px var(--mono); border: 0; background: var(--surface); color: var(--muted); padding: 6px 14px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* steps */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+  .steps li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 13px var(--mono); }
+
+  /* run dots (ruído) */
+  .runs { display: grid; gap: 10px; }
+  .run-row { display: grid; grid-template-columns: 120px 1fr 70px; gap: 10px; align-items: center; font-size: 13px; }
+  .run-row > span:first-child { font-family: var(--mono); font-size: 12px; }
+  .run-track { position: relative; height: 24px; background: var(--surface-2); border-radius: 4px; }
+  .run-dot { position: absolute; top: 6px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--muted); opacity: .75; }
+  .run-dot.med { background: var(--accent); opacity: 1; box-shadow: 0 0 0 2px var(--surface); }
+  .run-row .v { font: 600 12px var(--mono); text-align: right; }
+  .run-axis { display: grid; grid-template-columns: 120px 1fr 70px; gap: 10px; font: 11px var(--mono); color: var(--muted); }
+  .run-axis div { display: flex; justify-content: space-between; }
+  @media (max-width: 560px) { .run-row, .run-axis { grid-template-columns: 84px 1fr 56px; } }
+
+  /* LCP breakdown bars */
+  .bd { display: grid; gap: 12px; }
+  .bd-row { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: center; }
+  .bd-row > span { font: 600 12px var(--mono); }
+  .bd-track { display: flex; height: 26px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .bd-track div { height: 100%; }
+  .bd-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .bd-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .k-ttfb { background: var(--dt-blue); }
+  .k-delay { background: var(--ok); }
+  .k-dur { background: var(--bad); }
+  .k-render { background: var(--accent); }
+
+  /* chart antes x depois */
+  .ch-group { margin: 6px 0 18px; }
+  .ch-group h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .ch-row { display: grid; grid-template-columns: 120px 1fr 74px; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .ch-row:last-child { border-bottom: 0; }
+  .ch-name { font-size: 13px; font-weight: 600; }
+  .ch-bars { display: grid; gap: 4px; }
+  .ch-bar { display: flex; align-items: center; gap: 8px; font: 12px var(--mono); }
+  .ch-bar b { height: 12px; border-radius: 3px; display: block; transition: width .4s; min-width: 2px; }
+  .ch-bar.a b { background: var(--muted); }
+  .ch-bar.d b { background: var(--accent); }
+  .ch-var { font: 700 12px var(--mono); text-align: right; padding: 3px 6px; border-radius: 99px; }
+  .ch-var.up { background: color-mix(in srgb, var(--good) 18%, transparent); }
+  .ch-var.eq { background: var(--surface-2); color: var(--muted); }
+  .ch-var.down { background: color-mix(in srgb, var(--bad) 18%, transparent); }
+  .ch-legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .ch-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  @media (max-width: 560px) { .ch-row { grid-template-columns: 1fr 64px; } .ch-name { grid-column: 1 / -1; } }
+
+  /* calculadora */
+  .calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .calc label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .calc input, .calc select { font: 14px var(--mono); padding: 7px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); width: 100%; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+  .presets button { font: 12px var(--mono); border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 4px 10px; border-radius: 99px; cursor: pointer; }
+  .presets button:hover { border-color: var(--accent); }
+  .calc-out { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .calc-out div { background: var(--surface-2); border-radius: 10px; padding: 12px; }
+  .calc-out small { display: block; font-size: 12px; color: var(--muted); }
+  .calc-out b { font: 700 22px var(--mono); }
+  .verdict { margin-top: 12px; }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 10 de 12 · Performance e Otimização para a Web</div>
+  <h1>Medição final: provar a melhoria com números</h1>
+  <p class="lead">Otimizar foi a parte divertida. Agora vem a parte que convence: medir o “depois” <strong>nas mesmas condições</strong> do “antes”, descobrir <strong>qual mudança</strong> causou cada ganho e separar o que é melhoria do que é <strong>ruído</strong>.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#objetivo">1. O objetivo</a>
+    <a href="#sessao">2. Mesma sessão</a>
+    <a href="#etapas">3. Entre commits</a>
+    <a href="#ruido">4. Ruído e mediana</a>
+    <a href="#porta">5. Caso real: porta ocupada</a>
+    <a href="#depois">6. Lendo o “depois”</a>
+    <a href="#grafico">7. Gráfico antes × depois</a>
+    <a href="#calc">8. Calculadora</a>
+    <a href="#readme">9. Para o README</a>
+    <a href="#tarefa">10. Tarefa</a>
+    <a href="#gabarito">11. Gabarito</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="objetivo">
+  <h2>1. O objetivo: uma comparação que ninguém consiga contestar</h2>
+  <p>Um avaliador desconfiado vai perguntar três coisas sobre o seu “antes × depois”:</p>
+  <ol class="steps">
+    <li><div><strong>“Foi medido do mesmo jeito?”</strong> Mesma ferramenta, mesma versão, mesmo servidor, mesmos presets, mesma máquina, mesmo número de execuções. Senão, você está comparando ambientes, não código.</div></li>
+    <li><div><strong>“O que causou o quê?”</strong> Se todas as mudanças foram medidas de uma vez, ninguém sabe se o LCP caiu por causa das imagens ou da minificação.</div></li>
+    <li><div><strong>“Isso não é sorte?”</strong> Uma execução boa por acaso não prova nada. Por isso, 3 execuções e a mediana.</div></li>
+  </ol>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  T["🏷️ tag antes<br/>e commits perf"] --> A["📦 git archive<br/>uma pasta por versão"]
+  A --> M["📏 scripts/medir.mjs<br/>porta livre, 3 Mobile e 3 Desktop"]
+  M --> R["📄 relatórios HTML<br/>+ resumo.json"]
+  R --> MD["🧮 medianas<br/>resumo.md"]
+  MD --> RE["📝 README<br/>antes x depois e etapas"]
+  style M fill:#5b4bdb,color:#fff,stroke:#5b4bdb
+  style RE fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+    <div class="caption">O mesmo script mede todas as versões. O que muda entre uma medição e outra é só a pasta servida.</div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="sessao">
+  <h2>2. Repetir o protocolo da fase 3, na mesma sessão</h2>
+  <p>O protocolo é o mesmo da fase 3: <code>serve</code> com gzip em <code>localhost</code>, Lighthouse 13.5.0, navegador headless sem extensões, 3 execuções Mobile + 3 Desktop, mediana. A novidade é <strong>quando</strong> medir: o “antes” é medido <strong>de novo</strong>, logo antes do “depois”.</p>
+
+  <h3>Prova de que isso importa: o mesmo código, duas sessões</h3>
+  <p>O código da tag <code>antes</code> foi medido numa primeira sessão (a primeira versão do gabarito da fase 3 usava esses números) e medido de novo na sessão da comparação final. Nada mudou no código. Olhe a diferença:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Mobile, tag <code>antes</code></th><th>1ª sessão</th><th>Sessão da comparação</th><th>Diferença</th></tr></thead>
+      <tbody>
+        <tr><td>Performance</td><td class="n">89</td><td class="n">90</td><td class="n">+1</td></tr>
+        <tr><td>FCP</td><td class="n">0,85 s</td><td class="n">1,11 s</td><td class="n hot">+0,26 s</td></tr>
+        <tr><td>LCP</td><td class="n">3,62 s</td><td class="n">3,66 s</td><td class="n">+0,04 s</td></tr>
+        <tr><td>Speed Index</td><td class="n">2,68 s</td><td class="n">1,52 s</td><td class="n hot">−1,16 s</td></tr>
+        <tr><td>Peso total</td><td class="n">462,4 KB</td><td class="n">462,4 KB</td><td class="n">=</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Fontes: primeira sessão de medição (relatórios substituídos depois; o gabarito da fase 3 hoje mostra os números remedidos) e <code>docs/relatorios/antes/resumo.md</code> (remedido em 21/10, na mesma sessão que o “depois”). O FCP variou 0,26 s <strong>sem mudar uma linha</strong>. Se o “depois” fosse comparado com o número antigo, uma parte do “ganho” seria só a máquina num dia diferente.</div>
+  </div>
+  <div class="callout"><strong>Regra:</strong> a tabela final usa o “antes” e o “depois” da <strong>mesma sessão</strong>. O baseline da fase 3 serviu para diagnosticar; para comparar, ele é medido de novo. Repare também que o <strong>peso</strong> não mudou nada: bytes são determinísticos, tempos não.</div>
+
+  <h3>Como medir versões antigas sem bagunçar a pasta de trabalho</h3>
+  <p>O plano sugeria <code>git switch --detach antes</code>. Funciona, mas troca os arquivos da sua pasta de trabalho, e na tag <code>antes</code> nem existe o <code>scripts/medir.mjs</code> (ele entrou no commit <code>6c8bd63</code>). Aqui foi usado <code>git archive</code>: ele extrai uma versão para <strong>outra pasta</strong>, e o script atual mede essa pasta.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>Git Bash · na raiz do projeto</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="c"># 1. Extrair cada versão para uma pasta fora do projeto</span>
+<span class="p">$ </span>mkdir -p ../medir/antes ../medir/depois
+<span class="p">$ </span>git archive antes | tar -x -C ../medir/antes
+<span class="p">$ </span>git archive HEAD  | tar -x -C ../medir/depois
+
+<span class="c"># 2. Medir uma pasta por vez, com o MESMO script (PORTA: ver seção 5)</span>
+<span class="p">$ </span>PORTA=3010 node scripts/medir.mjs ../medir/antes  docs/relatorios/antes  antes
+<span class="p">$ </span>PORTA=3010 node scripts/medir.mjs ../medir/depois docs/relatorios/depois depois</pre></div>
+  <p class="caption">No PowerShell, troque <code>PORTA=3010 node …</code> por <code>$env:PORTA = '3010'; node …</code>. O <code>git archive</code> extrai só o que está <strong>commitado</strong>: por isso o <code>index.html</code> gerado pelo build fica no repositório. Se ele não estivesse, você precisaria rodar <code>npm run build</code> dentro de cada pasta extraída.</p>
+
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Fica igual em todas as medições</th><th>Muda</th></tr></thead>
+      <tbody>
+        <tr><td><code>scripts/medir.mjs</code> (do commit atual), Lighthouse 13.5.0, Edge 155 headless, <code>serve</code> com gzip, porta 3010, presets Mobile e Desktop, 3 execuções, mesma máquina, mesma noite (23h51 a 00h06)</td><td>Só a pasta servida: <code>antes</code>, cada etapa, <code>HEAD</code></td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Horários dos campos <code>data</code> dos <code>resumo.json</code> (UTC). Tudo foi registrado em <code>docs/relatorios/depois/ambiente.txt</code>.</div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="etapas">
+  <h2>3. Medir entre commits para atribuir o impacto</h2>
+  <p>Comparar só o primeiro e o último estado diz <em>quanto</em> melhorou, mas não <em>por quê</em>. Como cada otimização virou um commit, dá para medir o estado logo depois de cada um e ver onde o número se mexeu.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+  A["🏷️ antes<br/>e852300"] --> I["🖼️ imagens<br/>3a1813f"]
+  I --> MI["🗜️ minificação<br/>da893d7 e 5c53e6c"]
+  MI --> B["⭐ bônus<br/>9f2c305"]
+  B --> F["✅ final<br/>86429b4 e 40c13bf"]
+  A -.-> RA[("relatorios/antes")]
+  I -.-> R1[("etapas/1-imagens")]
+  MI -.-> R2[("etapas/2-minificacao")]
+  B -.-> R3[("etapas/3-bonus")]
+  F -.-> RD[("relatorios/depois")]
+  style I fill:#0f9d58,color:#fff,stroke:#0f9d58
+    </pre>
+    <div class="caption">O <code>5c53e6c</code> só apaga imagens que não eram mais referenciadas: a página servida é a mesma do <code>da893d7</code>. O final inclui o contraste (<code>86429b4</code>) e a limpeza da classe morta <code>.inline</code> (<code>40c13bf</code>).</div>
+  </div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>Git Bash · uma etapa (repita para cada commit)</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>mkdir -p ../medir/1-imagens
+<span class="p">$ </span>git archive 3a1813f | tar -x -C ../medir/1-imagens
+<span class="p">$ </span>PORTA=3010 node scripts/medir.mjs ../medir/1-imagens docs/relatorios/etapas/1-imagens 1-imagens</pre></div>
+
+  <h3>O resultado (Mobile, medianas)</h3>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Etapa</th><th>Score</th><th>FCP</th><th>LCP</th><th>Peso</th><th>Acess. / BP / SEO</th></tr></thead>
+      <tbody>
+        <tr><td>Antes</td><td class="n">90</td><td class="n">1,11 s</td><td class="n">3,66 s</td><td class="n">462,4 KB</td><td class="n">94 / 96 / 91</td></tr>
+        <tr><td>+ Imagens</td><td class="n">100</td><td class="n">1,01 s</td><td class="n win">1,32 s</td><td class="n win">98,8 KB</td><td class="n">94 / 96 / 91</td></tr>
+        <tr><td>+ Minificação</td><td class="n">98</td><td class="n">0,93 s</td><td class="n">1,31 s</td><td class="n">98,3 KB</td><td class="n">94 / 96 / 91</td></tr>
+        <tr><td>+ CSS inline, favicon, meta</td><td class="n">99</td><td class="n">0,90 s</td><td class="n">1,24 s</td><td class="n">98,8 KB</td><td class="n win">94 / 100 / 100</td></tr>
+        <tr><td>Final (+ contraste e limpeza)</td><td class="n">100</td><td class="n">0,68 s</td><td class="n">1,21 s</td><td class="n">98,8 KB</td><td class="n win">100 / 100 / 100</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Fontes: <code>docs/relatorios/antes/</code>, <code>docs/relatorios/etapas/*/resumo.md</code> e <code>docs/relatorios/depois/</code>.</div>
+  </div>
+  <p>Como ler: procure <strong>a linha em que o número muda de patamar</strong>. O LCP cai de 3,66 para 1,32 s numa única linha, a das imagens, e depois só anda dezenas de milissegundos. O peso cai de 462 para 99 KB na mesma linha. Boas práticas e SEO viram 100 exatamente no commit do favicon e da meta description; Acessibilidade, exatamente no do contraste.</p>
+  <div class="callout warn"><strong>O peso subiu de 98,3 para 98,8 KB no bônus. Piorou?</strong> Não: o CSS (4 KB) entrou dentro do HTML, a requisição do <code>output.css</code> sumiu e o <code>favicon.png</code> (1,8 KB) apareceu no lugar do 404. O total é quase o mesmo, mas agora sem nenhum recurso bloqueando a renderização. Variação pequena precisa de explicação, não de pânico.</div>
+</section>
+
+<!-- 4 -->
+<section id="ruido">
+  <h2>4. Ruído: por que 3 execuções e a mediana</h2>
+  <p>O Lighthouse do Mobile carrega a página <strong>sem</strong> limitar a rede e depois <strong>simula</strong> um celular com 4G lenta e CPU 4× mais lenta. Essa simulação usa os tempos de CPU que a sua máquina mediu de verdade. Se o antivírus, o navegador ou a temperatura do processador atrapalharem uma execução, ela sai diferente. Isso é <strong>ruído</strong>: variação que não vem do código.</p>
+
+  <h3>As 3 execuções de cada lote, lado a lado</h3>
+  <div class="card">
+    <div class="seg" role="group" aria-label="Métrica">
+      <button type="button" aria-pressed="true" data-runs="lcp">LCP</button>
+      <button type="button" aria-pressed="false" data-runs="tbt">TBT</button>
+      <button type="button" aria-pressed="false" data-runs="si">Speed Index</button>
+      <button type="button" aria-pressed="false" data-runs="score">Score</button>
+    </div>
+    <div class="runs" id="runs"></div>
+    <div class="run-axis" style="margin-top:6px"><span></span><div id="runs-axis"></div><span></span></div>
+    <p class="caption" id="runs-cap"></p>
+  </div>
+  <div class="vs">
+    <div class="yes"><h4>✅ Sinal</h4><ul>
+      <li>O LCP de cada lote varia ~50 ms entre execuções. A queda das imagens foi de <strong>2.340 ms</strong>: quase 50× o ruído.</li>
+      <li>Existe um <strong>mecanismo</strong>: o hero passou de 160,6 KB para 18,3 KB e deixou de dividir a banda.</li>
+      <li>O número muda de patamar <strong>no commit</strong> que tem a causa, e fica lá.</li>
+    </ul></div>
+    <div class="no"><h4>❌ Ruído</h4><ul>
+      <li>O TBT mediano oscilou de <strong>27 a 170 ms</strong> entre as etapas (execuções isoladas de 0 a 210 ms) numa página <strong>sem nenhum JavaScript</strong>.</li>
+      <li>O score ficou entre <strong>98 e 100</strong> nas etapas intermediárias, puxado justamente por esse TBT.</li>
+      <li>Nenhum commit explica a subida: minificar CSS não cria trabalho na thread principal.</li>
+    </ul></div>
+  </div>
+  <div class="callout"><strong>Por que mediana e não média?</strong> Veja o Speed Index da etapa 3: <strong>1,26 · 1,17 · 3,49 s</strong>. A média seria 1,97 s, puxada por uma execução estranha. A mediana (1,26 s) ignora o ponto fora da curva. Com 3 execuções, a mediana é simplesmente o valor do meio depois de ordenar, que é o que o <code>medianaPorMetrica()</code> do <code>medir.mjs</code> faz.</div>
+  <div class="callout warn"><strong>Ruído entre lotes também existe.</strong> As 3 execuções da etapa 3 deram FCP 0,90 · 0,89 · 0,92 s e as do final 0,70 · 0,67 · 0,68 s. Cada lote é bem estável, e mesmo assim a diferença entre eles (0,22 s) é do mesmo tamanho dos 0,26 s que o mesmo código variou entre a fase 3 e a fase 10. Como a última etapa só trocou cores e removeu uma regra CSS, não há mecanismo para o FCP cair. Conclusão honesta: <strong>LCP e peso são os números robustos; o FCP melhorou, mas com menos confiança</strong>, e não deve ser creditado ao contraste. É isso que a frase “o que se move de forma consistente é o LCP e o peso” do README quer dizer.</div>
+</section>
+
+<!-- 5 -->
+<section id="porta">
+  <h2>5. Caso real: a medição que deu certo demais</h2>
+  <p>Isto aconteceu neste projeto, e é a lição mais importante da fase. Na primeira rodada de medições das etapas, <strong>todas saíram idênticas</strong>: o mesmo peso de 98,8 KB, os mesmos scores. E a etapa “+ CSS inline, favicon, meta”, que ainda <strong>não tinha</strong> o commit do contraste, mostrava <strong>Acessibilidade 100</strong>.</p>
+  <p>Isso é impossível: sem a troca de <code>orange-500</code> por <code>orange-700</code>, a auditoria <code>color-contrast</code> tem que reprovar. Um número impossível significa que <strong>a página medida não era a que eu achava</strong>.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  OLD["💤 npx serve . esquecido<br/>porta 3000, pasta de trabalho"]
+  MED["📏 medir.mjs antigo<br/>tenta subir serve na 3000"]
+  MED --> FAIL["serve novo não fica na 3000<br/>e a saída dele está escondida"]
+  MED --> WAIT["esperarServidor: a 3000 responde?"]
+  OLD --> WAIT
+  WAIT --> LH["🔦 Lighthouse em localhost:3000"]
+  LH --> X["Todas as etapas medem<br/>a pasta de trabalho"]
+  style OLD fill:#e8a200,color:#000,stroke:#e8a200
+  style X fill:#d93025,color:#fff,stroke:#d93025
+    </pre>
+    <div class="caption">O script iniciava o próprio <code>serve</code> com <code>stdio: 'ignore'</code> (sem mostrar a saída) e esperava a porta 3000 responder. Ela respondia, mas quem respondia era o servidor antigo, servindo a pasta de trabalho, que já tinha o código final.</div>
+  </div>
+  <h3>A correção: falhar alto em vez de medir errado</h3>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git show 40c13bf -- scripts/medir.mjs (trechos)</span></div>
+<pre><span class="del">-const URL = 'http://localhost:3000/';</span>
+<span class="add">+const PORTA = process.env.PORTA ?? '3000';</span>
+<span class="add">+const URL = `http://localhost:${PORTA}/`;</span>
+
+<span class="add">+// Se já houver algo na porta, mediríamos a página errada sem perceber.</span>
+<span class="add">+if (!soResumir &amp;&amp; (await responde())) throw new Error(`A porta ${PORTA} já está em uso: feche o servidor ou use PORTA=&lt;outra&gt;`);</span>
+
+<span class="del">-const servidor = ... spawn('npx', ['serve', resolve(raiz), '-l', '3000', ...]);</span>
+<span class="add">+const servidor = ... spawn('npx', ['serve', resolve(raiz), '-l', PORTA, ...]);</span></pre></div>
+  <p>Com a proteção, todas as medições (antes, etapas e depois) foram <strong>refeitas na porta 3010</strong>, na mesma sessão. Aí os números passaram a fazer sentido: Acessibilidade 94 até a etapa 3 e 100 só no final; 9 requisições até a minificação e 8 depois do favicon. O <code>ambiente.txt</code> registra a porta usada e o motivo.</p>
+  <div class="callout bad"><strong>Desconfie de resultados bons demais ou iguais demais.</strong> Sinais de alerta:
+    <ul style="margin:6px 0 0">
+      <li>versões diferentes do código com <strong>peso idêntico</strong> até a casa decimal;</li>
+      <li>um score que melhora <strong>antes</strong> do commit que deveria melhorá-lo;</li>
+      <li>uma auditoria aprovada sem o código que a corrige.</li>
+    </ul>
+    Antes de comemorar, confira <strong>o que foi medido</strong>: no relatório, a URL e o elemento LCP (o “antes” tem que mostrar <code>hero.jpg</code>; o “depois”, <code>hero-800.avif</code>) e, na lista de requisições, os arquivos que você espera.</div>
+</section>
+
+<!-- 6 -->
+<section id="depois">
+  <h2>6. Lendo o relatório do “depois”</h2>
+  <h3>LCP breakdown: onde o tempo foi parar</h3>
+  <p>Execução mediana do Mobile, antes (<code>antes-mobile-2</code>) e depois (<code>depois-mobile-2</code>):</p>
+  <div class="card">
+    <div class="bd">
+      <div class="bd-row"><span>antes</span><div class="bd-track" role="img" aria-label="Antes: TTFB 20 ms, load delay 27 ms, load duration 48 ms, render delay 587 ms; total 682 ms">
+        <div class="k-ttfb" style="width:2.86%"></div><div class="k-delay" style="width:3.86%"></div><div class="k-dur" style="width:6.86%"></div><div class="k-render" style="width:83.86%"></div>
+      </div></div>
+      <div class="bd-row"><span>depois</span><div class="bd-track" role="img" aria-label="Depois: TTFB 9 ms, load delay 9 ms, load duration 5 ms, render delay 145 ms; total 168 ms">
+        <div class="k-ttfb" style="width:1.29%"></div><div class="k-delay" style="width:1.29%"></div><div class="k-dur" style="width:0.71%"></div><div class="k-render" style="width:20.71%"></div>
+      </div></div>
+    </div>
+    <div class="bd-legend">
+      <span><i class="k-ttfb"></i>TTFB 20 → 9 ms</span>
+      <span><i class="k-delay"></i>load delay 27 → 9 ms</span>
+      <span><i class="k-dur"></i>load duration 48 → 5 ms</span>
+      <span><i class="k-render"></i>render delay 587 → 145 ms</span>
+    </div>
+    <div class="caption">Escala de 0 a 700 ms. Total observado: 682 → 168 ms.</div>
+  </div>
+  <div class="callout warn"><strong>Pegadinha da fase 3, de novo:</strong> esses tempos são <strong>observados</strong> no carregamento real, sem limitação de rede, em <code>localhost</code>. Por isso somam 682 ms enquanto o LCP do relatório é 3,66 s, que é o valor <strong>simulado</strong> para o celular com 4G lenta. Use o breakdown para ver <strong>quais fases</strong> encolheram, não para tirar o tamanho do LCP.</div>
+  <ul>
+    <li><strong>Load duration 48 → 5 ms:</strong> o hero baixado passou de 160,6 KB para 18,3 KB.</li>
+    <li><strong>Load delay 27 → 9 ms:</strong> o download do hero começa praticamente junto com o HTML. É o número que justificou <strong>não</strong> usar preload (fase 9).</li>
+    <li><strong>Render delay 587 → 145 ms:</strong> o tempo entre a imagem chegar e ser pintada. Contribuíram o fim do CSS bloqueante (inline agora) e uma imagem com ~5× menos pixels para decodificar (1200×1800 → 800×533).</li>
+  </ul>
+
+  <h3>Network do “depois”: por que os produtos lazy ainda aparecem?</h3>
+  <p>Você colocou <code>loading="lazy"</code> nas 4 fotos de produto e, mesmo assim, elas estão na lista de requisições do Lighthouse e contam no peso de 98,8 KB. O lazy não funcionou?</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Recurso</th><th>Antes: prioridade · KB · início</th><th>Depois: prioridade · KB · início</th></tr></thead>
+      <tbody>
+        <tr><td>documento</td><td class="n">VeryHigh · 2,5 · 2 ms</td><td class="n">VeryHigh · 6,1 · 1 ms</td></tr>
+        <tr><td><code>output.css</code></td><td class="n">VeryHigh · 4,1 · 54 ms</td><td class="n">(inline no HTML)</td></tr>
+        <tr><td>hero</td><td class="n">High · 160,6 · 55 ms</td><td class="n win">High · 18,3 · 17 ms</td></tr>
+        <tr><td>logo</td><td class="n">High · 6,6 · 55 ms</td><td class="n">High · 1,6 · 17 ms</td></tr>
+        <tr><td>caminha</td><td class="n hot">High · 91,4 · 56 ms</td><td class="n win">Low · 13,8 · 50 ms</td></tr>
+        <tr><td>brinquedo</td><td class="n hot">High · 74,1 · 67 ms</td><td class="n win">Low · 31,5 · 50 ms</td></tr>
+        <tr><td>coleira</td><td class="n hot">High · 44,2 · 73 ms</td><td class="n win">Low · 16,4 · 51 ms</td></tr>
+        <tr><td>roupinha</td><td class="n hot">Medium · 77,9 · 78 ms</td><td class="n win">Low · 9,4 · 51 ms</td></tr>
+        <tr><td>favicon</td><td class="n">High · 0,9 · 267 ms (404)</td><td class="n">High · 1,8 · 55 ms (200)</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Auditoria <code>network-requests</code> embutida em <code>antes-mobile-2.report.html</code> e <code>depois-mobile-2.report.html</code> (tempos observados, sem throttling).</div>
+  </div>
+  <p>O lazy loading do Chromium não espera a imagem entrar na tela: ele começa a baixar quando ela fica a uma <strong>margem de distância</strong> da área visível (da ordem de 1.250 px em conexões rápidas, maior em conexões lentas). Na tela do celular simulado, a seção de produtos está logo abaixo do hero, <strong>dentro dessa margem</strong>, então as fotos baixam no carregamento. O ganho real aparece em outras colunas:</p>
+  <ul>
+    <li><strong>Prioridade:</strong> de <em>High</em> para <em>Low</em>. Antes elas disputavam a banda com o hero; agora o hero termina (17 a 22 ms) <strong>antes</strong> de elas começarem (50 ms).</li>
+    <li><strong>Tamanho:</strong> 288 KB → 71 KB, pelo AVIF e pelo recorte certo.</li>
+    <li>Numa página longa, com produtos a vários milhares de pixels da dobra, o lazy também economizaria bytes no primeiro carregamento. Aqui, não. Escreva isso no README em vez de prometer economia de bytes que a medição não mostra.</li>
+  </ul>
+</section>
+
+<!-- 7 -->
+<section id="grafico">
+  <h2>7. Demo: antes × depois, métrica por métrica</h2>
+  <p>Medianas reais de <code>docs/relatorios/antes/resumo.md</code> e <code>docs/relatorios/depois/resumo.md</code>. Cada linha tem a própria escala (a maior das duas barras ocupa a largura toda), porque segundos, KB e pontos não se comparam entre si.</p>
+  <div class="card">
+    <div class="seg" role="group" aria-label="Dispositivo">
+      <button type="button" aria-pressed="true" data-dev="mobile">📱 Mobile</button>
+      <button type="button" aria-pressed="false" data-dev="desktop">🖥️ Desktop</button>
+    </div>
+    <div class="ch-legend"><span><i style="background:var(--muted)"></i>antes</span><span><i style="background:var(--accent)"></i>depois</span></div>
+    <div id="chart"></div>
+    <p class="caption" id="chart-cap"></p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="calc">
+  <h2>8. Calculadora de variação</h2>
+  <p>Variação percentual = (depois − antes) ÷ antes × 100. Para <strong>scores</strong>, informe a diferença em <strong>pontos</strong> (90 → 100 é “+10”, não “+11%”). Se souber a amplitude das 3 execuções (maior − menor), a calculadora compara a mudança com ela.</p>
+  <div class="card">
+    <div class="presets" id="calc-presets">
+      <button type="button" data-p="lcp">LCP Mobile</button>
+      <button type="button" data-p="peso">Peso Mobile</button>
+      <button type="button" data-p="perf">Performance Mobile</button>
+      <button type="button" data-p="tbt">TBT etapa 1 → 2</button>
+      <button type="button" data-p="fcp">FCP etapa 3 → final</button>
+    </div>
+    <div class="calc">
+      <label>Antes<input type="text" id="c-a" inputmode="decimal" autocomplete="off"></label>
+      <label>Depois<input type="text" id="c-d" inputmode="decimal" autocomplete="off"></label>
+      <label>Unidade<select id="c-u">
+        <option value="s">s (menor é melhor)</option>
+        <option value="ms">ms (menor é melhor)</option>
+        <option value="KB">KB (menor é melhor)</option>
+        <option value="req">requisições (menor é melhor)</option>
+        <option value="pts">score (maior é melhor)</option>
+      </select></label>
+      <label>Amplitude das execuções (opcional)<input type="text" id="c-r" inputmode="decimal" autocomplete="off" placeholder="ex.: 0,05"></label>
+    </div>
+    <div class="calc-out" aria-live="polite">
+      <div><small>Variação</small><b id="o-var">—</b></div>
+      <div><small>Diferença absoluta</small><b id="o-abs">—</b></div>
+      <div><small>Razão</small><b id="o-x">—</b></div>
+    </div>
+    <div class="callout verdict" id="o-verdict">Escolha um exemplo ou digite os valores.</div>
+    <p class="caption">Mesmo quando a mudança é maior que a amplitude, pergunte: <strong>existe um mecanismo</strong> no commit que explique? Sem mecanismo, trate como ruído entre lotes.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="readme">
+  <h2>9. Para o README</h2>
+  <p>Modelo da seção “Comparativo antes × depois” (a versão preenchida está no <code>README.md</code> do projeto, seção 5):</p>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">## Comparativo antes × depois
+
+Medianas de 3 execuções, "antes" e "depois" medidos na mesma sessão com o mesmo script.
+Relatórios completos: [antes/](docs/relatorios/antes/) e [depois/](docs/relatorios/depois/).
+
+### Mobile
+
+| Métrica | Antes | Depois | Variação |
+|---|---|---|---|
+| Performance | X | X | +X |
+| FCP | X s | X s | −X% |
+| LCP | X s | X s | −X% |
+| TBT | X ms | X ms | −X ms |
+| CLS | X | X | = |
+| Speed Index | X s | X s | −X% |
+| Peso total | X KB | X KB | −X% |
+| Requisições | X | X | −X |
+
+### Impacto de cada etapa (Mobile, medianas)
+
+| Etapa | Score | FCP | LCP | Peso |
+|---|---|---|---|---|
+| Antes | | | | |
+| + Imagens (commit) | | | | |
+| + Minificação (commit) | | | | |
+| + Bônus (commit) | | | | |
+| Final | | | | |
+
+Ruído: o TBT oscilou de X a Y ms sem relação com as mudanças (a página não tem JS).
+O que se move de forma consistente é ________.</pre>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="tarefa">
+  <h2>10. ✍️ Tarefa da fase 10</h2>
+  <div class="card">
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" data-k="porta"><span>Conferir que nenhum servidor antigo está ocupando a porta (ou usar <code>PORTA=3010</code>)</span></label></li>
+      <li><label><input type="checkbox" data-k="archive"><span>Extrair <code>antes</code> e <code>HEAD</code> com <code>git archive</code> para pastas fora do projeto</span></label></li>
+      <li><label><input type="checkbox" data-k="mesma"><span>Medir antes e depois na mesma sessão (3 Mobile + 3 Desktop cada)</span></label></li>
+      <li><label><input type="checkbox" data-k="etapas"><span>Medir o estado depois de cada commit de otimização em <code>docs/relatorios/etapas/</code></span></label></li>
+      <li><label><input type="checkbox" data-k="sanidade"><span>Sanidade: elemento LCP, URL e requisições de cada relatório batem com a versão medida?</span></label></li>
+      <li><label><input type="checkbox" data-k="ambiente"><span><code>docs/relatorios/depois/ambiente.txt</code> preenchido (versões, porta, data, comando)</span></label></li>
+      <li><label><input type="checkbox" data-k="breakdown"><span>LCP breakdown e Network do “depois” comparados com o “antes”</span></label></li>
+      <li><label><input type="checkbox" data-k="tabela"><span>Tabelas “antes × depois” e “impacto de cada etapa” prontas para o README</span></label></li>
+    </ul>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A tabela antes × depois (Mobile e Desktop) com a coluna de variação.</li>
+    <li>A tabela por etapa e qual etapa teve o maior impacto no LCP e no peso.</li>
+    <li>Uma métrica que oscilou sem relação com as mudanças, e como você sabe que é ruído.</li>
+    <li>O LCP breakdown antes e depois, e qual fase mais encolheu.</li>
+    <li><strong>Pergunta conceitual:</strong> o “antes” da primeira sessão (LCP 3,62 s, FCP 0,85 s) é do mesmo código que o “antes” desta fase. Por que a tabela final não usa aqueles números?</li>
+    <li><strong>Pergunta conceitual:</strong> se, numa rodada de medições, todas as etapas tivessem saído com o mesmo peso e o mesmo score, o que você verificaria primeiro?</li>
+  </ol>
+</section>
+
+<!-- 11 -->
+<section id="gabarito">
+  <h2>11. Gabarito</h2>
+  <div class="callout warn"><strong>Tente responder antes de abrir.</strong> Os números exatos da sua máquina vão ser outros; o que importa é o método e o raciocínio.</div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600">Mostrar o gabarito</summary>
+    <ol>
+      <li><strong>Antes × depois:</strong> é a seção 5 do <code>README.md</code>. Mobile: Performance 90 → 100, LCP 3,66 → 1,21 s (−67%), FCP 1,11 → 0,68 s (−39%), Speed Index 1,52 → 0,68 s (−55%), peso 462,4 → 98,8 KB (−79%), 9 → 8 requisições. Desktop: LCP 0,72 → 0,27 s (−63%), peso 462,4 → 53,9 KB (−88%).</li>
+      <li><strong>Maior impacto:</strong> a etapa das imagens (<code>3a1813f</code>), com LCP 3,66 → 1,32 s e peso 462,4 → 98,8 KB. As outras etapas mexem em dezenas de milissegundos e em menos de 1 KB.</li>
+      <li><strong>Ruído:</strong> o TBT. As medianas foram de 27 a 170 ms entre etapas, numa página sem JavaScript, e nenhum commit tem mecanismo para isso. Outro exemplo: o Speed Index de 3,49 s numa das execuções da etapa 3, contra 1,17 e 1,26 s nas outras duas.</li>
+      <li><strong>Breakdown:</strong> TTFB 20 → 9, load delay 27 → 9, load duration 48 → 5, render delay 587 → 145 ms (tempos observados, sem throttling). Em valor absoluto, o render delay foi o que mais encolheu; em proporção, o load duration (−90%).</li>
+      <li><strong>Primeira sessão:</strong> porque aquela sessão teve outro estado de máquina. O mesmo código deu FCP 0,85 s lá e 1,11 s agora. Comparar o “depois” de hoje com o “antes” de outro dia mistura melhoria de código com variação de ambiente.</li>
+      <li><strong>Tudo igual:</strong> verificar <strong>o que</strong> foi medido. Abrir um relatório de cada etapa e conferir a URL, o elemento LCP e a lista de requisições; ver se algum servidor já estava ocupando a porta. Foi exatamente o que aconteceu aqui (seção 5).</li>
+    </ol>
+  </details>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://developer.chrome.com/docs/lighthouse/performance/performance-scoring">Lighthouse — performance scoring</a> ·
+  <a href="https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md">Lighthouse — variabilidade das medições</a> ·
+  <a href="https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md">Lighthouse — throttling simulado</a> ·
+  <a href="https://web.dev/articles/browser-level-image-lazy-loading">web.dev — Lazy loading de imagens</a> ·
+  <a href="https://git-scm.com/docs/git-archive">git archive</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  function store(key, val) {
+    try {
+      if (val === undefined) return JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) { return {}; }
+  }
+  function copyText(btn, text) {
+    var label = btn.textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = label; }, 1500);
+    }, function () {});
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      copyText(btn, pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n'));
+    });
+  });
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    copyText(this, document.getElementById('tpl').innerText);
+  });
+
+  function br(n, dec) { return n.toFixed(dec).replace('.', ','); }
+  function pressOnly(sel, btn) {
+    document.querySelectorAll(sel).forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
+  }
+
+  // Checklist
+  (function () {
+    var KEY = 'ebac-perf-fase10-petstyle';
+    var state = store(KEY);
+    document.querySelectorAll('#checklist input').forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () { state[cb.dataset.k] = cb.checked; store(KEY, state); });
+    });
+  })();
+
+  // Execuções individuais (Mobile) de docs/relatorios/*/resumo.json
+  (function () {
+    var LOTES = ['antes', '1-imagens', '2-minificacao', '3-bonus', 'depois'];
+    var DATA = {
+      lcp:   { unit: 'ms', max: 4000, runs: [[3696, 3642, 3662], [1326, 1316, 1303], [1342, 1314, 1306], [1243, 1245, 1226], [1215, 1209, 1209]],
+               cap: 'Cada lote é estável (variação de ~50 ms), e a queda grande acontece de uma vez, na etapa das imagens. Isso é sinal.' },
+      tbt:   { unit: 'ms', max: 250, runs: [[63, 27, 27], [26, 27, 37], [210, 170, 153], [47, 104, 0], [0, 0, 0]],
+               cap: 'O TBT pula para 150–210 ms na etapa da minificação e volta depois, numa página sem JavaScript. Nenhum commit explica isso: é ruído da máquina.' },
+      si:    { unit: 'ms', max: 3600, runs: [[2843, 1388, 1521], [1371, 1332, 1336], [1754, 1543, 2827], [1260, 1170, 3490], [695, 674, 679]],
+               cap: 'Pontos fora da curva (2,83 s e 3,49 s) em lotes que, no resto, ficam perto de 1,3 s. A mediana descarta esses pontos; a média seria puxada por eles.' },
+      score: { unit: '', max: 100, min: 85, runs: [[89, 90, 90], [100, 100, 100], [96, 98, 98], [100, 99, 99], [100, 100, 100]],
+               cap: 'O score Mobile oscila entre 96 e 100 depois das imagens, acompanhando o TBT. Diferenças de 1 a 2 pontos não provam nada.' }
+    };
+    var box = document.getElementById('runs'), axis = document.getElementById('runs-axis'), cap = document.getElementById('runs-cap');
+    function fmt(v, u) { return u === 'ms' ? (v >= 1000 ? br(v / 1000, 2) + ' s' : v + ' ms') : String(v); }
+    function render(k) {
+      var d = DATA[k], min = d.min || 0;
+      function pos(v) { return Math.max(0, Math.min(100, (v - min) / (d.max - min) * 100)); }
+      box.innerHTML = LOTES.map(function (nome, i) {
+        var r = d.runs[i], med = r.slice().sort(function (a, b) { return a - b; })[1];
+        var dots = r.map(function (v) {
+          return '<span class="run-dot' + (v === med ? ' med' : '') + '" style="left:' + pos(v) + '%" title="' + fmt(v, d.unit) + '"></span>';
+        }).join('');
+        return '<div class="run-row"><span>' + nome + '</span><div class="run-track" role="img" aria-label="' + nome + ': ' +
+          r.map(function (v) { return fmt(v, d.unit); }).join(', ') + '">' + dots + '</div><span class="v">' + fmt(med, d.unit) + '</span></div>';
+      }).join('');
+      var ticks = [];
+      for (var t = 0; t <= 4; t++) ticks.push('<span>' + fmt(Math.round(min + (d.max - min) * t / 4), d.unit) + '</span>');
+      axis.innerHTML = ticks.join('');
+      cap.textContent = d.cap + ' Ponto destacado = mediana (valor à direita).';
+    }
+    document.querySelectorAll('[data-runs]').forEach(function (b) {
+      b.addEventListener('click', function () { pressOnly('[data-runs]', b); render(b.dataset.runs); });
+    });
+    render('lcp');
+  })();
+
+  // Gráfico antes x depois (medianas de resumo.md)
+  (function () {
+    var M = {
+      mobile: {
+        perf: [90, 100], a11y: [94, 100], bp: [96, 100], seo: [91, 100],
+        fcp: [1110, 680], lcp: [3660, 1210], si: [1520, 680], tbt: [27, 0], peso: [462.4, 98.8], req: [9, 8]
+      },
+      desktop: {
+        perf: [100, 100], a11y: [94, 100], bp: [96, 100], seo: [91, 100],
+        fcp: [300, 190], lcp: [720, 270], si: [700, 210], tbt: [0, 0], peso: [462.4, 53.9], req: [9, 8]
+      }
+    };
+    var GROUPS = [
+      ['Tempos (menor é melhor)', [['fcp', 'FCP', 's'], ['lcp', 'LCP', 's'], ['si', 'Speed Index', 's'], ['tbt', 'TBT', 'ms']]],
+      ['Bytes e requisições (menor é melhor)', [['peso', 'Peso total', 'KB'], ['req', 'Requisições', '']]],
+      ['Scores (maior é melhor)', [['perf', 'Performance', 'pts'], ['a11y', 'Acessibilidade', 'pts'], ['bp', 'Boas práticas', 'pts'], ['seo', 'SEO', 'pts']]]
+    ];
+    function fmt(v, u) {
+      if (u === 's') return br(v / 1000, 2) + ' s';
+      if (u === 'ms') return v + ' ms';
+      if (u === 'KB') return br(v, 1) + ' KB';
+      return String(v);
+    }
+    function variation(a, d, u) {
+      if (a === d) return ['=', 'eq'];
+      if (u === 'pts' || u === '') return [(d > a ? '+' : '−') + Math.abs(d - a), (u === 'pts' ? d > a : d < a) ? 'up' : 'down'];
+      if (u === 'ms' && (a === 0 || d === 0)) return ['−' + Math.abs(a - d) + ' ms', d < a ? 'up' : 'down'];
+      var p = (d - a) / a * 100;
+      return [(p < 0 ? '−' : '+') + Math.abs(p).toFixed(0) + '%', d < a ? 'up' : 'down'];
+    }
+    var chart = document.getElementById('chart'), cap = document.getElementById('chart-cap');
+    function render(dev) {
+      var m = M[dev];
+      chart.innerHTML = GROUPS.map(function (g) {
+        return '<div class="ch-group"><h4>' + g[0] + '</h4>' + g[1].map(function (row) {
+          var v = m[row[0]], u = row[2], mx = Math.max(v[0], v[1]) || 1, va = variation(v[0], v[1], u);
+          return '<div class="ch-row"><div class="ch-name">' + row[1] + '</div><div class="ch-bars">' +
+            '<div class="ch-bar a"><b style="width:' + (v[0] / mx * 75) + '%"></b>' + fmt(v[0], u) + '</div>' +
+            '<div class="ch-bar d"><b style="width:' + (v[1] / mx * 75) + '%"></b>' + fmt(v[1], u) + '</div>' +
+            '</div><div class="ch-var ' + va[1] + '">' + va[0] + '</div></div>';
+        }).join('') + '</div>';
+      }).join('');
+      cap.textContent = dev === 'mobile'
+        ? 'Mobile: o LCP e o peso são as maiores quedas. CLS ficou em 0,000 nos dois (fora do gráfico). Em scores, a variação é em pontos.'
+        : 'Desktop: o score já era 100 no antes (não tinha para onde subir), mas LCP, Speed Index e peso caíram bastante. Peso menor que no Mobile porque, com DPR 1, os cards usam a versão de 400w.';
+    }
+    document.querySelectorAll('[data-dev]').forEach(function (b) {
+      b.addEventListener('click', function () { pressOnly('[data-dev]', b); render(b.dataset.dev); });
+    });
+    render('mobile');
+  })();
+
+  // Calculadora de variação
+  (function () {
+    var PRESETS = {
+      lcp:  { a: '3,66', d: '1,21', u: 's', r: '0,054', note: 'Mecanismo claro (hero 160,6 → 18,3 KB e fim da disputa de banda). A mudança é dezenas de vezes maior que a amplitude: sinal.' },
+      peso: { a: '462,4', d: '98,8', u: 'KB', r: '0', note: 'Peso é determinístico: as 3 execuções dão o mesmo valor. Qualquer diferença é real.' },
+      perf: { a: '90', d: '100', u: 'pts', r: '1', note: 'Score: informe em pontos. 90 → 100 é “+10 pontos”.' },
+      tbt:  { a: '27', d: '170', u: 'ms', r: '57', note: 'Fora da amplitude das execuções, mas sem mecanismo: a página não tem JavaScript e minificar não cria trabalho na thread principal. É ruído entre lotes; não escreva “a minificação piorou o TBT”.' },
+      fcp:  { a: '0,90', d: '0,68', u: 's', r: '0,028', note: 'Também fora da amplitude, mas o commit só trocou cores e removeu uma regra CSS. Sem mecanismo: não credite o FCP ao contraste. Use o antes → depois total, com cautela.' }
+    };
+    var a = document.getElementById('c-a'), d = document.getElementById('c-d'), u = document.getElementById('c-u'), r = document.getElementById('c-r');
+    var oVar = document.getElementById('o-var'), oAbs = document.getElementById('o-abs'), oX = document.getElementById('o-x'), oV = document.getElementById('o-verdict');
+    var note = '';
+    function num(el) {
+      var s = el.value.trim();
+      if (s.indexOf(',') !== -1) s = s.replace(/\./g, '').replace(',', '.');
+      return s === '' ? NaN : parseFloat(s);
+    }
+    function fmtN(n) { var dec = Math.abs(n) < 10 && n % 1 !== 0 ? 2 : (n % 1 !== 0 ? 1 : 0); return br(n, dec); }
+    function update() {
+      var va = num(a), vd = num(d), unit = u.value, amp = num(r);
+      var label = unit === 'pts' ? ' pts' : unit === 'req' ? '' : ' ' + unit;
+      if (isNaN(va) || isNaN(vd)) { oVar.textContent = oAbs.textContent = oX.textContent = '—'; oV.className = 'callout verdict'; oV.textContent = 'Preencha antes e depois.'; return; }
+      var diff = vd - va, higherBetter = unit === 'pts';
+      var better = higherBetter ? diff > 0 : diff < 0;
+      oAbs.textContent = (diff > 0 ? '+' : diff < 0 ? '−' : '') + fmtN(Math.abs(diff)) + label;
+      if (unit === 'pts') { oVar.textContent = (diff > 0 ? '+' : diff < 0 ? '−' : '') + Math.abs(diff) + ' pontos'; }
+      else if (va === 0) { oVar.textContent = 'antes = 0: use a diferença'; }
+      else { var p = diff / va * 100; oVar.textContent = (p > 0 ? '+' : p < 0 ? '−' : '') + br(Math.abs(p), 1) + '%'; }
+      if (unit !== 'pts' && va > 0 && vd > 0) oX.textContent = br(Math.max(va, vd) / Math.min(va, vd), 1) + '× ' + (vd < va ? 'menor' : 'maior');
+      else oX.textContent = '—';
+      var msg, cls;
+      if (diff === 0) { msg = 'Sem mudança.'; cls = ''; }
+      else if (!isNaN(amp) && r.value.trim() !== '' && Math.abs(diff) <= amp) { msg = 'A mudança (' + fmtN(Math.abs(diff)) + label + ') cabe dentro da amplitude das execuções (' + fmtN(amp) + label + '): trate como ruído.'; cls = 'warn'; }
+      else { msg = (better ? 'Melhorou' : 'Piorou') + (r.value.trim() !== '' && !isNaN(amp) ? ', e a mudança é maior que a amplitude das execuções.' : '. Informe a amplitude para comparar com o ruído.'); cls = better ? 'good' : 'bad'; }
+      oV.className = 'callout verdict' + (cls ? ' ' + cls : '');
+      oV.textContent = msg + (note ? ' ' + note : '');
+    }
+    [a, d, r].forEach(function (el) { el.addEventListener('input', function () { note = ''; update(); }); });
+    u.addEventListener('change', function () { note = ''; update(); });
+    document.getElementById('calc-presets').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-p]'); if (!b) return;
+      var p = PRESETS[b.dataset.p];
+      a.value = p.a; d.value = p.d; u.value = p.u; r.value = p.r; note = p.note; update();
+    });
+    document.querySelector('[data-p="lcp"]').click();
+  })();
+</script>
+</body>
+</html>

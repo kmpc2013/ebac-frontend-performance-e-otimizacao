@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula 12 — Entrega</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #f0eee9;
+    --text: #1d1b18;
+    --muted: #6b665d;
+    --border: #e2ded6;
+    --accent: #5b4bdb;
+    --accent-soft: #ebe8fd;
+    --good: #0f9d58;
+    --ok: #e8a200;
+    --bad: #d93025;
+    --term-bg: #1b1a24;
+    --term-text: #e6e3f5;
+    --term-muted: #8f8aa8;
+    --dt-bg: #ffffff;
+    --dt-bar: #f1f3f4;
+    --dt-border: #dadce0;
+    --dt-text: #202124;
+    --dt-muted: #5f6368;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+      --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+      --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+      --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141312; --surface: #1d1c1a; --surface-2: #262522; --text: #ece9e3;
+    --muted: #a39d92; --border: #34322e; --accent: #9d92ff; --accent-soft: #2a2645;
+    --good: #34c47c; --ok: #f2b93b; --bad: #f2685f; --term-bg: #0e0d14;
+    --dt-bg: #202124; --dt-bar: #292a2d; --dt-border: #3c4043; --dt-text: #e8eaed; --dt-muted: #9aa0a6;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 96px; }
+  header.hero { padding: 24px 0 8px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 24px; margin: 56px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 28px 0 6px; }
+  p { margin: 8px 0 12px; }
+  .lead { color: var(--muted); font-size: 18px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; word-break: break-word; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 4px 10px; border-radius: 99px; }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout.warn { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .mermaid { display: flex; justify-content: center; overflow-x: auto; }
+  .scroll-x { overflow-x: auto; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+  table.grid th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.grid td.n { font-family: var(--mono); text-align: right; white-space: nowrap; }
+
+  /* terminal */
+  .term { background: var(--term-bg); color: var(--term-text); border-radius: 10px; overflow: hidden; margin: 12px 0; font: 14px/1.6 var(--mono); }
+  .term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,.06); }
+  .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .term-bar i:nth-child(2) { background: #febc2e; }
+  .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: 8px; font-size: 12px; color: var(--term-muted); flex: 1; }
+  .term-bar button { font: 12px var(--mono); background: transparent; color: var(--term-muted); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .term-bar button:hover { color: var(--term-text); }
+  .term pre { margin: 0; padding: 12px 16px; overflow-x: auto; white-space: pre; }
+  .term .c { color: var(--term-muted); }
+  .term .p { color: #7ee2a8; user-select: none; }
+
+  .chip { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); margin: 0 4px 4px 0; }
+  .chip.h { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--text); }
+
+  /* template */
+  .tpl { position: relative; }
+  .tpl pre { background: var(--term-bg); color: var(--term-text); font: 12.5px/1.6 var(--mono); padding: 14px 16px; border-radius: 10px; overflow-x: auto; margin: 0; white-space: pre; }
+  .tpl button { position: absolute; top: 8px; right: 8px; font: 12px var(--mono); background: rgba(255,255,255,.08); color: var(--term-text); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+
+  /* checklist */
+  .check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin-top: 5px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+  .check input:checked + span { color: var(--muted); text-decoration: line-through; }
+  .check-group { font: 600 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+  .check-group:first-child { margin-top: 0; }
+  .progress { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font: 13px var(--mono); color: var(--muted); }
+  .progress-bar { flex: 1; height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .progress-bar span { display: block; height: 100%; width: 0; background: var(--good); transition: width .2s; }
+
+  footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Fase 12 de 12 · Performance e Otimização para a Web</div>
+  <h1>Entrega: do repositório local ao link na EBAC</h1>
+  <p class="lead">O trabalho técnico acabou. Agora falta o que o corretor realmente vê: um repositório <strong>público</strong>, com os commits e a tag <code>antes</code> no lugar certo, relatórios e um README que se explica sozinho.</p>
+  <nav class="toc" aria-label="Sumário">
+    <a href="#fluxo">1. O fluxo</a>
+    <a href="#checklist">2. Checklist final</a>
+    <a href="#publico">3. Repositório público</a>
+    <a href="#push">4. Push e tag</a>
+    <a href="#conferir">5. Conferir no GitHub</a>
+    <a href="#pages">6. GitHub Pages</a>
+    <a href="#enviar">7. Enviar na EBAC</a>
+    <a href="#tarefa">8. Tarefa</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="fluxo">
+  <h2>1. O fluxo da entrega</h2>
+  <p>A entrega tem uma ordem. Se você enviar o link antes de fazer o push, o corretor abre um repositório sem as otimizações. Se a tag estiver errada, o “antes” do seu comparativo aponta para outro projeto.</p>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+  A["✅ Checklist final<br/>README, relatórios, build"] --> B{"Repositório<br/>é público?"}
+  B -- "não" --> B1["⚙️ Settings<br/>Change visibility"]
+  B1 --> C
+  B -- "sim" --> C["⬆️ git push origin main"]
+  C --> D{"Tag antes no remoto<br/>aponta para e852300?"}
+  D -- "sim" --> F["🔍 Conferir no GitHub<br/>em aba anônima"]
+  D -- "não" --> E["⚠️ git push --force origin antes"]
+  E --> F
+  F --> G["🌐 GitHub Pages<br/>opcional"]
+  F --> H(["📨 Enviar o link<br/>na plataforma EBAC"])
+  G --> H
+  style H fill:#0f9d58,color:#fff,stroke:#0f9d58
+  style E fill:#e8a200,color:#000,stroke:#e8a200
+    </pre>
+  </div>
+  <div class="callout">O enunciado pede três coisas: <strong>repositório público</strong> com o código otimizado, <strong>dois relatórios</strong> (antes e depois) em PDF ou imagens, e um <strong>README.md</strong> com descrição, gargalos, melhorias e comparativo. Tudo o que vem abaixo serve para garantir essas três.</div>
+</section>
+
+<!-- 2 -->
+<section id="checklist">
+  <h2>2. Checklist final</h2>
+  <p>Passe item por item <strong>antes</strong> do push. As marcações ficam salvas só neste navegador.</p>
+  <div class="card">
+    <div class="progress"><div class="progress-bar"><span id="prog-bar"></span></div><span id="prog-txt">0 de 0</span></div>
+    <div class="check-group">Código</div>
+    <ul class="check checklist">
+      <li><label><input type="checkbox" data-k="build"><span><code>npm run build</code> roda sem erro e o <code>index.html</code> publicado é a versão minificada</span></label></li>
+      <li><label><input type="checkbox" data-k="serve"><span>Site abre em <code>npx serve .</code> sem imagem quebrada e sem erro no Console</span></label></li>
+      <li><label><input type="checkbox" data-k="nm"><span><code>node_modules/</code> está no <code>.gitignore</code> (não vai para o GitHub)</span></label></li>
+      <li><label><input type="checkbox" data-k="clean"><span><code>git status</code> limpo: tudo o que importa está commitado (inclusive <code>docs/</code>)</span></label></li>
+    </ul>
+    <div class="check-group">Relatórios</div>
+    <ul class="check checklist">
+      <li><label><input type="checkbox" data-k="antes"><span><code>docs/relatorios/antes/</code> com os relatórios, <code>resumo.md</code> e <code>ambiente.txt</code></span></label></li>
+      <li><label><input type="checkbox" data-k="depois"><span><code>docs/relatorios/depois/</code> preenchida, medida nas <strong>mesmas condições</strong> do antes</span></label></li>
+      <li><label><input type="checkbox" data-k="pdf"><span>Pelo menos um relatório de cada (antes e depois) em <strong>PDF ou PNG</strong>, porque o enunciado não aceita só HTML</span></label></li>
+    </ul>
+    <div class="check-group">README</div>
+    <ul class="check checklist">
+      <li><label><input type="checkbox" data-k="readme"><span><code>README.md</code> na raiz, com descrição, gargalos, melhorias e tabela antes × depois</span></label></li>
+      <li><label><input type="checkbox" data-k="links"><span>Os links do README para <code>docs/relatorios/</code> abrem no GitHub (teste clicando)</span></label></li>
+      <li><label><input type="checkbox" data-k="na"><span>Seção “não se aplica” com evidência (JS, bibliotecas, fontes web)</span></label></li>
+    </ul>
+    <div class="check-group">GitHub</div>
+    <ul class="check checklist">
+      <li><label><input type="checkbox" data-k="pub"><span>Repositório público (testado em aba anônima)</span></label></li>
+      <li><label><input type="checkbox" data-k="push"><span><code>main</code> enviada: <code>git status</code> diz <em>up to date with 'origin/main'</em></span></label></li>
+      <li><label><input type="checkbox" data-k="tag"><span>Tag <code>antes</code> no remoto apontando para <code>e852300</code> (Pet&amp;Style)</span></label></li>
+      <li><label><input type="checkbox" data-k="gh"><span>No GitHub, <code>/tree/antes</code> mostra o Pet&amp;Style original</span></label></li>
+      <li><label><input type="checkbox" data-k="pages"><span>Opcional: GitHub Pages publicado e link no README</span></label></li>
+      <li><label><input type="checkbox" data-k="ebac"><span>Link enviado na plataforma EBAC</span></label></li>
+    </ul>
+  </div>
+  <div class="callout warn"><strong>PDF a partir do relatório HTML:</strong> abra o <code>.report.html</code> no navegador, use o menu ⋮ do próprio relatório → <em>Expand view</em> (para abrir todos os detalhes) e depois <code>Ctrl+P</code> → <em>Salvar como PDF</em>. Alternativa: um print do topo (scores + métricas) em PNG.</div>
+</section>
+
+<!-- 3 -->
+<section id="publico">
+  <h2>3. Tornar o repositório público</h2>
+  <p>Um repositório privado dá <strong>404</strong> para o corretor. Para o GitHub, “não existe” e “você não tem acesso” são a mesma página.</p>
+  <div class="card">
+    <ol>
+      <li>No GitHub, abra o repositório → <strong>Settings</strong> (aba de engrenagem).</li>
+      <li>Em <strong>General</strong>, role até o fim: <strong>Danger Zone</strong> → <em>Change repository visibility</em> → <em>Change to public</em>.</li>
+      <li>Confirme digitando o nome do repositório.</li>
+      <li><strong>Teste de verdade:</strong> abra o link em uma <strong>aba anônima</strong> (<code>Ctrl+Shift+N</code>), sem login. Se o código aparecer, está público.</li>
+    </ol>
+  </div>
+  <div class="callout warn"><strong>Antes de abrir para o mundo,</strong> procure segredos no histórico: tokens, senhas, arquivos <code>.env</code>. Tornar público expõe <em>todos os commits</em>, não só o último. Neste projeto não há nada sensível (é HTML, CSS e imagens), mas o hábito vale para a vida.</div>
+  <p>Também dá para conferir pelo terminal, sem login, pela API pública do GitHub:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal (Git Bash)</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>curl -s https://api.github.com/repos/kmpc2013/ebac-frontend-performance-e-otimizacao | grep visibility
+<span class="c">  "visibility": "public",          ← privado responderia "Not Found"</span></pre></div>
+</section>
+
+<!-- 4 -->
+<section id="push">
+  <h2>4. Push dos commits e da tag <code>antes</code></h2>
+  <p>Hoje o seu repositório local está <strong>vários commits à frente</strong> do GitHub (ferramentas de medição, otimizações, relatórios, README e aulas; o número exato aparece no <code>git status -sb</code>). Já a tag <code>antes</code> foi recriada na fase 2 como tag <strong>anotada</strong> (objeto <code>6b4598d</code>) no commit <code>e852300</code> e enviada ao GitHub. Mesmo assim, confira: em outro clone, o remoto poderia estar com outra versão dela.</p>
+
+  <h3>Passo 1: diagnosticar antes de mexer</h3>
+  <p>Regra de ouro: <strong>nunca force nada sem antes olhar o que está do outro lado</strong>. O <code>git ls-remote</code> pergunta ao GitHub para onde as referências apontam, sem baixar nada:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal, na raiz do projeto</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git status -sb
+<span class="c">## main...origin/main [ahead N]</span>
+<span class="p">$ </span>git rev-parse antes^{}
+<span class="c">e852300bc999...                     ← a tag local aponta para o commit do Pet&amp;Style</span>
+<span class="p">$ </span>git ls-remote --tags origin antes
+<span class="c">6b4598d8e8ad...  refs/tags/antes    ← o objeto da tag no GitHub
+e852300bc999...  refs/tags/antes^{} ← o COMMIT para onde ela aponta</span></pre></div>
+  <div class="callout"><strong>Como ler isso:</strong> uma tag <em>anotada</em> é um objeto próprio, com autor, data e mensagem, e tem um hash próprio (<code>6b4598d</code>). O sufixo <code>^{}</code> significa “siga a tag até o commit”. Quem decide se a tag está certa é a linha <code>^{}</code>, não a primeira. Ou seja: <strong><code>6b4598d</code> não é um commit, é o objeto da tag</strong>.</div>
+
+  <h3>Passo 2: enviar a <code>main</code></h3>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git push origin main
+<span class="c"># "git push" não envia tags. Elas vão separadas, e de propósito.</span></pre></div>
+
+  <h3>Passo 3: a tag, conforme o diagnóstico</h3>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>O <code>^{}</code> do remoto mostra…</th><th>Situação</th><th>O que fazer</th></tr></thead>
+      <tbody>
+        <tr><td><code>e852300</code></td><td>A tag remota <strong>já aponta para o Pet&amp;Style</strong>. É o caso deste repositório: local e remoto têm a mesma tag anotada (<code>6b4598d</code>).</td><td><strong>Nada de <code>--force</code>.</strong> Se a sua tag local fosse leve e quisesse alinhá-la com a do remoto: <code>git fetch origin +refs/tags/antes:refs/tags/antes</code></td></tr>
+        <tr><td>outro commit (ex.: o <code>9d4951e</code> do Next.js)</td><td>A tag remota é a <strong>antiga</strong>.</td><td><code>git push --force origin antes</code> (veja abaixo por quê)</td></tr>
+        <tr><td>nada (linha vazia)</td><td>A tag não existe no remoto.</td><td><code>git push origin antes</code>, sem force</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Por que o <code>--force</code> é necessário (quando é)</h3>
+  <p>Para o git, uma tag é um <strong>marco fixo</strong>: <code>v1.0</code> deve significar sempre o mesmo código. Por isso, quando você tenta enviar uma tag com um nome que já existe no remoto apontando para outro lugar, o servidor <strong>recusa</strong>:</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git push origin antes
+<span class="c"> ! [rejected]        antes -> antes (already exists)
+error: failed to push some refs
+hint: Updates were rejected because the tag already exists in the remote.</span>
+
+<span class="c"># forçando SÓ a tag "antes" (nunca a main, nunca --tags)</span>
+<span class="p">$ </span>git push --force origin antes
+
+<span class="c"># versão mais segura: só força se o remoto ainda estiver no objeto que você viu no ls-remote</span>
+<span class="p">$ </span>git push --force-with-lease=refs/tags/antes:6b4598d origin antes</pre></div>
+  <p>Diferente de uma branch, a tag não “anda para frente”: não existe <em>fast-forward</em> de tag. Qualquer mudança nela é uma <strong>reescrita</strong>, e reescrita exige <code>--force</code>.</p>
+
+  <div class="callout warn">
+    <strong>Cuidados com tags reescritas:</strong>
+    <ul style="margin:6px 0 0">
+      <li><strong>Quem já baixou a tag antiga continua com ela.</strong> Um <code>git fetch</code> comum <em>não</em> atualiza uma tag que já existe localmente. Cada clone teria que fazer <code>git fetch --force --tags</code>. Num time, isso gera confusão: duas pessoas, mesma tag, códigos diferentes.</li>
+      <li><strong>Force só a referência certa.</strong> <code>git push --force origin antes</code> mexe em uma tag. <code>git push --force</code> sozinho mexe na branch; <code>git push --force --tags</code> reescreve todas as tags de uma vez. Evite os dois.</li>
+      <li><strong>Anotada × leve.</strong> Se a sua tag local for leve (<code>git cat-file -t antes</code> responde <code>commit</code>) e a remota for anotada, forçar troca a anotada pela leve e <strong>perde a mensagem</strong>. Se for mesmo forçar, recrie antes como anotada: <code>git tag -a -f antes e852300 -m "Estado original do Pet&amp;Style, antes das otimizações"</code>.</li>
+      <li><strong>Aqui é aceitável</strong> porque o repositório é só seu, ninguém depende dele e a tag só tem valor se apontar para o lugar certo (como discutimos na fase 2). Num projeto com releases públicas, o certo seria criar uma tag nova (<code>antes-v2</code>) em vez de reescrever.</li>
+    </ul>
+  </div>
+
+  <h3>Passo 4: confirmar</h3>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span><button type="button" data-copy>copiar</button></div>
+<pre><span class="p">$ </span>git fetch origin
+<span class="p">$ </span>git status -sb
+<span class="c">## main...origin/main                ← sem "ahead": tudo enviado</span>
+<span class="p">$ </span>git ls-remote --tags origin antes
+<span class="c">...  refs/tags/antes^{}  → precisa terminar em e852300</span></pre></div>
+</section>
+
+<!-- 5 -->
+<section id="conferir">
+  <h2>5. Conferir no GitHub</h2>
+  <p>O terminal diz que está certo; o GitHub precisa <strong>mostrar</strong> que está certo, porque é ele que o corretor abre. Faça em aba anônima:</p>
+  <div class="scroll-x card">
+    <table class="grid">
+      <thead><tr><th>Abra</th><th>Esperado</th></tr></thead>
+      <tbody>
+        <tr><td><code>…/ebac-frontend-performance-e-otimizacao</code></td><td>README renderizado na home, último commit = o seu commit mais recente.</td></tr>
+        <tr><td><code>…/tags</code></td><td>A tag <code>antes</code> listada no commit <code>e852300</code>.</td></tr>
+        <tr><td><code>…/tree/antes</code></td><td>O <strong>Pet&amp;Style original</strong>: <code>index.html</code> legível, <code>assets/produtos/hero.jpg</code>, <code>src/output.css</code>. <strong>Nenhum</strong> arquivo do Next.js (<code>package.json</code> com <code>next</code>, pasta <code>app/</code>…).</td></tr>
+        <tr><td><code>…/compare/antes...main</code></td><td>Só os commits posteriores ao baseline: ferramentas de medição, imagens, build, remoção dos originais, bônus, contraste e a limpeza da classe <code>.inline</code>.</td></tr>
+        <tr><td><code>…/tree/main/docs/relatorios</code></td><td>As pastas <code>antes/</code> e <code>depois/</code> com conteúdo.</td></tr>
+      </tbody>
+    </table>
+    <div class="caption">Base da URL: <code>https://github.com/kmpc2013/ebac-frontend-performance-e-otimizacao</code>. A página <code>compare</code> é ótima para linkar no README: mostra, num clique, tudo o que mudou entre o antes e o depois.</div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="pages">
+  <h2>6. Publicar no GitHub Pages <span class="chip h">opcional</span></h2>
+  <p>Não é obrigatório, mas dá ao corretor um link para <strong>ver o site funcionando</strong> sem clonar nada. Como o Pet&amp;Style é estático e todos os caminhos são relativos (<code>assets/…</code>, sem barra no início), ele funciona direto na subpasta do Pages.</p>
+  <div class="card">
+    <ol>
+      <li>No repositório: <strong>Settings → Pages</strong>.</li>
+      <li><em>Source</em>: <strong>Deploy from a branch</strong>. <em>Branch</em>: <code>main</code>, pasta <code>/ (root)</code> → <strong>Save</strong>.</li>
+      <li>Aguarde 1 a 2 minutos (aba <em>Actions</em> mostra o deploy). A URL fica no topo da página de Pages: <code>https://kmpc2013.github.io/ebac-frontend-performance-e-otimizacao/</code>.</li>
+      <li>Abra a URL, confira o Console (sem 404) e coloque o link no README.</li>
+    </ol>
+  </div>
+  <div class="callout warn"><strong>Não misture os números.</strong> Rodar o PageSpeed Insights na URL do Pages é um bom extra (é uma rede real, com CDN e HTTP/2), mas são <strong>outras condições</strong>. O comparativo oficial continua sendo o local, com o mesmo protocolo da fase 3. Se usar o PSI, apresente numa seção separada do README.</div>
+</section>
+
+<!-- 7 -->
+<section id="enviar">
+  <h2>7. Enviar o link na plataforma EBAC</h2>
+  <p>Envie o link do <strong>repositório</strong> (é o que o enunciado pede), não o do Pages. Se quiser, coloque os dois. Modelo de mensagem:</p>
+  <div class="tpl">
+    <button type="button" id="tpl-copy">copiar</button>
+<pre id="tpl">Repositório: https://github.com/kmpc2013/ebac-frontend-performance-e-otimizacao
+Site publicado (opcional): https://kmpc2013.github.io/ebac-frontend-performance-e-otimizacao/
+
+Projeto: landing page Pet&amp;Style (HTML + Tailwind, sem JavaScript).
+Código original na tag "antes"; versão otimizada na branch main.
+Relatórios Lighthouse antes/depois em docs/relatorios/ e comparativo completo no README.</pre>
+  </div>
+  <div class="callout"><strong>Depois de enviar, não mexa na <code>main</code> “só para ajustar uma vírgula”</strong> sem pensar: o corretor pode estar olhando. Se precisar corrigir algo, faça um commit pequeno e descritivo, nunca um <code>push --force</code> na <code>main</code>.</div>
+</section>
+
+<!-- 8 -->
+<section id="tarefa">
+  <h2>8. ✍️ Tarefa da fase 12</h2>
+  <div class="card">
+    <ol>
+      <li>Complete o <a href="#checklist">checklist final</a> até 100%.</li>
+      <li>Rode o diagnóstico da seção 4 e decida, <strong>com base na saída</strong>, se a tag precisa de <code>--force</code> ou não.</li>
+      <li>Faça o push da <code>main</code> (e da tag, se for o caso) e confira as 5 URLs da seção 5 em aba anônima.</li>
+      <li>Opcional: publique no GitHub Pages.</li>
+      <li>Envie o link na plataforma EBAC.</li>
+    </ol>
+  </div>
+  <p><strong>Para eu corrigir</strong>, mande no chat:</p>
+  <ol>
+    <li>A saída de <code>git status -sb</code> e de <code>git ls-remote --tags origin antes</code> <strong>depois</strong> do push.</li>
+    <li>Você usou <code>--force</code> na tag? Por quê (ou por que não)? Mostre a linha do <code>ls-remote</code> que justificou a decisão.</li>
+    <li>O link do repositório (e do Pages, se publicou).</li>
+    <li><strong>Pergunta conceitual:</strong> por que o git recusa por padrão o push de uma tag que já existe, mas aceita o push de uma branch que andou para frente? O que isso diz sobre o papel de cada uma?</li>
+    <li><strong>Retrospectiva:</strong> das 12 fases, qual técnica deu o maior ganho no Pet&amp;Style, e qual deu o menor? Os números confirmaram a matriz impacto × esforço da fase 4?</li>
+  </ol>
+</section>
+
+<footer>
+  Referências:
+  <a href="https://git-scm.com/book/pt-br/v2/Fundamentos-de-Git-Criando-Tags">Pro Git — Criando tags</a> ·
+  <a href="https://git-scm.com/docs/git-push">git push (documentação)</a> ·
+  <a href="https://docs.github.com/pt/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility">GitHub — Visibilidade do repositório</a> ·
+  <a href="https://docs.github.com/pt/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">GitHub Pages — fonte de publicação</a>
+</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  (function () {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var forced = document.documentElement.getAttribute('data-theme');
+    if (forced) dark = forced === 'dark';
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'default', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis' } });
+    }
+  })();
+
+  // Botão "copiar" dos terminais: só as linhas de comando
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.term').querySelector('pre');
+      var text = pre.innerText.split('\n')
+        .filter(function (l) { return l.trim().startsWith('$'); })
+        .map(function (l) { return l.replace(/^\s*\$\s?/, ''); }).join('\n');
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+      }, function () {});
+    });
+  });
+
+  document.getElementById('tpl-copy').addEventListener('click', function () {
+    var btn = this, text = document.getElementById('tpl').innerText;
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'copiado ✓'; setTimeout(function () { btn.textContent = 'copiar'; }, 1500);
+    }, function () {});
+  });
+
+  // Checklist com progresso
+  (function () {
+    var KEY = 'ebac-perf-fase12-petstyle', state = {};
+    try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    var boxes = document.querySelectorAll('.checklist input');
+    var bar = document.getElementById('prog-bar'), txt = document.getElementById('prog-txt');
+    function update() {
+      var done = 0;
+      boxes.forEach(function (cb) { if (cb.checked) done++; });
+      bar.style.width = (boxes.length ? done / boxes.length * 100 : 0) + '%';
+      txt.textContent = done + ' de ' + boxes.length;
+    }
+    boxes.forEach(function (cb) {
+      cb.checked = !!state[cb.dataset.k];
+      cb.addEventListener('change', function () {
+        state[cb.dataset.k] = cb.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+        update();
+      });
+    });
+    update();
+  })();
+</script>
+</body>
+</html>

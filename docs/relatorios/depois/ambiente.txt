@@ -1,0 +1,14 @@
+Ambiente da medição ("depois" — código otimizado)
+=============================================
+Data:            2026-10-21
+Código medido:   commit final da otimização, extraído com "git archive HEAD"
+Máquina:         12th Gen Intel(R) Core(TM) i7-1255U / 16 GB RAM / Windows 11 Pro 10.0.26200
+Navegador:       Microsoft Edge 155 (Chromium) em modo headless
+Lighthouse:      13.5.0 (CLI, via npx)
+Servidor:        serve (http://localhost:3010, gzip ligado; a 3000 estava ocupada por outro servidor)
+Protocolo:       3 execuções Mobile (preset padrão, throttling simulado) + 3 Desktop (--preset=desktop)
+Categorias:      Performance, Acessibilidade, Boas práticas, SEO
+Comando:         PORTA=3010 node scripts/medir.mjs <pasta> docs/relatorios/depois depois
+Resultado:       resumo.md (medianas) e resumo.json (todas as execuções)
+
+Antes e depois foram medidos na mesma sessão, na mesma máquina, com o mesmo protocolo.

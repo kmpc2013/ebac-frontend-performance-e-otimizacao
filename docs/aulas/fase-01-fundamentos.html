@@ -177,6 +177,7 @@
     <a href="#mapa">6. Técnica → métrica</a>
     <a href="#projeto">7. Nosso projeto</a>
     <a href="#exercicio">8. Exercício</a>
+    <a href="#gabarito">9. Gabarito</a>
   </nav>
 </header>
 
@@ -439,6 +440,42 @@ flowchart LR
     </ol>
   </div>
   <p class="caption">Mande as respostas no chat; a correção será adicionada a esta página.</p>
+</section>
+
+<!-- 9 -->
+<section id="gabarito">
+  <h2>9. Gabarito</h2>
+  <div class="callout warn"><strong>Tente responder antes de abrir.</strong> O gabarito só ensina alguma coisa se você já tiver se comprometido com uma resposta. Compare a sua com a minha e anote onde errou e por quê.</div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600">Mostrar o gabarito do exercício</summary>
+
+    <h3>1. FCP × LCP</h3>
+    <p>O <strong>FCP</strong> marca o <em>primeiro</em> texto ou imagem pintado na tela (“está acontecendo alguma coisa”). O <strong>LCP</strong> marca o momento em que o <em>maior</em> elemento visível da primeira tela termina de renderizar (“já dá para usar”). O FCP diz que a página começou; o LCP, que o conteúdo principal chegou.</p>
+    <p><strong>Exemplo de distância grande:</strong> uma página cujo título aparece logo (FCP rápido), mas cuja imagem principal é uma foto enorme vinda de um servidor lento. O próprio Pet&amp;Style é um exemplo real: na medição da fase 3, o Mobile deu <strong>FCP 1,11 s</strong> e <strong>LCP 3,66 s</strong>. São mais de 2,5 segundos entre “apareceu texto” e “apareceu a foto do hero”.</p>
+
+    <h3>2. Por que <code>loading="lazy"</code> na imagem do topo piora o LCP</h3>
+    <p>Com <code>lazy</code>, o navegador <strong>não pede a imagem quando lê o HTML</strong>. Ele espera calcular o layout (o que depende do CSS) para saber se ela está perto da área visível, e só então começa o download, com prioridade mais baixa. Na imagem que <em>é</em> o LCP, isso só acrescenta espera: aumenta o <em>resource load delay</em>, que é uma das fases do LCP. Lazy serve para o que está <strong>abaixo da dobra</strong>. Para a imagem principal, o certo é o oposto: carregar cedo, e de preferência com <code>fetchpriority="high"</code>.</p>
+
+    <h3>3. O substituto do INP</h3>
+    <p>O <strong>TBT</strong>. O INP mede a resposta a <strong>interações reais</strong> (clique, toque, tecla), e o Lighthouse não interage com a página: ele só carrega e observa. O TBT mede a mesma causa de fundo, a <strong>thread principal ocupada por tarefas longas</strong>, somando quanto cada tarefa passou de 50 ms. Se a thread vive ocupada no carregamento, um clique nesse momento teria que esperar. Por isso o TBT funciona como indicador do INP em laboratório.</p>
+
+    <h3>4. Uma métrica só: qual?</h3>
+    <p><strong>Resposta de livro:</strong> o <strong>TBT</strong>, porque tem o maior peso (30%). Mas a resposta de profissional é: <strong>a métrica que tem mais espaço para melhorar</strong>, ponderada pelo peso. O score de cada métrica é uma curva: se ela já está no verde, melhorar mais quase não rende ponto.</p>
+    <p>No Pet&amp;Style, o TBT já é praticamente zero (não há JavaScript) e o CLS é 0,000. Os dois já estão com nota cheia. A métrica que segura o score Mobile em <strong>90</strong> é o <strong>LCP de 3,66 s</strong> (faixa “precisa melhorar”, 2,5 a 4,0 s), com peso de 25%. Então, <strong>neste projeto</strong>, a escolha certa é o LCP.</p>
+
+    <h3>5. Por que 3 execuções e as mesmas condições</h3>
+    <p>Porque o Lighthouse <strong>oscila</strong>: outros processos na máquina, cache, rede e temporização mudam o resultado a cada execução. Uma medição isolada pode ser um ponto fora da curva. Com 3 execuções e a <strong>mediana</strong>, um resultado ruim por acaso é descartado. E as <strong>mesmas condições</strong> (mesmo servidor, mesma URL, aba anônima, Mobile com o mesmo throttling, mesma máquina) são o que torna o antes e o depois comparáveis. Se mudar a condição, você não sabe se a diferença veio da otimização ou da medição.</p>
+    <p>Exemplo real do baseline: o TBT Mobile variou entre <strong>63 ms, 27 ms e 27 ms</strong> nas 3 execuções, numa página sem nenhum JavaScript. Uma execução só poderia ter dado qualquer um desses números.</p>
+
+    <h3>6. Desafio: qual será o LCP do Pet&amp;Style?</h3>
+    <p>A <strong>imagem do hero</strong> (<code>assets/produtos/hero.jpg</code>), o maior elemento da primeira tela. A medição da fase 3 <strong>confirmou</strong> a previsão: o Lighthouse apontou o <code>&lt;img src="assets/produtos/hero.jpg"&gt;</code> como elemento LCP em todas as 6 execuções. O que pode atrasá-lo no código:</p>
+    <ul>
+      <li><strong>Arquivo grande demais:</strong> JPG de 1200×1800 px e 160 KB, exibido em no máximo ~540×384. Formato antigo (sem WebP/AVIF) e proporção retrato num espaço paisagem.</li>
+      <li><strong>Disputa de banda:</strong> as 4 fotos de produto, sem <code>loading="lazy"</code>, começam a baixar junto com o hero.</li>
+      <li><strong>Sem sinal de prioridade:</strong> o <code>&lt;img&gt;</code> não tem <code>fetchpriority="high"</code>, então o hero recebe a mesma prioridade que as fotos de produto.</li>
+      <li><strong>CSS bloqueante:</strong> o <code>output.css</code> precisa chegar antes da primeira pintura (efeito pequeno, porque o arquivo é leve).</li>
+    </ul>
+  </details>
 </section>
 
 <footer>

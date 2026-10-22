@@ -207,6 +207,7 @@
     <a href="#mediana">7. Calculadora</a>
     <a href="#evidencias">8. Evidências</a>
     <a href="#tarefa">9. Tarefa</a>
+    <a href="#gabarito">10. Gabarito</a>
   </nav>
 </header>
 
@@ -257,7 +258,7 @@ flowchart TD
   <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal, na raiz do projeto</span><button type="button" data-copy>copiar</button></div>
 <pre><span class="p">$ </span>npx serve .
 <span class="c"># Serving!  Local: http://localhost:3000   (deixe este terminal aberto)</span></pre></div>
-  <p class="caption">Na primeira vez, o <code>npx</code> pergunta se pode baixar o pacote <code>serve</code>; responda <em>y</em>. Se a porta 3000 estiver ocupada, ele usa outra. Use a URL que ele mostrar, e <strong>sempre a mesma</strong> no antes e no depois.</p>
+  <p class="caption">Na primeira vez, o <code>npx</code> pergunta se pode baixar o pacote <code>serve</code>; responda <em>y</em>. Se a porta 3000 estiver ocupada, ele usa outra. Use a URL que ele mostrar, e <strong>sempre a mesma</strong> no antes e no depois. (Na medição oficial deste repositório, a 3000 estava ocupada e usamos <code>http://localhost:3010</code>; veja o gabarito.)</p>
 </section>
 
 <!-- 3 -->
@@ -463,6 +464,95 @@ flowchart TD
     <li>Os números da Network, incluindo a <strong>prioridade</strong> de cada imagem.</li>
     <li><strong>Pergunta conceitual:</strong> o <code>output.css</code> encolhe de 16,9 kB para ~3,8 kB na rede, e o <code>hero.jpg</code> não encolhe nada. Por quê? O que isso diz sobre onde concentrar o esforço?</li>
   </ol>
+</section>
+
+<!-- 10 -->
+<section id="gabarito">
+  <h2>10. Gabarito</h2>
+  <div class="callout warn"><strong>Tente responder antes de abrir.</strong> Faça a sua medição, monte as suas tabelas e só depois compare. Os seus números podem diferir um pouco dos meus (outra máquina, outra hora); o que precisa bater é a <strong>ordem de grandeza</strong> e o <strong>método</strong>.</div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:600">Mostrar o gabarito da tarefa</summary>
+
+    <h3>Ambiente da medição oficial</h3>
+    <div class="scroll-x">
+      <table class="grid">
+        <tbody>
+          <tr><th>Data</th><td>2026-10-21</td></tr>
+          <tr><th>Código medido</th><td>tag <code>antes</code> (commit <code>e852300</code>), extraído com <code>git archive antes</code></td></tr>
+          <tr><th>Máquina</th><td>Intel i7-1255U (12ª geração) · 16 GB RAM · Windows 11 Pro</td></tr>
+          <tr><th>Navegador</th><td>Microsoft Edge 155 (Chromium), headless</td></tr>
+          <tr><th>Lighthouse</th><td>13.5.0, CLI via <code>npx</code> (<code>scripts/medir.mjs</code>)</td></tr>
+          <tr><th>Servidor</th><td><code>serve</code> em <code>http://localhost:3010</code>, gzip ligado</td></tr>
+          <tr><th>Protocolo</th><td>3 × Mobile (preset padrão, throttling simulado) + 3 × Desktop (<code>--preset=desktop</code>); mediana de cada métrica</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Fonte: <code>docs/relatorios/antes/ambiente.txt</code>. Os relatórios <code>127.0.0.1_5500-*.html</code> foram uma primeira tentativa pelo Live Server e ficam só como histórico: ele injeta um script de recarga, então não servem para a comparação.</p>
+    <div class="callout warn"><strong>Confira o seu <code>ambiente.txt</code> contra o relatório.</strong> O nosso chegou a registrar “Lighthouse 12.8.2” por engano (era a versão testada com <code>npx lighthouse@12</code>), mas o rodapé dos relatórios mostrava <strong>13.5.0</strong>, a versão que o <code>npx lighthouse</code> realmente usou. Já foi corrigido. A lição: copie a versão do <em>rodapé do relatório</em>, porque ela muda as regras de score e o “depois” precisa ser medido com a mesma.</div>
+    <div class="callout warn"><strong>Porta ocupada = página errada.</strong> Na primeira rodada, a porta 3000 já tinha outro <code>npx serve .</code> aberto, servindo a pasta de trabalho, e as medições das etapas saíram todas iguais sem nenhum erro. Agora o <code>scripts/medir.mjs</code> se recusa a medir se a porta já responde, e todas as medições foram refeitas na 3010, na mesma sessão.</div>
+
+    <h3>1. Tabela de medianas</h3>
+    <div class="scroll-x">
+      <table class="grid">
+        <thead><tr><th>Métrica</th><th>📱 Mobile</th><th>🖥️ Desktop</th></tr></thead>
+        <tbody>
+          <tr><td>Performance</td><td><strong>90</strong></td><td>100</td></tr>
+          <tr><td>Acessibilidade</td><td>94</td><td>94</td></tr>
+          <tr><td>Boas práticas</td><td>96</td><td>96</td></tr>
+          <tr><td>SEO</td><td>91</td><td>91</td></tr>
+          <tr><td>FCP</td><td>1,11 s</td><td>0,30 s</td></tr>
+          <tr><td>LCP</td><td><strong>3,66 s</strong></td><td>0,72 s</td></tr>
+          <tr><td>TBT</td><td>27 ms</td><td>0 ms</td></tr>
+          <tr><td>CLS</td><td>0,000</td><td>0,000</td></tr>
+          <tr><td>Speed Index</td><td>1,52 s</td><td>0,70 s</td></tr>
+          <tr><td>Peso total</td><td>462,4 KB</td><td>462,4 KB</td></tr>
+          <tr><td>Requisições</td><td>9</td><td>9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Fonte: <code>docs/relatorios/antes/resumo.md</code> (medianas) e <code>resumo.json</code> (as 6 execuções). Repare na oscilação: o TBT Mobile deu 63, 27 e 27 ms nas 3 execuções, o Speed Index foi de 1,39 a 2,84 s e o score foi 89, 90 e 90. É exatamente por isso que usamos a mediana.</p>
+
+    <h3>2. Elemento LCP e LCP breakdown</h3>
+    <p>O elemento LCP foi o <code>&lt;img src="assets/produtos/hero.jpg"&gt;</code> em todas as execuções, Mobile e Desktop. <strong>A previsão da aula 1 acertou.</strong> No Mobile, ele aparece com 380×256 px na tela.</p>
+    <div class="scroll-x">
+      <table class="grid">
+        <thead><tr><th>Fase do LCP (execução mediana, Mobile)</th><th>Duração</th></tr></thead>
+        <tbody>
+          <tr><td>Time to first byte</td><td>26 ms</td></tr>
+          <tr><td>Resource load delay</td><td>31 ms</td></tr>
+          <tr><td>Resource load duration</td><td>89 ms</td></tr>
+          <tr><td>Element render delay</td><td>611 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>Pegadinha:</strong> as fases somam ~0,76 s, mas o LCP é 3,66 s. Não é erro. O Lighthouse carrega a página <strong>sem</strong> limitar a rede e depois <strong>simula</strong> o celular com 4G lenta para calcular as métricas (o “throttling simulado”). O breakdown vem do carregamento real, sem limitação, em <code>localhost</code>, onde 160 KB chegam em 89 ms. Use o breakdown para ver <em>quais</em> fases existem; para o tamanho do problema, olhe o LCP simulado e o insight de imagens, que estima <strong>152 KiB de economia</strong> no total.</div>
+
+    <h3>3. Network</h3>
+    <div class="scroll-x">
+      <table class="grid">
+        <thead><tr><th>Recurso</th><th>Transferido</th><th>Prioridade (Mobile)</th></tr></thead>
+        <tbody>
+          <tr><td><code>/</code> (index.html)</td><td>2,5 KB</td><td>Highest</td></tr>
+          <tr><td><code>output.css</code></td><td>4,1 KB</td><td>Highest</td></tr>
+          <tr><td><code>logo.png</code></td><td>6,6 KB</td><td>High</td></tr>
+          <tr><td><code>hero.jpg</code></td><td><strong>160,6 KB</strong></td><td>High</td></tr>
+          <tr><td><code>caminha.jpg</code></td><td>91,4 KB</td><td>High</td></tr>
+          <tr><td><code>roupinha.jpg</code></td><td>77,9 KB</td><td>Medium</td></tr>
+          <tr><td><code>brinquedo.jpg</code></td><td>74,1 KB</td><td>High</td></tr>
+          <tr><td><code>coleira.jpg</code></td><td>44,2 KB</td><td>High</td></tr>
+          <tr><td><code>favicon.ico</code></td><td>0,9 KB · <strong>404</strong></td><td>High</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>462,4 KB · 9 requisições</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>As 6 imagens somam ~455 KB, cerca de <strong>98% dos bytes</strong> da página. E o hero tem a <strong>mesma prioridade</strong> (High) que as fotos de produto, que nem aparecem na primeira tela: o navegador não tem como saber qual delas é a importante. No Desktop, todas as imagens ficaram em High. Isso alimenta direto as fichas G1 e G2 da fase 4.</p>
+    <p class="caption">No DevTools, “Highest” aparece como <em>Highest</em>; no JSON do Lighthouse, como <code>VeryHigh</code>. É o mesmo nível.</p>
+
+    <h3>4. Pergunta conceitual: por que o CSS encolhe e o JPG não?</h3>
+    <p>O gzip (e o Brotli) comprime <strong>texto repetitivo</strong>: CSS e HTML repetem muito as mesmas sequências (<code>calc(var(--spacing) * </code>, nomes de propriedades, indentação), e o compressor troca cada repetição por uma referência curta. Por isso 16,9 KB viram ~4 KB.</p>
+    <p>O JPG <strong>já é um formato comprimido</strong>. Os bytes dele parecem aleatórios para o gzip, sem repetição para aproveitar. Comprimir de novo não ganha nada, e por isso os servidores nem tentam (repare que a imagem chega com o mesmo tamanho do arquivo).</p>
+    <p><strong>Conclusão:</strong> o texto já está quase de graça na rede; o peso está nas imagens, e a compressão da rede <strong>não resolve</strong> imagem. Para encolher imagem, só mudando o arquivo: dimensões menores e formatos mais eficientes (WebP/AVIF). É ali que o esforço rende, e é por isso que a fase 5 vem antes da 6.</p>
+  </details>
 </section>
 
 <footer>
