@@ -116,7 +116,7 @@ O Mobile emulado tem DPR 1,75. O hero aparece com 380 px × 1,75 = 665 px reais,
 
 ## 5. Comparativo antes × depois
 
-Medianas de 3 execuções. Os relatórios completos estão em [`antes/`](docs/relatorios/antes/) e [`depois/`](docs/relatorios/depois/), com os HTML de cada execução. A execução mediana de cada caso também foi exportada em PDF: [antes Mobile](docs/relatorios/antes/antes-mobile.pdf), [antes Desktop](docs/relatorios/antes/antes-desktop.pdf), [depois Mobile](docs/relatorios/depois/depois-mobile.pdf) e [depois Desktop](docs/relatorios/depois/depois-desktop.pdf).
+Medianas de 3 execuções. O relatório consolidado está em [`docs/relatorios/relatorio-antes-depois.docx`](docs/relatorios/relatorio-antes-depois.docx), com prints, medianas, gargalos, otimizações e comparativo. Os relatórios completos estão em [`antes/`](docs/relatorios/antes/) e [`depois/`](docs/relatorios/depois/), com os HTML de cada execução. A execução mediana de cada caso também foi exportada em PDF: [antes Mobile](docs/relatorios/antes/antes-mobile.pdf), [antes Desktop](docs/relatorios/antes/antes-desktop.pdf), [depois Mobile](docs/relatorios/depois/depois-mobile.pdf) e [depois Desktop](docs/relatorios/depois/depois-desktop.pdf).
 
 | Antes (Mobile) | Depois (Mobile) |
 |---|---|
